@@ -16,6 +16,7 @@ condotrack/
 
 ```
 cd backend
+mvn clean
 mvn spring-boot:run
 ```
 
