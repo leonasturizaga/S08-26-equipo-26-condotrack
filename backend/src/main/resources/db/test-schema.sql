@@ -1,0 +1,4 @@
+CREATE TABLE IF NOT EXISTS connection_test (
+    id BIGSERIAL PRIMARY KEY,
+    message VARCHAR(100) NOT NULL
+);
