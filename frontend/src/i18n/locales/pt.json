@@ -1,0 +1,203 @@
+{
+"common": {
+"save": "Guardar",
+"cancel": "Cancelar",
+"delete": "Eliminar",
+"edit": "Editar",
+"close": "Cerrar",
+"search": "Buscar",
+"filter": "Filtrar",
+"clear": "Limpiar",
+"loading": "Cargando...",
+"actions": "Acciones",
+"back": "Atrás",
+"next": "Siguiente",
+"previous": "Anterior",
+"confirm": "Confirmar",
+"yes": "Sí",
+"no": "No",
+"view": "Ver",
+"add": "Agregar",
+"create": "Crear",
+"update": "Actualizar",
+"status": "Estado",
+"details": "Detalles",
+"name": "Nombre",
+"email": "Correo electrónico",
+"phone": "Teléfono",
+"address": "Dirección",
+"date": "Fecha",
+"time": "Hora",
+"description": "Descripción"
+},
+
+"app": {
+"name": "CondoTrack",
+"tagline": "Operaciones centralizadas de edificios y condominios, totalmente trazables."
+},
+
+"navigation": {
+"dashboard": "Panel",
+"buildings": "Edificios",
+"units": "Unidades",
+"residents": "Residentes",
+"access": "Control de acceso",
+"visitors": "Visitantes",
+"deliveries": "Entregas",
+"bookings": "Reservas",
+"moves": "Solicitudes de mudanza",
+"incidents": "Incidentes",
+"maintenance": "Mantenimiento",
+"notifications": "Notificaciones",
+"administration": "Administración",
+"users": "Usuarios",
+"staff": "Personal",
+"reports": "Informes",
+"settings": "Configuración"
+},
+
+"dashboard": {
+"title": "Panel",
+"projectStatus": "Estado del proyecto",
+"foundation": "La base de la aplicación está lista para los primeros módulos operativos.",
+"hierarchy": "Jerarquía de datos principal",
+"hierarchyValue": "Edificio → Unidad → Residente",
+"ready": "Base lista",
+"unifiedLookup": "Consulta unificada de unidad",
+"unifiedLookupText": "Una unidad agregará residentes, historial de accesos, entregas, reservas, mudanzas, incidentes y mantenimiento."
+},
+
+"language": {
+"label": "Idioma",
+"english": "Inglés",
+"spanish": "Español",
+"portuguese": "Portugués"
+},
+
+"auth": {
+"signIn": "Iniciar sesión",
+"signOut": "Cerrar sesión",
+"login": "Acceso",
+"logout": "Salir",
+"username": "Usuario",
+"password": "Contraseña",
+"rememberMe": "Recordarme",
+"forgotPassword": "¿Olvidó su contraseña?",
+"welcomeBack": "Bienvenido de nuevo"
+},
+
+"buildings": {
+"title": "Edificios",
+"building": "Edificio",
+"addBuilding": "Agregar edificio",
+"editBuilding": "Editar edificio",
+"buildingName": "Nombre del edificio",
+"units": "Unidades",
+"residents": "Residentes"
+},
+
+"units": {
+"title": "Unidades",
+"unit": "Unidad",
+"unitNumber": "Número de unidad",
+"building": "Edificio",
+"residents": "Residentes",
+"viewUnit": "Ver unidad"
+},
+
+"residents": {
+"title": "Residentes",
+"resident": "Residente",
+"owner": "Propietario",
+"tenant": "Inquilino"
+},
+
+"access": {
+"title": "Control de acceso",
+"visitor": "Visitante",
+"authorization": "Autorización",
+"checkIn": "Ingreso",
+"checkOut": "Salida",
+"accessHistory": "Historial de accesos",
+"qrCode": "Código QR"
+},
+
+"visitors": {
+"title": "Visitantes",
+"visitor": "Visitante",
+"visitorName": "Nombre del visitante",
+"authorizedBy": "Autorizado por",
+"validFrom": "Válido desde",
+"validUntil": "Válido hasta"
+},
+
+"deliveries": {
+"title": "Entregas",
+"delivery": "Entrega",
+"received": "Recibida",
+"notified": "Notificado",
+"collected": "Retirada",
+"pending": "Entrega pendiente"
+},
+
+"bookings": {
+"title": "Reservas",
+"booking": "Reserva",
+"commonArea": "Área común",
+"start": "Inicio",
+"end": "Fin",
+"pending": "Pendiente",
+"approved": "Aprobada",
+"rejected": "Rechazada",
+"cancelled": "Cancelada",
+"completed": "Completada",
+"noShow": "No se presentó"
+},
+
+"moves": {
+"title": "Solicitudes de mudanza",
+"moveRequest": "Solicitud de mudanza",
+"moveIn": "Mudanza de entrada",
+"moveOut": "Mudanza de salida",
+"scheduledDate": "Fecha programada",
+"approval": "Aprobación"
+},
+
+"incidents": {
+"title": "Incidentes",
+"incident": "Incidente",
+"reportedBy": "Reportado por",
+"assignedTo": "Asignado a",
+"created": "Creado",
+"inProgress": "En progreso",
+"resolved": "Resuelto"
+},
+
+"maintenance": {
+"title": "Mantenimiento",
+"request": "Solicitud de mantenimiento",
+"assignedTo": "Asignado a",
+"created": "Creada",
+"inProgress": "En progreso",
+"resolved": "Resuelta"
+},
+
+"notifications": {
+"title": "Notificaciones",
+"notification": "Notificación",
+"send": "Enviar notificación",
+"sent": "Enviada",
+"read": "Leída",
+"unread": "No leída"
+},
+
+"administration": {
+"title": "Administración",
+"users": "Usuarios",
+"staff": "Personal",
+"roles": "Roles",
+"permissions": "Permisos",
+"settings": "Configuración",
+"auditLogs": "Registros de auditoría"
+}
+}
