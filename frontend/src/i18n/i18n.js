@@ -1,4 +1,4 @@
-// ------------------ version 0 --------------------------
+// ------------------ version 0 by module --------------------------
 // import { useState } from 'react'
 
 // const translations = {
