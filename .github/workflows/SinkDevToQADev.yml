@@ -26,7 +26,7 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-          git ls-remote "https://x-access-token:${QA_TOKEN}@github.com/myUser/myRepo-condotrack.git"
+          git ls-remote "https://x-access-token:${QA_TOKEN}@github.com/leonasturizaga/S08-26-equipo-26-condotrack.git"
 
           # IMPORTANT: Replace OWNER and QA-REPO with your real values
           git remote add qa "https://x-access-token:${QA_TOKEN}@github.com/leonasturizaga/S08-26-equipo-26-condotrack.git"
