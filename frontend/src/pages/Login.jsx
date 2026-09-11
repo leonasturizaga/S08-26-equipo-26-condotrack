@@ -46,7 +46,8 @@ function Login() {
   }
 
   return (
-    <div className="public-page">
+   //  <div className="public-page">
+   <div className="login-page">
       <Navbar />
 
       <main className="login-page">
