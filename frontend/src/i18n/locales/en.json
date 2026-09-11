@@ -123,5 +123,44 @@
 
 "Roles": "Roles",
 "Permissions": "Permissions",
-"Audit Logs": "Audit Logs"
+"Audit Logs": "Audit Logs",
+
+
+  "Welcome back": "Welcome back",
+  "Your workspace": "Your workspace",
+  "YOUR ROLE": "YOUR ROLE",
+  "AVAILABLE MODULES": "AVAILABLE MODULES",
+  "MODULE": "MODULE",
+  "available modules": "available modules",
+  "Full access": "Full access",
+  "Own records": "Own records",
+  "Manage": "Manage",
+  "Approve": "Approve",
+  "Assigned work": "Assigned work",
+  "This module is currently under development.": "This module is currently under development.",
+  "Signed in as": "Signed in as",
+  "Back to Dashboard": "Back to Dashboard",
+  "The modules available below are based on your current role and permissions.": "The modules available below are based on your current role and permissions.",
+  "Your dashboard displays only the operational modules available to your role.": "Your dashboard displays only the operational modules available to your role.",
+  "Building": "Building",
+  "Unit": "Unit",
+  "Resident": "Resident",
+  "Centralized configuration": "Centralized configuration",
+  "Operational context": "Operational context",
+  "Traceable activity": "Traceable activity",
+  "Module": "Module",
+
+    "Administrator": "Administrator",
+  "Reception": "Reception",
+  "Provider": "Provider",
+
+
+  "Residents / Owners": "Residents / Owners",
+  "Access / Visitors": "Access / Visitors",
+  "Deliveries / Mail": "Deliveries / Mail",
+  "Common Area Bookings": "Common Area Bookings",
+  "Reports / KPIs": "Reports / KPIs",
+  "Building Configuration": "Building Configuration",
+  "User Management": "User Management",
+  "Communications": "Communications"
 }

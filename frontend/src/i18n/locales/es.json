@@ -123,5 +123,45 @@
 
 "Roles": "Roles",
 "Permissions": "Permisos",
-"Audit Logs": "Registros de auditoría"
+"Audit Logs": "Registros de auditoría",
+
+
+  "Welcome back": "Bienvenido de nuevo",
+  "Your workspace": "Tu espacio de trabajo",
+  "YOUR ROLE": "TU ROL",
+  "AVAILABLE MODULES": "MÓDULOS DISPONIBLES",
+  "MODULE": "MÓDULO",
+  "available modules": "módulos disponibles",
+  "Full access": "Acceso completo",
+  "Own records": "Solo registros propios",
+  "Manage": "Gestionar",
+  "Approve": "Aprobar",
+  "Assigned work": "Trabajo asignado",
+  "This module is currently under development.": "Este módulo está actualmente en desarrollo.",
+  "Signed in as": "Sesión iniciada como",
+  "Back to Dashboard": "Volver al panel",
+  "The modules available below are based on your current role and permissions.": "Los módulos disponibles a continuación dependen de tu rol y permisos actuales.",
+  "Your dashboard displays only the operational modules available to your role.": "Tu panel muestra únicamente los módulos operativos disponibles para tu rol.",
+  "Building": "Edificio",
+  "Unit": "Unidad",
+  "Resident": "Residente",
+  "Centralized configuration": "Configuración centralizada",
+  "Operational context": "Contexto operativo",
+  "Traceable activity": "Actividad trazable",
+  "Module": "Módulo",
+
+
+  "Administrator": "Administrador",
+  "Reception": "Recepción",
+  "Provider": "Proveedor",
+
+
+  "Residents / Owners": "Residentes / Propietarios",
+  "Access / Visitors": "Acceso / Visitantes",
+  "Deliveries / Mail": "Entregas / Correo",
+  "Common Area Bookings": "Reservas de Áreas Comunes",
+  "Reports / KPIs": "Informes / KPIs",
+  "Building Configuration": "Configuración del Edificio",
+  "User Management": "Gestión de Usuarios",
+  "Communications": "Comunicaciones"
 }
