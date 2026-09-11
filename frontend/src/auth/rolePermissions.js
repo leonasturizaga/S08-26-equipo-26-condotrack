@@ -1,0 +1,309 @@
+// export const moduleDefinitions = [
+//   { key: 'buildings', icon: '▦', label: 'Buildings' },
+//   { key: 'units', icon: '⌂', label: 'Units' },
+//   { key: 'residents', icon: '♙', label: 'Residents / Owners' },
+//   { key: 'access', icon: '◉', label: 'Access / Visitors' },
+//   { key: 'deliveries', icon: '□', label: 'Deliveries / Mail' },
+//   { key: 'bookings', icon: '◷', label: 'Common Area Bookings' },
+//   { key: 'incidents', icon: '!', label: 'Incidents' },
+//   { key: 'maintenance', icon: '⌁', label: 'Maintenance' },
+//   { key: 'moves', icon: '⇄', label: 'Move Requests' },
+//   { key: 'reports', icon: '▥', label: 'Reports / KPIs' },
+//   { key: 'buildingConfig', icon: '⚙', label: 'Building Configuration' },
+//   { key: 'userManagement', icon: '♟', label: 'User Management' },
+//   { key: 'communications', icon: '✉', label: 'Communications' },
+// ]
+
+// export const roleLabels = {
+//   ADMINISTRATOR: 'Administrator',
+//   RECEPTION: 'Reception',
+//   RESIDENT: 'Resident',
+//   OWNER: 'Owner',
+//   PROVIDER: 'Provider',
+// }
+
+// export const rolePermissions = {
+//   ADMINISTRATOR: {
+//     buildings: 'full',
+//     units: 'full',
+//     residents: 'full',
+//     access: 'view',
+//     deliveries: 'view',
+//     bookings: 'full',
+//     incidents: 'manage',
+//     maintenance: 'manage',
+//     moves: 'approve',
+//     reports: 'full',
+//     buildingConfig: 'full',
+//     userManagement: 'full',
+//     communications: 'create',
+//   },
+
+//   RECEPTION: {
+//     buildings: 'none',
+//     units: 'view',
+//     residents: 'view',
+//     access: 'create',
+//     deliveries: 'create',
+//     bookings: 'view',
+//     incidents: 'create',
+//     maintenance: 'create',
+//     moves: 'view',
+//     reports: 'none',
+//     buildingConfig: 'none',
+//     userManagement: 'none',
+//     communications: 'none',
+//   },
+
+//   RESIDENT: {
+//     buildings: 'none',
+//     units: 'own',
+//     residents: 'own',
+//     access: 'own',
+//     deliveries: 'own',
+//     bookings: 'own',
+//     incidents: 'own',
+//     maintenance: 'own',
+//     moves: 'own',
+//     reports: 'none',
+//     buildingConfig: 'none',
+//     userManagement: 'none',
+//     communications: 'view',
+//   },
+
+//   OWNER: {
+//     buildings: 'none',
+//     units: 'own',
+//     residents: 'own',
+//     access: 'none',
+//     deliveries: 'none',
+//     bookings: 'none',
+//     incidents: 'view',
+//     maintenance: 'view',
+//     moves: 'approve',
+//     reports: 'none',
+//     buildingConfig: 'none',
+//     userManagement: 'none',
+//     communications: 'view',
+//   },
+
+//   PROVIDER: {
+//     buildings: 'none',
+//     units: 'none',
+//     residents: 'none',
+//     access: 'none',
+//     deliveries: 'none',
+//     bookings: 'none',
+//     incidents: 'assigned',
+//     maintenance: 'assigned',
+//     moves: 'none',
+//     reports: 'none',
+//     buildingConfig: 'none',
+//     userManagement: 'none',
+//     communications: 'none',
+//   },
+// }
+
+// export function getRolePermissions(role) {
+//   return rolePermissions[role] || {}
+// }
+
+// export function getVisibleModules(role) {
+//   const permissions = getRolePermissions(role)
+
+//   return moduleDefinitions.filter(
+//     (module) => permissions[module.key] !== 'none'
+//   )
+// }
+
+
+// src/auth/rolePermissions.js
+
+export const moduleDefinitions = [
+  {
+    key: 'buildings',
+    icon: '▦',
+    label: 'Buildings',
+    path: '/dashboard/buildings',
+  },
+  {
+    key: 'units',
+    icon: '⌂',
+    label: 'Units',
+    path: '/dashboard/units',
+  },
+  {
+    key: 'residents',
+    icon: '♙',
+    label: 'Residents / Owners',
+    path: '/dashboard/residents',
+  },
+  {
+    key: 'access',
+    icon: '◉',
+    label: 'Access / Visitors',
+    path: '/dashboard/access',
+  },
+  {
+    key: 'deliveries',
+    icon: '□',
+    label: 'Deliveries / Mail',
+    path: '/dashboard/deliveries',
+  },
+  {
+    key: 'bookings',
+    icon: '◷',
+    label: 'Common Area Bookings',
+    path: '/dashboard/bookings',
+  },
+  {
+    key: 'incidents',
+    icon: '!',
+    label: 'Incidents',
+    path: '/dashboard/incidents',
+  },
+  {
+    key: 'maintenance',
+    icon: '⌁',
+    label: 'Maintenance',
+    path: '/dashboard/maintenance',
+  },
+  {
+    key: 'moves',
+    icon: '⇄',
+    label: 'Move Requests',
+    path: '/dashboard/moves',
+  },
+  {
+    key: 'reports',
+    icon: '▥',
+    label: 'Reports / KPIs',
+    path: '/dashboard/reports',
+  },
+  {
+    key: 'buildingConfig',
+    icon: '⚙',
+    label: 'Building Configuration',
+    path: '/dashboard/building-config',
+  },
+  {
+    key: 'userManagement',
+    icon: '♟',
+    label: 'User Management',
+    path: '/dashboard/user-management',
+  },
+  {
+    key: 'communications',
+    icon: '✉',
+    label: 'Communications',
+    path: '/dashboard/communications',
+  },
+]
+
+export const roleLabels = {
+  ADMINISTRATOR: 'Administrator',
+  RECEPTION: 'Reception',
+  RESIDENT: 'Resident',
+  OWNER: 'Owner',
+  PROVIDER: 'Provider',
+}
+
+export const rolePermissions = {
+  ADMINISTRATOR: {
+    buildings: 'full',
+    units: 'full',
+    residents: 'full',
+    access: 'view',
+    deliveries: 'view',
+    bookings: 'full',
+    incidents: 'manage',
+    maintenance: 'manage',
+    moves: 'approve',
+    reports: 'full',
+    buildingConfig: 'full',
+    userManagement: 'full',
+    communications: 'create',
+  },
+
+  RECEPTION: {
+    buildings: 'none',
+    units: 'view',
+    residents: 'view',
+    access: 'create',
+    deliveries: 'create',
+    bookings: 'view',
+    incidents: 'create',
+    maintenance: 'create',
+    moves: 'view',
+    reports: 'none',
+    buildingConfig: 'none',
+    userManagement: 'none',
+    communications: 'none',
+  },
+
+  RESIDENT: {
+    buildings: 'none',
+    units: 'own',
+    residents: 'own',
+    access: 'own',
+    deliveries: 'own',
+    bookings: 'own',
+    incidents: 'own',
+    maintenance: 'own',
+    moves: 'own',
+    reports: 'none',
+    buildingConfig: 'none',
+    userManagement: 'none',
+    communications: 'view',
+  },
+
+  OWNER: {
+    buildings: 'none',
+    units: 'own',
+    residents: 'own',
+    access: 'none',
+    deliveries: 'none',
+    bookings: 'none',
+    incidents: 'view',
+    maintenance: 'view',
+    moves: 'approve',
+    reports: 'none',
+    buildingConfig: 'none',
+    userManagement: 'none',
+    communications: 'view',
+  },
+
+  PROVIDER: {
+    buildings: 'none',
+    units: 'none',
+    residents: 'none',
+    access: 'none',
+    deliveries: 'none',
+    bookings: 'none',
+    incidents: 'assigned',
+    maintenance: 'assigned',
+    moves: 'none',
+    reports: 'none',
+    buildingConfig: 'none',
+    userManagement: 'none',
+    communications: 'none',
+  },
+}
+
+export function getRolePermissions(role) {
+  return rolePermissions[role] || {}
+}
+
+export function getVisibleModules(role) {
+  const permissions = getRolePermissions(role)
+
+  return moduleDefinitions.filter(
+    (module) => permissions[module.key] && permissions[module.key] !== 'none'
+  )
+}
+
+export function getModulePermission(role, moduleKey) {
+  const permissions = getRolePermissions(role)
+
+  return permissions[moduleKey] || 'none'
+}
