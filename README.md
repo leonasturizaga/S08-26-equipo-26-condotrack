@@ -9,7 +9,7 @@ maintenance and notifications — all traceable back to `Building → Unit → R
 ```
 condotrack/
 ├── backend/     Spring Boot (Java 21, Maven, PostgreSQL, Spring Security, Lombok)
-└── frontend/    React + Vite (JavaScript, no TypeScript)
+└── frontend/    React + Vite (JavaScript, i18n)
 ```
 
 ## Backend
