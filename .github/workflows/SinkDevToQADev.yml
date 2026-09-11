@@ -1,4 +1,4 @@
-name: Manual Sync to QA Repo dev
+name: Manual Sync to QA Repo
 
 on:
   workflow_dispatch:
