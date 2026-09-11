@@ -1,0 +1,33 @@
+name: Manual Sync to QA Repo dev
+
+on:
+  workflow_dispatch:
+
+jobs:
+  sync-branch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Development Repo (Dev Branch Only)
+        uses: actions/checkout@v4
+        with:
+          ref: dev
+          fetch-depth: 0
+
+      - name: Push to QA Repository (Dev Branch Only)
+        env:
+          QA_TOKEN: ${{ secrets.QA_REPO_TOKEN }}
+        run: |
+          # Safety check
+          if [ -z "$QA_TOKEN" ]; then
+            echo "ERROR: QA_REPO_TOKEN secret is empty or missing!"
+            exit 1
+          fi
+
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+          # IMPORTANT: Replace OWNER and QA-REPO with your real values
+          git remote add qa "https://x-access-token:${QA_TOKEN}@github.com/leonasturizaga/S08-26-equipo-26-condotrack.git"
+
+          # Force push the local 'dev' branch to the QA repo's 'dev' branch
+          git push qa dev:dev --force
