@@ -1,0 +1,30 @@
+name: Manual Sync to QA Repo
+
+on:
+  workflow_dispatch:
+
+jobs:
+  sync-branch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Development Repo
+        uses: actions/checkout@v4
+        with:
+          ref: dev
+          fetch-depth: 0
+
+      - name: Setup SSH key
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.QA_DEPLOY_KEY }}
+
+      - name: Push to QA repository
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Add the QA repo as a remote using SSH
+          git remote add qa git@github.com:leonasturizaga/S08-26-equipo-26-condotrack.git
+
+          # Force push only the dev branch
+          git push qa dev:dev --force
