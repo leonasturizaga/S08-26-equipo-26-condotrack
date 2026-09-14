@@ -18,7 +18,8 @@ public class BuildingController {
     private final BuildingService buildingService;
 
     @GetMapping
-    @PreAuthorize("hasRole('ADMINISTRATOR')")
+   //  @PreAuthorize("hasRole('ADMINISTRATOR')")    //milestone 3
+    @PreAuthorize("@permissionService.hasPermission(authentication, 'BUILDINGS_VIEW')")   //milestone 4
     public List<BuildingResponse> getAllBuildings() {
         return buildingService.getAllBuildings();
     }

@@ -31,6 +31,25 @@ CREATE TABLE IF NOT EXISTS user_roles (
     PRIMARY KEY (user_id, role_id)
 );
 
+CREATE TABLE IF NOT EXISTS permissions (
+    id UUID PRIMARY KEY,
+    code VARCHAR(100) NOT NULL UNIQUE,
+    name VARCHAR(150) NOT NULL,
+    description VARCHAR(500),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_by UUID
+);
+
+CREATE TABLE IF NOT EXISTS role_permissions (
+    role_id UUID NOT NULL REFERENCES roles(id) ON DELETE CASCADE,
+    permission_id UUID NOT NULL REFERENCES permissions(id) ON DELETE CASCADE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_by UUID,
+    PRIMARY KEY (role_id, permission_id)
+);
+
 CREATE TABLE IF NOT EXISTS buildings (
     id UUID PRIMARY KEY,
     name VARCHAR(200) NOT NULL,
@@ -346,6 +365,7 @@ CREATE INDEX IF NOT EXISTS idx_maintenance_building_id_status ON maintenance_req
 CREATE INDEX IF NOT EXISTS idx_notifications_recipient_status ON notifications(recipient_user_id, status);
 CREATE INDEX IF NOT EXISTS idx_audit_logs_entity ON audit_logs(entity_type, entity_id, occurred_at DESC);
 CREATE INDEX IF NOT EXISTS idx_audit_logs_building ON audit_logs(building_id, occurred_at DESC);
+CREATE INDEX IF NOT EXISTS idx_role_permissions_permission_id ON role_permissions(permission_id);
 
 INSERT INTO roles (id, code, name)
 VALUES
@@ -355,3 +375,136 @@ VALUES
     ('11111111-1111-1111-1111-111111111104', 'OWNER', 'Owner'),
     ('11111111-1111-1111-1111-111111111105', 'PROVIDER', 'Provider')
 ON CONFLICT (code) DO NOTHING;
+
+
+INSERT INTO permissions (id, code, name, description)
+VALUES
+    ('22222222-2222-2222-2222-222222220001', 'BUILDINGS_VIEW', 'View buildings', 'View building records and building-level information.'),
+    ('22222222-2222-2222-2222-222222220002', 'BUILDINGS_CREATE', 'Create buildings', 'Create new building records.'),
+    ('22222222-2222-2222-2222-222222220003', 'BUILDINGS_UPDATE', 'Update buildings', 'Modify building records.'),
+    ('22222222-2222-2222-2222-222222220004', 'UNITS_VIEW', 'View units', 'View unit records.'),
+    ('22222222-2222-2222-2222-222222220005', 'UNITS_VIEW_OWN', 'View own units', 'View units associated with the authenticated user.'),
+    ('22222222-2222-2222-2222-222222220006', 'UNITS_CREATE', 'Create units', 'Create unit records.'),
+    ('22222222-2222-2222-2222-222222220007', 'UNITS_UPDATE', 'Update units', 'Modify unit records.'),
+    ('22222222-2222-2222-2222-222222220008', 'UNITS_UPDATE_OWN', 'Update own units', 'Modify unit information within the user-owned scope.'),
+    ('22222222-2222-2222-2222-222222220009', 'RESIDENTS_VIEW', 'View residents', 'View resident records.'),
+    ('22222222-2222-2222-2222-222222220010', 'RESIDENTS_VIEW_OWN', 'View own resident data', 'View resident data within the user-owned scope.'),
+    ('22222222-2222-2222-2222-222222220011', 'RESIDENTS_CREATE', 'Create residents', 'Create resident records.'),
+    ('22222222-2222-2222-2222-222222220012', 'RESIDENTS_UPDATE', 'Update residents', 'Modify resident records.'),
+    ('22222222-2222-2222-2222-222222220013', 'RESIDENTS_UPDATE_OWN', 'Update own resident data', 'Modify the authenticated user profile or own resident data.'),
+    ('22222222-2222-2222-2222-222222220014', 'ACCESS_VIEW', 'View access', 'View access and visitor records.'),
+    ('22222222-2222-2222-2222-222222220015', 'ACCESS_VIEW_OWN', 'View own access', 'View access records within the user-owned scope.'),
+    ('22222222-2222-2222-2222-222222220016', 'ACCESS_CREATE', 'Create access records', 'Create visitor authorizations or access records.'),
+    ('22222222-2222-2222-2222-222222220017', 'ACCESS_CREATE_OWN', 'Create own access authorizations', 'Create visitor authorizations for the authenticated user scope.'),
+    ('22222222-2222-2222-2222-222222220018', 'ACCESS_UPDATE', 'Update access records', 'Modify access and visitor records.'),
+    ('22222222-2222-2222-2222-222222220019', 'ACCESS_UPDATE_OWN', 'Update own access records', 'Modify access records within the user-owned scope.'),
+    ('22222222-2222-2222-2222-222222220020', 'DELIVERIES_VIEW', 'View deliveries', 'View delivery and mail records.'),
+    ('22222222-2222-2222-2222-222222220021', 'DELIVERIES_VIEW_OWN', 'View own deliveries', 'View deliveries assigned to the authenticated user scope.'),
+    ('22222222-2222-2222-2222-222222220022', 'DELIVERIES_CREATE', 'Create deliveries', 'Register received deliveries or mail.'),
+    ('22222222-2222-2222-2222-222222220023', 'DELIVERIES_UPDATE', 'Update deliveries', 'Update delivery status and operational information.'),
+    ('22222222-2222-2222-2222-222222220024', 'DELIVERIES_UPDATE_OWN', 'Update own deliveries', 'Update deliveries within the authenticated user scope.'),
+    ('22222222-2222-2222-2222-222222220025', 'BOOKINGS_VIEW', 'View bookings', 'View common-area bookings.'),
+    ('22222222-2222-2222-2222-222222220026', 'BOOKINGS_VIEW_OWN', 'View own bookings', 'View bookings created by or associated with the authenticated user.'),
+    ('22222222-2222-2222-2222-222222220027', 'BOOKINGS_CREATE', 'Create bookings', 'Create common-area bookings.'),
+    ('22222222-2222-2222-2222-222222220028', 'BOOKINGS_CREATE_OWN', 'Create own bookings', 'Create bookings within the authenticated user scope.'),
+    ('22222222-2222-2222-2222-222222220029', 'BOOKINGS_UPDATE', 'Update bookings', 'Modify bookings and booking rules.'),
+    ('22222222-2222-2222-2222-222222220030', 'BOOKINGS_UPDATE_OWN', 'Update own bookings', 'Modify bookings within the authenticated user scope.'),
+    ('22222222-2222-2222-2222-222222220031', 'BOOKINGS_CANCEL_OWN', 'Cancel own bookings', 'Cancel bookings created by or associated with the authenticated user.'),
+    ('22222222-2222-2222-2222-222222220032', 'INCIDENTS_VIEW', 'View incidents', 'View incident records.'),
+    ('22222222-2222-2222-2222-222222220033', 'INCIDENTS_VIEW_OWN', 'View own incidents', 'View incidents created by or associated with the authenticated user.'),
+    ('22222222-2222-2222-2222-222222220034', 'INCIDENTS_VIEW_ASSIGNED', 'View assigned incidents', 'View incidents assigned to the authenticated provider or staff user.'),
+    ('22222222-2222-2222-2222-222222220035', 'INCIDENTS_CREATE', 'Create incidents', 'Create incident records.'),
+    ('22222222-2222-2222-2222-222222220036', 'INCIDENTS_CREATE_OWN', 'Create own incidents', 'Create incidents within the authenticated user scope.'),
+    ('22222222-2222-2222-2222-222222220037', 'INCIDENTS_UPDATE', 'Update incidents', 'Modify incident records.'),
+    ('22222222-2222-2222-2222-222222220038', 'INCIDENTS_UPDATE_OWN', 'Update own incidents', 'Modify incidents within the authenticated user scope.'),
+    ('22222222-2222-2222-2222-222222220039', 'INCIDENTS_UPDATE_ASSIGNED', 'Update assigned incidents', 'Update incidents assigned to the authenticated user.'),
+    ('22222222-2222-2222-2222-222222220040', 'INCIDENTS_ASSIGN', 'Assign incidents', 'Assign incidents to staff or providers.'),
+    ('22222222-2222-2222-2222-222222220041', 'MAINTENANCE_VIEW', 'View maintenance', 'View maintenance requests.'),
+    ('22222222-2222-2222-2222-222222220042', 'MAINTENANCE_VIEW_OWN', 'View own maintenance', 'View maintenance requests created by or associated with the authenticated user.'),
+    ('22222222-2222-2222-2222-222222220043', 'MAINTENANCE_VIEW_ASSIGNED', 'View assigned maintenance', 'View maintenance requests assigned to the authenticated provider or staff user.'),
+    ('22222222-2222-2222-2222-222222220044', 'MAINTENANCE_CREATE', 'Create maintenance', 'Create maintenance requests.'),
+    ('22222222-2222-2222-2222-222222220045', 'MAINTENANCE_CREATE_OWN', 'Create own maintenance', 'Create maintenance requests within the authenticated user scope.'),
+    ('22222222-2222-2222-2222-222222220046', 'MAINTENANCE_UPDATE', 'Update maintenance', 'Modify maintenance requests.'),
+    ('22222222-2222-2222-2222-222222220047', 'MAINTENANCE_UPDATE_OWN', 'Update own maintenance', 'Modify maintenance requests within the authenticated user scope.'),
+    ('22222222-2222-2222-2222-222222220048', 'MAINTENANCE_UPDATE_ASSIGNED', 'Update assigned maintenance', 'Update maintenance requests assigned to the authenticated user.'),
+    ('22222222-2222-2222-2222-222222220049', 'MAINTENANCE_ASSIGN', 'Assign maintenance', 'Assign maintenance requests to staff or providers.'),
+    ('22222222-2222-2222-2222-222222220050', 'MOVES_VIEW', 'View move requests', 'View move requests.'),
+    ('22222222-2222-2222-2222-222222220051', 'MOVES_VIEW_OWN', 'View own move requests', 'View move requests within the authenticated user scope.'),
+    ('22222222-2222-2222-2222-222222220052', 'MOVES_CREATE', 'Create move requests', 'Create move requests.'),
+    ('22222222-2222-2222-2222-222222220053', 'MOVES_CREATE_OWN', 'Create own move requests', 'Create move requests within the authenticated user scope.'),
+    ('22222222-2222-2222-2222-222222220054', 'MOVES_APPROVE', 'Approve move requests', 'Approve or authorize move requests.'),
+    ('22222222-2222-2222-2222-222222220055', 'REPORTS_VIEW', 'View reports', 'View operational reports and KPIs.'),
+    ('22222222-2222-2222-2222-222222220056', 'BUILDING_CONFIG_VIEW', 'View building configuration', 'View building configuration.'),
+    ('22222222-2222-2222-2222-222222220057', 'BUILDING_CONFIG_UPDATE', 'Update building configuration', 'Modify building configuration and policies.'),
+    ('22222222-2222-2222-2222-222222220058', 'USER_MANAGEMENT_VIEW', 'View users', 'View application users and staff records.'),
+    ('22222222-2222-2222-2222-222222220059', 'USER_MANAGEMENT_CREATE', 'Create users', 'Create application users and staff.'),
+    ('22222222-2222-2222-2222-222222220060', 'USER_MANAGEMENT_UPDATE', 'Update users', 'Modify users, roles and account state.'),
+    ('22222222-2222-2222-2222-222222220061', 'COMMUNICATIONS_VIEW', 'View communications', 'Receive and view announcements and notifications.'),
+    ('22222222-2222-2222-2222-222222220062', 'COMMUNICATIONS_CREATE', 'Create communications', 'Create and send announcements and communications.')
+ON CONFLICT (code) DO NOTHING;
+
+INSERT INTO role_permissions (role_id, permission_id)
+SELECT r.id, p.id
+FROM roles r
+CROSS JOIN permissions p
+WHERE r.code = 'ADMINISTRATOR'
+ON CONFLICT (role_id, permission_id) DO NOTHING;
+
+INSERT INTO role_permissions (role_id, permission_id)
+SELECT r.id, p.id
+FROM roles r
+JOIN permissions p ON p.code IN (
+    'UNITS_VIEW',
+    'RESIDENTS_VIEW',
+    'ACCESS_VIEW', 'ACCESS_CREATE', 'ACCESS_UPDATE',
+    'DELIVERIES_VIEW', 'DELIVERIES_CREATE', 'DELIVERIES_UPDATE',
+    'BOOKINGS_VIEW',
+    'INCIDENTS_VIEW', 'INCIDENTS_CREATE',
+    'MAINTENANCE_VIEW', 'MAINTENANCE_CREATE',
+    'MOVES_VIEW'
+)
+WHERE r.code = 'RECEPTION'
+ON CONFLICT (role_id, permission_id) DO NOTHING;
+
+INSERT INTO role_permissions (role_id, permission_id)
+SELECT r.id, p.id
+FROM roles r
+JOIN permissions p ON p.code IN (
+    'UNITS_VIEW_OWN',
+    'RESIDENTS_VIEW_OWN', 'RESIDENTS_UPDATE_OWN',
+    'ACCESS_VIEW_OWN', 'ACCESS_CREATE_OWN', 'ACCESS_UPDATE_OWN',
+    'DELIVERIES_VIEW_OWN',
+    'BOOKINGS_VIEW_OWN', 'BOOKINGS_CREATE_OWN', 'BOOKINGS_UPDATE_OWN', 'BOOKINGS_CANCEL_OWN',
+    'INCIDENTS_VIEW_OWN', 'INCIDENTS_CREATE_OWN', 'INCIDENTS_UPDATE_OWN',
+    'MAINTENANCE_VIEW_OWN', 'MAINTENANCE_CREATE_OWN', 'MAINTENANCE_UPDATE_OWN',
+    'MOVES_VIEW_OWN', 'MOVES_CREATE_OWN',
+    'COMMUNICATIONS_VIEW'
+)
+WHERE r.code = 'RESIDENT'
+ON CONFLICT (role_id, permission_id) DO NOTHING;
+
+INSERT INTO role_permissions (role_id, permission_id)
+SELECT r.id, p.id
+FROM roles r
+JOIN permissions p ON p.code IN (
+    'UNITS_VIEW_OWN',
+    'RESIDENTS_VIEW_OWN', 'RESIDENTS_UPDATE_OWN',
+    'INCIDENTS_VIEW',
+    'MAINTENANCE_VIEW',
+    'MOVES_VIEW', 'MOVES_APPROVE',
+    'COMMUNICATIONS_VIEW'
+)
+WHERE r.code = 'OWNER'
+ON CONFLICT (role_id, permission_id) DO NOTHING;
+
+INSERT INTO role_permissions (role_id, permission_id)
+SELECT r.id, p.id
+FROM roles r
+JOIN permissions p ON p.code IN (
+    'INCIDENTS_VIEW_ASSIGNED',
+    'INCIDENTS_UPDATE_ASSIGNED',
+    'MAINTENANCE_VIEW_ASSIGNED',
+    'MAINTENANCE_UPDATE_ASSIGNED'
+)
+WHERE r.code = 'PROVIDER'
+ON CONFLICT (role_id, permission_id) DO NOTHING;
