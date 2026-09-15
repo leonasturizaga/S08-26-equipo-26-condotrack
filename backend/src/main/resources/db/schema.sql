@@ -508,3 +508,7 @@ JOIN permissions p ON p.code IN (
 )
 WHERE r.code = 'PROVIDER'
 ON CONFLICT (role_id, permission_id) DO NOTHING;
+
+CREATE UNIQUE INDEX IF NOT EXISTS uq_active_resident_user_unit
+    ON residents(user_id, unit_id)
+    WHERE active = TRUE;
