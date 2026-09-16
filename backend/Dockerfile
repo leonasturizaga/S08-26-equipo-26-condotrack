@@ -1,24 +1,24 @@
-# Stage 1: Build the Maven application
+# Stage 1: Build
 FROM maven:3.9.6-eclipse-temurin-21 AS build
 WORKDIR /app
 
-# Copy the pom.xml and source code
 COPY pom.xml .
 COPY src ./src
 
-# Compile and package the application, skipping tests for faster deployment
+# Optional: cache dependencies better
+# RUN mvn dependency:go-offline -B
+
 RUN mvn clean package -DskipTests
 
-# Stage 2: Run the application
+# Stage 2: Runtime
 FROM eclipse-temurin:21-jre
 WORKDIR /app
 
-# Copy the generated JAR file from the build stage
-# Note: Ensure "backend.jar" matches your actual final jar name, or use a wildcard like *.jar
+# Copy the jar (wildcard is fine)
 COPY --from=build /app/target/*.jar app.jar
 
-# Expose the default Spring Boot port
+# Render sets PORT at runtime – do NOT hard-code EXPOSE 8080 as the only port
 EXPOSE 8080
 
-# Execute the application
-ENTRYPOINT ["java", "-jar", "app.jar"]
+# Force Spring Boot to use $PORT and bind to all interfaces
+ENTRYPOINT ["sh", "-c", "java -jar app.jar --server.port=${PORT:-8080} --server.address=0.0.0.0"]
