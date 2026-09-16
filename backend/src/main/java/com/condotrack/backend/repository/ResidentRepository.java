@@ -124,4 +124,8 @@ public interface ResidentRepository extends JpaRepository<Resident, UUID> {
             @Param("email") String email,
             @Param("residentId") UUID residentId
     );
+
+    // milestone 15 Additional method to check if a resident with a specific ID belongs to a specific unit and is active
+        boolean existsByIdAndUnitIdAndActiveTrue(UUID residentId, UUID unitId);
+
 }
