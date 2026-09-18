@@ -166,6 +166,14 @@
   "Communications": "Comunicaciones",
 
 
-  "The operational functionality for this module will be implemented next.": "La funcionalidad operativa de este módulo se implementará próximamente."
+  "The operational functionality for this module will be implemented next.": "La funcionalidad operativa de este módulo se implementará próximamente.",
 
+
+  "Email placeholder": "tu@email.com",
+  "Password placeholder": "Ingresa tu contraseña",
+  "Signing in...": "Iniciando sesión...",
+  "Invalid email or password.": "Correo electrónico o contraseña incorrectos.",
+  "Please enter a valid email and password.": "Ingresa un correo electrónico y una contraseña válidos.",
+  "Unable to connect to the CondoTrack server.": "No se pudo conectar con el servidor de CondoTrack.",
+  "Back to home": "Volver al inicio"  
 }
