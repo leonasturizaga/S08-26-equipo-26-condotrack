@@ -157,9 +157,9 @@ public class UnitService {
         Page<Unit> units;
 
         if (permissionService.hasPermission(authentication, "UNITS_VIEW")) {
-            units = unitRepository.findByActiveTrueOrderByBuildingIdAscUnitNumberAsc(pageable);
+            units = unitRepository.findAllByOrderByBuildingIdAscUnitNumberAsc(pageable);
         } else if (permissionService.hasPermission(authentication, "UNITS_VIEW_OWN")) {
-            units = unitRepository.findActiveUnitsForUser(
+            units = unitRepository.findUnitsForUser(
                     authentication.getName(),
                     pageable
             );
