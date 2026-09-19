@@ -1659,3 +1659,122 @@ input:disabled {
   }
 }
 
+
+/* --------------------------------------------------
+   Access / Visitors - Milestone 4.1
+--------------------------------------------------- */
+
+.panel-wide {
+  grid-column: 1 / -1;
+}
+
+.inline-filter {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-soft);
+  font-size: var(--font-meta);
+}
+
+.inline-filter select {
+  min-width: 150px;
+}
+
+.form-align-end {
+  align-items: flex-end;
+  justify-content: flex-start;
+}
+
+.empty-state {
+  padding: 28px 16px;
+  text-align: center;
+  color: var(--text-soft);
+  font-size: var(--font-body);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface-soft);
+}
+
+.status-approved {
+  background: var(--success-soft);
+  color: var(--success);
+}
+
+.status-used {
+  background: var(--blue-50);
+  color: var(--blue-800);
+}
+
+.status-expired,
+.status-cancelled,
+.status-rejected {
+  background: var(--error-soft);
+  color: var(--error);
+}
+
+.status-pending {
+  background: var(--warning-soft);
+  color: var(--warning);
+}
+
+.qr-layout {
+  display: grid;
+  grid-template-columns: minmax(220px, 260px) 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.qr-code-card {
+  min-height: 260px;
+  display: grid;
+  place-items: center;
+  padding: 18px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: #fff;
+}
+
+.qr-details h4 {
+  margin: 0 0 16px;
+  font-size: 18px;
+  line-height: 1.35;
+}
+
+.details-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px 18px;
+}
+
+.details-grid > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.details-grid span {
+  color: var(--text-soft);
+  font-size: var(--font-meta);
+}
+
+.details-grid strong {
+  color: var(--text);
+  font-size: var(--font-body);
+}
+
+.qr-token-text {
+  word-break: break-all;
+}
+
+@media (max-width: 760px) {
+  .qr-layout,
+  .details-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.button-small {
+  min-height: 30px;
+  padding: 5px 10px;
+  font-size: 12px;
+}
