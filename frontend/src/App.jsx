@@ -79,11 +79,12 @@ import ProtectedRoute from './components/ProtectedRoute.jsx'
 import Dashboard from './pages/Dashboard.jsx'
 import BuildingsPage from './pages/BuildingsPage.jsx'
 import UnitsPage from './pages/UnitsPage.jsx'
+import ResidentsPage from './pages/ResidentsPage.jsx'
+import UserManagementPage from './pages/UserManagementPage.jsx'
 import DashboardHome from './pages/DashboardHome.jsx'
 import Home from './pages/Home.jsx'
 import Login from './pages/Login.jsx'
 import ModulePlaceholder from './pages/ModulePlaceholder.jsx'
-import Modal from './components/Modal.jsx'
 
 const protectedModules = [
   'buildings',
@@ -124,9 +125,17 @@ function App() {
             <Route element={<ProtectedRoute moduleKey="units" />}>
               <Route path="units" element={<UnitsPage />} />
             </Route>
+            <Route element={<ProtectedRoute moduleKey="residents" />}>
+              <Route path="residents" element={<ResidentsPage />} />
+            </Route>
+
+            <Route element={<ProtectedRoute moduleKey="userManagement" />}>
+              <Route path="user-management" element={<UserManagementPage />} />
+            </Route>
+
 
             {protectedModules
-              .filter((moduleKey) => !['buildings', 'units'].includes(moduleKey))
+              .filter((moduleKey) => !['buildings', 'units', 'residents', 'userManagement'].includes(moduleKey))
               .map((moduleKey) => (
 
                 <Route
