@@ -67,6 +67,8 @@ public interface UnitRepository extends JpaRepository<Unit, UUID> {
 
     Page<Unit> findByActiveTrueOrderByBuildingIdAscUnitNumberAsc(Pageable pageable);
 
+    Page<Unit> findAllByOrderByBuildingIdAscUnitNumberAsc(Pageable pageable);
+
     @Query("""
             SELECT DISTINCT u
             FROM Unit u
@@ -74,10 +76,10 @@ public interface UnitRepository extends JpaRepository<Unit, UUID> {
             JOIN r.user user
             WHERE LOWER(user.email) = LOWER(:email)
               AND r.active = true
-              AND u.active = true
+           
             ORDER BY u.building.id ASC, u.unitNumber ASC
             """)
-    Page<Unit> findActiveUnitsForUser(
+    Page<Unit> findUnitsForUser(
             @Param("email") String email,
             Pageable pageable
     );
