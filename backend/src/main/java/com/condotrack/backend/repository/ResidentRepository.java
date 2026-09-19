@@ -96,6 +96,8 @@ import java.util.UUID;
 public interface ResidentRepository extends JpaRepository<Resident, UUID> {
 
     List<Resident> findByUnitIdAndActiveTrue(UUID unitId);
+   //---- milestone 14.1 ------
+    List<Resident> findAllByUser_EmailIgnoreCaseAndActiveTrue(String email);
 
     Page<Resident> findByActiveTrue(Pageable pageable);
 

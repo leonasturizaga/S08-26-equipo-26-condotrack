@@ -1,3 +1,4 @@
+//--------------- milestone 14.1 ---------------------
 package com.condotrack.backend.dto;
 
 import java.time.OffsetDateTime;
@@ -14,6 +15,8 @@ public record AccessLogResponse(
         String visitorLastName,
         String direction,
         String accessMethod,
-        OffsetDateTime occurredAt
+        OffsetDateTime occurredAt,
+        UUID handledByStaffId,
+        String handledByStaffName
 ) {
 }
