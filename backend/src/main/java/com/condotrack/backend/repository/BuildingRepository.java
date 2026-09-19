@@ -65,6 +65,8 @@ public interface BuildingRepository extends JpaRepository<Building, UUID> {
 
     Page<Building> findByActiveTrueOrderByNameAsc(Pageable pageable);
 
+    Page<Building> findAllByOrderByNameAsc(Pageable pageable);
+
     java.util.Optional<Building> findByIdAndActiveTrue(UUID id);
 
     boolean existsByIdAndActiveTrue(UUID id);

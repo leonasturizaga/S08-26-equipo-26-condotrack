@@ -143,7 +143,7 @@ public class BuildingService {
     public BuildingPageResponse getBuildings(int page, int size) {
         Pageable pageable = createPageable(page, size);
         Page<BuildingResponse> buildings = buildingRepository
-                .findByActiveTrueOrderByNameAsc(pageable)
+                .findAllByOrderByNameAsc(pageable)
                 .map(this::toResponse);
 
         return BuildingPageResponse.from(buildings);
@@ -151,7 +151,7 @@ public class BuildingService {
 
     @Transactional(readOnly = true)
     public BuildingResponse getBuilding(UUID buildingId) {
-        Building building = buildingRepository.findByIdAndActiveTrue(buildingId)
+        Building building = buildingRepository.findById(buildingId)
                 .orElseThrow(() -> new IllegalArgumentException("Building not found: " + buildingId));
 														   
 				   
