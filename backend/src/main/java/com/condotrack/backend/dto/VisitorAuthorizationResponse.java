@@ -1,3 +1,4 @@
+//--------------- milestone 14.1 ---------------------
 package com.condotrack.backend.dto;
 
 import java.time.OffsetDateTime;
@@ -16,6 +17,8 @@ public record VisitorAuthorizationResponse(
         String qrToken,
         OffsetDateTime validFrom,
         OffsetDateTime validUntil,
-        String purpose
+        String purpose,
+        OffsetDateTime createdAt,
+        OffsetDateTime approvedAt
 ) {
 }
