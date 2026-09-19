@@ -21,7 +21,7 @@
 
 // export { translations }
 
-import { useEffect, useState } from 'react'
+import { useCallback,  useEffect, useState } from 'react'
 import i18next from 'i18next'
 import { initReactI18next, useTranslation as useI18nextTranslation } from 'react-i18next'
 
@@ -77,11 +77,11 @@ return () => {
 
 }, [i18n])
 
-const t = (text) => {
+const t = useCallback((text) => {
 return translate(text)
-}
+}, [translate])
 
-const changeLanguage = () => {
+const changeLanguage = useCallback(() => {
 const currentIndex = supportedLanguages.indexOf(i18n.language)
 const nextIndex = (currentIndex + 1) % supportedLanguages.length
 const nextLanguage = supportedLanguages[nextIndex]
@@ -90,7 +90,7 @@ i18n.changeLanguage(nextLanguage)
 
 localStorage.setItem('condotrack-language', nextLanguage)
 
-}
+}, [i18n])
 
 return {
 t,
