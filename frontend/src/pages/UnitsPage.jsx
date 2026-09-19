@@ -9,6 +9,7 @@ import {
 } from '../api/unitsApi.js'
 import { useAuth } from '../auth/AuthContext.jsx'
 import { useTranslation } from '../i18n/i18n.js'
+import Modal from '../components/Modal.jsx'
 
 const PAGE_SIZE = 20
 
@@ -41,6 +42,7 @@ function UnitsPage() {
   const [form, setForm] = useState(emptyForm)
   const [selectedUnit, setSelectedUnit] = useState(null)
   const [detailLoading, setDetailLoading] = useState(false)
+  const [detailError, setDetailError] = useState('')
 
   const buildingNameById = useMemo(
     () => Object.fromEntries(buildings.map((building) => [building.id, building.name])),
@@ -159,16 +161,30 @@ function UnitsPage() {
   }
 
   const viewUnit = async (unitId) => {
+    setSelectedUnit(null)
+    setDetailError('')
     setDetailLoading(true)
     setError('')
 
     try {
       const detail = await getUnit(unitId)
+
+      if (!detail || typeof detail !== 'object') {
+        throw new Error(t('The unit details could not be loaded.'))
+      }
+
       setSelectedUnit(detail)
     } catch (requestError) {
-      setError(requestError.message || t('Unable to load unit details.'))
+      setDetailError(requestError.message || t('Unable to load unit details.'))
     } finally {
       setDetailLoading(false)
+    }
+  }
+
+  const closeDetails = () => {
+    if (!detailLoading) {
+      setSelectedUnit(null)
+      setDetailError('')
     }
   }
 
@@ -204,83 +220,79 @@ function UnitsPage() {
         </div>
       )}
 
-      {showForm && canCreateOrEdit && (
-        <section className="data-panel">
-          <div className="data-panel-header">
-            <div>
-              <p className="eyebrow">
-                {editingId ? t('EDIT UNIT') : t('NEW UNIT')}
-              </p>
-              <h3>{editingId ? t('Edit unit') : t('Create unit')}</h3>
-            </div>
+      <Modal
+        open={showForm && canCreateOrEdit}
+        onClose={closeForm}
+        eyebrow={editingId ? t('EDIT UNIT') : t('NEW UNIT')}
+        title={editingId ? t('Edit unit') : t('Create unit')}
+        size="large"
+        closeOnBackdrop={!saving}
+      >
+        {formError && (
+          <div className="feedback feedback-error modal-feedback" role="alert">
+            {formError}
+          </div>
+        )}
 
-            <button className="button button-secondary" type="button" onClick={closeForm}>
+        <form className="entity-form" onSubmit={handleSubmit}>
+          <div className="form-grid-4">
+            <label className="form-field field-span-2">
+              <span>{t('Building')}</span>
+              <select name="buildingId" value={form.buildingId} onChange={handleChange} required>
+                <option value="">{t('Select building')}</option>
+                {buildings.map((building) => (
+                  <option
+                    key={building.id}
+                    value={building.id}
+                    disabled={!building.active && building.id !== form.buildingId}
+                  >
+                    {building.name} ({building.code}){!building.active ? ` — ${t('Inactive')}` : ''}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <label className="form-field">
+              <span>{t('Unit number')}</span>
+              <input name="unitNumber" value={form.unitNumber} onChange={handleChange} required maxLength={50} />
+            </label>
+
+            <label className="form-field">
+              <span>{t('Floor')}</span>
+              <input name="floorNumber" value={form.floorNumber} onChange={handleChange} type="number" min="0" />
+            </label>
+          </div>
+
+          <div className="form-grid-2">
+            <label className="form-field">
+              <span>{t('Unit type')}</span>
+              <input name="unitType" value={form.unitType} onChange={handleChange} maxLength={30} />
+            </label>
+          </div>
+
+          {editingId && (
+            <label className="checkbox-field">
+              <input
+                type="checkbox"
+                name="active"
+                checked={form.active}
+                onChange={handleChange}
+              />
+              <span>{t('Active unit')}</span>
+            </label>
+          )}
+
+          <div className="entity-form-actions">
+            <button className="button button-primary" type="submit" disabled={saving}>
+              {saving ? t('Saving...') : t('Save unit')}
+            </button>
+
+            <button className="button button-secondary" type="button" onClick={closeForm} disabled={saving}>
               {t('Cancel')}
             </button>
           </div>
-
-          {formError && (
-            <div className="feedback feedback-error" role="alert">
-              {formError}
-            </div>
-          )}
-
-          <form className="entity-form" onSubmit={handleSubmit}>
-            <div className="form-grid-4">
-              <label className="form-field field-span-2">
-                <span>{t('Building')}</span>
-                <select name="buildingId" value={form.buildingId} onChange={handleChange} required>
-                  <option value="">{t('Select building')}</option>
-                  {buildings.map((building) => (
-                    <option key={building.id} value={building.id}>
-                      {building.name} ({building.code})
-                    </option>
-                  ))}
-                </select>
-              </label>
-
-              <label className="form-field">
-                <span>{t('Unit number')}</span>
-                <input name="unitNumber" value={form.unitNumber} onChange={handleChange} required maxLength={50} />
-              </label>
-
-              <label className="form-field">
-                <span>{t('Floor')}</span>
-                <input name="floorNumber" value={form.floorNumber} onChange={handleChange} type="number" min="0" />
-              </label>
-            </div>
-
-            <div className="form-grid-2">
-              <label className="form-field">
-                <span>{t('Unit type')}</span>
-                <input name="unitType" value={form.unitType} onChange={handleChange} maxLength={30} />
-              </label>
-            </div>
-
-            {editingId && (
-              <label className="checkbox-field">
-                <input
-                  type="checkbox"
-                  name="active"
-                  checked={form.active}
-                  onChange={handleChange}
-                />
-                <span>{t('Active unit')}</span>
-              </label>
-            )}
-
-            <div className="entity-form-actions">
-              <button className="button button-primary" type="submit" disabled={saving}>
-                {saving ? t('Saving...') : t('Save unit')}
-              </button>
-
-              <button className="button button-secondary" type="button" onClick={closeForm} disabled={saving}>
-                {t('Cancel')}
-              </button>
-            </div>
-          </form>
-        </section>
-      )}
+        </form>
+      </Modal>
 
       <section className="data-panel">
         <div className="data-panel-header">
@@ -340,9 +352,20 @@ function UnitsPage() {
                           {t('View')}
                         </button>
                         {canCreateOrEdit && (
-                          <button className="button button-ghost" type="button" onClick={() => startEdit(unit)}>
-                            {t('Edit')}
-                          </button>
+                          <>
+                            <button className="button button-ghost" type="button" onClick={() => startEdit(unit)}>
+                              {t('Edit')}
+                            </button>
+                            <button
+                              className="button button-danger button-placeholder-disabled"
+                              type="button"
+                              disabled
+                              title={t('Deletion is not available yet. Use deactivation instead.')}
+                              aria-label={t('Delete')}
+                            >
+                              {t('Delete')}
+                            </button>
+                          </>
                         )}
                       </div>
                     </td>
@@ -379,25 +402,19 @@ function UnitsPage() {
         </div>
       </section>
 
-      {detailLoading && (
-        <div className="feedback feedback-info" role="status">
-          {t('Loading unit details...')}
-        </div>
-      )}
-
-      {selectedUnit && !detailLoading && (
-        <section className="data-panel detail-panel">
-          <div className="data-panel-header">
-            <div>
-              <p className="eyebrow">{t('UNIT DETAILS')}</p>
-              <h3>{selectedUnit.unitNumber}</h3>
-            </div>
-
-            <button className="button button-secondary" type="button" onClick={() => setSelectedUnit(null)}>
-              {t('Close')}
-            </button>
+      <Modal
+        open={Boolean(selectedUnit) || detailLoading || Boolean(detailError)}
+        onClose={closeDetails}
+        eyebrow={t('UNIT DETAILS')}
+        title={selectedUnit?.unitNumber || t('Loading...')}
+        size="medium"
+        closeOnBackdrop={!detailLoading}
+      >
+        {detailLoading ? (
+          <div className="modal-loading-state">
+            {t('Loading unit details...')}
           </div>
-
+        ) : selectedUnit ? (
           <div className="detail-grid">
             {showBuildingColumn && (
               <div>
@@ -410,8 +427,12 @@ function UnitsPage() {
             <div><span>{t('Type')}</span><strong>{selectedUnit.unitType || '—'}</strong></div>
             <div><span>{t('Status')}</span><strong>{selectedUnit.active ? t('Active') : t('Inactive')}</strong></div>
           </div>
-        </section>
-      )}
+        ) : (
+          <div className="feedback feedback-error" role="alert">
+            {detailError || t('Unable to load unit details.')}
+          </div>
+        )}
+      </Modal>
     </section>
   )
 }

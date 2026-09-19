@@ -6,6 +6,7 @@ import {
   getBuildings,
   updateBuilding,
 } from '../api/buildingsApi.js'
+import Modal from '../components/Modal.jsx'
 import { useAuth } from '../auth/AuthContext.jsx'
 import { useTranslation } from '../i18n/i18n.js'
 
@@ -43,6 +44,7 @@ function BuildingsPage() {
   const [form, setForm] = useState(emptyForm)
   const [selectedBuilding, setSelectedBuilding] = useState(null)
   const [detailLoading, setDetailLoading] = useState(false)
+  const [detailError, setDetailError] = useState('')
 
   const loadBuildings = useCallback(async (pageToLoad = 0) => {
     setLoading(true)
@@ -149,16 +151,30 @@ function BuildingsPage() {
   }
 
   const viewBuilding = async (buildingId) => {
+    setSelectedBuilding(null)
+    setDetailError('')
     setDetailLoading(true)
     setError('')
 
     try {
       const detail = await getBuilding(buildingId)
+
+      if (!detail || typeof detail !== 'object') {
+        throw new Error(t('The building details could not be loaded.'))
+      }
+
       setSelectedBuilding(detail)
     } catch (requestError) {
-      setError(requestError.message || t('Unable to load building details.'))
+      setDetailError(requestError.message || t('Unable to load building details.'))
     } finally {
       setDetailLoading(false)
+    }
+  }
+
+  const closeDetails = () => {
+    if (!detailLoading) {
+      setSelectedBuilding(null)
+      setDetailError('')
     }
   }
 
@@ -192,103 +208,95 @@ function BuildingsPage() {
         </div>
       )}
 
-      {showForm && isAdministrator && (
-        <section className="data-panel">
-          <div className="data-panel-header">
-            <div>
-              <p className="eyebrow">
-                {editingId ? t('EDIT BUILDING') : t('NEW BUILDING')}
-              </p>
-              <h3>{editingId ? t('Edit building') : t('Create building')}</h3>
-            </div>
+      <Modal
+        open={showForm && isAdministrator}
+        onClose={closeForm}
+        eyebrow={editingId ? t('EDIT BUILDING') : t('NEW BUILDING')}
+        title={editingId ? t('Edit building') : t('Create building')}
+        size="large"
+        closeOnBackdrop={!saving}
+      >
+        {formError && (
+          <div className="feedback feedback-error modal-feedback" role="alert">
+            {formError}
+          </div>
+        )}
 
-            <button className="button button-secondary" type="button" onClick={closeForm}>
+        <form className="entity-form" onSubmit={handleSubmit}>
+          <div className="form-grid-3">
+            <label className="form-field">
+              <span>{t('Name')}</span>
+              <input name="name" value={form.name} onChange={handleChange} required maxLength={200} />
+            </label>
+
+            <label className="form-field">
+              <span>{t('Code')}</span>
+              <input name="code" value={form.code} onChange={handleChange} required maxLength={50} />
+            </label>
+
+            <label className="form-field">
+              <span>{t('Country')}</span>
+              <input name="country" value={form.country} onChange={handleChange} required maxLength={120} />
+            </label>
+          </div>
+
+          <div className="form-grid-2">
+            <label className="form-field">
+              <span>{t('Address')}</span>
+              <input name="addressLine1" value={form.addressLine1} onChange={handleChange} required maxLength={255} />
+            </label>
+
+            <label className="form-field">
+              <span>{t('Address line 2')}</span>
+              <input name="addressLine2" value={form.addressLine2} onChange={handleChange} maxLength={255} />
+            </label>
+          </div>
+
+          <div className="form-grid-4">
+            <label className="form-field">
+              <span>{t('City')}</span>
+              <input name="city" value={form.city} onChange={handleChange} required maxLength={120} />
+            </label>
+
+            <label className="form-field">
+              <span>{t('State / Province')}</span>
+              <input name="stateProvince" value={form.stateProvince} onChange={handleChange} maxLength={120} />
+            </label>
+
+            <label className="form-field">
+              <span>{t('Postal code')}</span>
+              <input name="postalCode" value={form.postalCode} onChange={handleChange} maxLength={30} />
+            </label>
+
+            <label className="form-field">
+              <span>{t('Timezone')}</span>
+              <input name="timezone" value={form.timezone} onChange={handleChange} maxLength={80} />
+            </label>
+          </div>
+
+          {editingId && (
+            <label className="checkbox-field">
+              <input
+                type="checkbox"
+                name="active"
+                checked={form.active}
+                onChange={handleChange}
+              />
+              <span>{t('Active building')}</span>
+            </label>
+          )}
+
+          <div className="entity-form-actions">
+            <button className="button button-primary" type="submit" disabled={saving}>
+              {saving ? t('Saving...') : t('Save building')}
+            </button>
+
+            <button className="button button-secondary" type="button" onClick={closeForm} disabled={saving}>
               {t('Cancel')}
             </button>
           </div>
-
-          {formError && (
-            <div className="feedback feedback-error" role="alert">
-              {formError}
-            </div>
-          )}
-
-          <form className="entity-form" onSubmit={handleSubmit}>
-            <div className="form-grid-3">
-              <label className="form-field">
-                <span>{t('Name')}</span>
-                <input name="name" value={form.name} onChange={handleChange} required maxLength={200} />
-              </label>
-
-              <label className="form-field">
-                <span>{t('Code')}</span>
-                <input name="code" value={form.code} onChange={handleChange} required maxLength={50} />
-              </label>
-
-              <label className="form-field">
-                <span>{t('Country')}</span>
-                <input name="country" value={form.country} onChange={handleChange} required maxLength={120} />
-              </label>
-            </div>
-
-            <div className="form-grid-2">
-              <label className="form-field">
-                <span>{t('Address')}</span>
-                <input name="addressLine1" value={form.addressLine1} onChange={handleChange} required maxLength={255} />
-              </label>
-
-              <label className="form-field">
-                <span>{t('Address line 2')}</span>
-                <input name="addressLine2" value={form.addressLine2} onChange={handleChange} maxLength={255} />
-              </label>
-            </div>
-
-            <div className="form-grid-4">
-              <label className="form-field">
-                <span>{t('City')}</span>
-                <input name="city" value={form.city} onChange={handleChange} required maxLength={120} />
-              </label>
-
-              <label className="form-field">
-                <span>{t('State / Province')}</span>
-                <input name="stateProvince" value={form.stateProvince} onChange={handleChange} maxLength={120} />
-              </label>
-
-              <label className="form-field">
-                <span>{t('Postal code')}</span>
-                <input name="postalCode" value={form.postalCode} onChange={handleChange} maxLength={30} />
-              </label>
-
-              <label className="form-field">
-                <span>{t('Timezone')}</span>
-                <input name="timezone" value={form.timezone} onChange={handleChange} maxLength={80} />
-              </label>
-            </div>
-
-            {editingId && (
-              <label className="checkbox-field">
-                <input
-                  type="checkbox"
-                  name="active"
-                  checked={form.active}
-                  onChange={handleChange}
-                />
-                <span>{t('Active building')}</span>
-              </label>
-            )}
-
-            <div className="entity-form-actions">
-              <button className="button button-primary" type="submit" disabled={saving}>
-                {saving ? t('Saving...') : t('Save building')}
-              </button>
-
-              <button className="button button-secondary" type="button" onClick={closeForm} disabled={saving}>
-                {t('Cancel')}
-              </button>
-            </div>
-          </form>
-        </section>
-      )}
+        </form>
+      </Modal>
 
       <section className="data-panel">
         <div className="data-panel-header">
@@ -309,7 +317,7 @@ function BuildingsPage() {
         ) : buildings.length === 0 ? (
           <div className="module-empty-state compact-empty-state">
             <h3>{t('No buildings found')}</h3>
-            <p className="muted">{t('There are no active buildings available for your role.')}</p>
+            <p className="muted">{t('There are no buildings available for your role.')}</p>
           </div>
         ) : (
           <div className="table-scroll">
@@ -345,9 +353,20 @@ function BuildingsPage() {
                           {t('View')}
                         </button>
                         {isAdministrator && (
-                          <button className="button button-ghost" type="button" onClick={() => startEdit(building)}>
-                            {t('Edit')}
-                          </button>
+                          <>
+                            <button className="button button-ghost" type="button" onClick={() => startEdit(building)}>
+                              {t('Edit')}
+                            </button>
+                            <button
+                              className="button button-danger button-placeholder-disabled"
+                              type="button"
+                              disabled
+                              title={t('Deletion is not available yet. Use deactivation instead.')}
+                              aria-label={t('Delete')}
+                            >
+                              {t('Delete')}
+                            </button>
+                          </>
                         )}
                       </div>
                     </td>
@@ -384,25 +403,19 @@ function BuildingsPage() {
         </div>
       </section>
 
-      {detailLoading && (
-        <div className="feedback feedback-info" role="status">
-          {t('Loading building details...')}
-        </div>
-      )}
-
-      {selectedBuilding && !detailLoading && (
-        <section className="data-panel detail-panel">
-          <div className="data-panel-header">
-            <div>
-              <p className="eyebrow">{t('BUILDING DETAILS')}</p>
-              <h3>{selectedBuilding.name}</h3>
-            </div>
-
-            <button className="button button-secondary" type="button" onClick={() => setSelectedBuilding(null)}>
-              {t('Close')}
-            </button>
+      <Modal
+        open={Boolean(selectedBuilding) || detailLoading || Boolean(detailError)}
+        onClose={closeDetails}
+        eyebrow={t('BUILDING DETAILS')}
+        title={selectedBuilding?.name || t('Loading...')}
+        size="medium"
+        closeOnBackdrop={!detailLoading}
+      >
+        {detailLoading ? (
+          <div className="modal-loading-state">
+            {t('Loading building details...')}
           </div>
-
+        ) : selectedBuilding ? (
           <div className="detail-grid">
             <div><span>{t('Code')}</span><strong>{selectedBuilding.code}</strong></div>
             <div><span>{t('Address')}</span><strong>{selectedBuilding.addressLine1}</strong></div>
@@ -413,8 +426,12 @@ function BuildingsPage() {
             <div><span>{t('Timezone')}</span><strong>{selectedBuilding.timezone || '—'}</strong></div>
             <div><span>{t('Status')}</span><strong>{selectedBuilding.active ? t('Active') : t('Inactive')}</strong></div>
           </div>
-        </section>
-      )}
+        ) : (
+          <div className="feedback feedback-error" role="alert">
+            {detailError || t('Unable to load building details.')}
+          </div>
+        )}
+      </Modal>
     </section>
   )
 }

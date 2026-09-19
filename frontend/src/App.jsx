@@ -83,6 +83,7 @@ import DashboardHome from './pages/DashboardHome.jsx'
 import Home from './pages/Home.jsx'
 import Login from './pages/Login.jsx'
 import ModulePlaceholder from './pages/ModulePlaceholder.jsx'
+import Modal from './components/Modal.jsx'
 
 const protectedModules = [
   'buildings',

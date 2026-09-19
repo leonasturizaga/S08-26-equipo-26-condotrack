@@ -235,7 +235,11 @@
   "Manage the condominium buildings connected to CondoTrack.": "Manage the condominium buildings connected to CondoTrack.",
   "View and maintain the units connected to each building.": "View and maintain the units connected to each building.",
   "There are no active buildings available for your role.": "There are no active buildings available for your role.",
-  "There are no units available for your role.": "There are no units available for your role."
+  "There are no units available for your role.": "There are no units available for your role.",
+
+
+  "There are no buildings available for your role.": "There are no buildings available for your role.",
+  "Deletion is not available yet. Use deactivation instead.": "Deletion is not available yet. Use deactivation instead."
 
 
 }

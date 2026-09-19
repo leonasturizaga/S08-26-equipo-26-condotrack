@@ -236,7 +236,10 @@
   "Manage the condominium buildings connected to CondoTrack.": "Administra los edificios y condominios conectados a CondoTrack.",
   "View and maintain the units connected to each building.": "Consulta y administra las unidades conectadas a cada edificio.",
   "There are no active buildings available for your role.": "No hay edificios activos disponibles para tu rol.",
-  "There are no units available for your role.": "No hay unidades disponibles para tu rol."
+  "There are no units available for your role.": "No hay unidades disponibles para tu rol.",
 
+
+  "There are no buildings available for your role.": "No hay edificios disponibles para tu rol.",
+  "Deletion is not available yet. Use deactivation instead.": "La eliminación todavía no está disponible. Usa la desactivación."
   
 }
