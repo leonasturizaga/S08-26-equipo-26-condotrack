@@ -1129,7 +1129,23 @@ function AccessPage() {
           <div className="feedback feedback-info">{t('Your role does not currently have access actions for this module.')}</div>
         </article>
       )}
-
+      {selectedAuthorization && (
+        <Modal open title={t('Authorization details')} onClose={() => setSelectedAuthorization(null)} size="medium">
+          <div className="details-grid">
+            <div><span>{t('Visitor')}</span><strong>{selectedAuthorization.visitorFirstName} {selectedAuthorization.visitorLastName}</strong></div>
+            <div><span>{t('Unit')}</span><strong>{selectedAuthorization.unitNumber}</strong></div>
+            <div><span>{t('Status')}</span><strong>{statusLabel(selectedAuthorization.status)}</strong></div>
+            <div><span>{t('Purpose')}</span><strong>{selectedAuthorization.purpose || '—'}</strong></div>
+            <div><span>{t('Valid from')}</span><strong>{formatDateTime(selectedAuthorization.validFrom)}</strong></div>
+            <div><span>{t('Valid until')}</span><strong>{formatDateTime(selectedAuthorization.validUntil)}</strong></div>
+            <div><span>{t('Created')}</span><strong>{formatDateTime(selectedAuthorization.createdAt)}</strong></div>
+          </div>
+          <div className="table-actions">
+            <button className="button button-secondary" type="button" onClick={() => setSelectedAuthorization(null)}>{t('Close')}</button>
+            <button className="button button-ghost" type="button" onClick={() => showQr(selectedAuthorization)}>{t('Show QR')}</button>
+          </div>
+        </Modal>
+      )}
       {createdAuthorization && (
         <Modal open title={t('Visitor authorization')} onClose={() => setCreatedAuthorization(null)} size="medium">
           <div className="qr-layout">
@@ -1149,24 +1165,6 @@ function AccessPage() {
                 <div className="activity-text qr-token-text">{createdAuthorization.qrToken}</div>
               </div>
             </div>
-          </div>
-        </Modal>
-      )}
-
-      {selectedAuthorization && (
-        <Modal open title={t('Authorization details')} onClose={() => setSelectedAuthorization(null)} size="medium">
-          <div className="details-grid">
-            <div><span>{t('Visitor')}</span><strong>{selectedAuthorization.visitorFirstName} {selectedAuthorization.visitorLastName}</strong></div>
-            <div><span>{t('Unit')}</span><strong>{selectedAuthorization.unitNumber}</strong></div>
-            <div><span>{t('Status')}</span><strong>{statusLabel(selectedAuthorization.status)}</strong></div>
-            <div><span>{t('Purpose')}</span><strong>{selectedAuthorization.purpose || '—'}</strong></div>
-            <div><span>{t('Valid from')}</span><strong>{formatDateTime(selectedAuthorization.validFrom)}</strong></div>
-            <div><span>{t('Valid until')}</span><strong>{formatDateTime(selectedAuthorization.validUntil)}</strong></div>
-            <div><span>{t('Created')}</span><strong>{formatDateTime(selectedAuthorization.createdAt)}</strong></div>
-          </div>
-          <div className="table-actions">
-            <button className="button button-secondary" type="button" onClick={() => setSelectedAuthorization(null)}>{t('Close')}</button>
-            <button className="button button-ghost" type="button" onClick={() => showQr(selectedAuthorization)}>{t('Show QR')}</button>
           </div>
         </Modal>
       )}
