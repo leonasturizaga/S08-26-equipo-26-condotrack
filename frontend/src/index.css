@@ -1778,3 +1778,13 @@ input:disabled {
   padding: 5px 10px;
   font-size: 12px;
 }
+
+.status-warning {
+  background: var(--warning-soft);
+  color: var(--warning);
+}
+
+.status-danger {
+  background: var(--error-soft);
+  color: var(--error);
+}

@@ -82,6 +82,7 @@ import UnitsPage from './pages/UnitsPage.jsx'
 import ResidentsPage from './pages/ResidentsPage.jsx'
 import UserManagementPage from './pages/UserManagementPage.jsx'
 import AccessPage from './pages/AccessPage.jsx'
+import DeliveriesPage from './pages/DeliveriesPage.jsx'
 import DashboardHome from './pages/DashboardHome.jsx'
 import Home from './pages/Home.jsx'
 import Login from './pages/Login.jsx'
@@ -132,6 +133,9 @@ function App() {
             <Route element={<ProtectedRoute moduleKey="access" />}>
               <Route path="access" element={<AccessPage />} />
             </Route>
+            <Route element={<ProtectedRoute moduleKey="deliveries" />}>
+              <Route path="deliveries" element={<DeliveriesPage />} />
+            </Route>
 
             <Route element={<ProtectedRoute moduleKey="userManagement" />}>
               <Route path="user-management" element={<UserManagementPage />} />
@@ -139,7 +143,7 @@ function App() {
 
 
             {protectedModules
-              .filter((moduleKey) => !['buildings', 'units', 'residents', 'access', 'userManagement'].includes(moduleKey))
+              .filter((moduleKey) => !['buildings', 'units', 'residents', 'access', 'deliveries', 'userManagement'].includes(moduleKey))
               .map((moduleKey) => (
 
                 <Route
