@@ -44,6 +44,7 @@ public final class PermissionCodes {
 
     public static final String INCIDENTS_VIEW = "INCIDENTS_VIEW";
     public static final String INCIDENTS_VIEW_OWN = "INCIDENTS_VIEW_OWN";
+    public static final String INCIDENTS_VIEW_UNIT = "INCIDENTS_VIEW_UNIT";
     public static final String INCIDENTS_VIEW_ASSIGNED = "INCIDENTS_VIEW_ASSIGNED";
     public static final String INCIDENTS_CREATE = "INCIDENTS_CREATE";
     public static final String INCIDENTS_CREATE_OWN = "INCIDENTS_CREATE_OWN";
