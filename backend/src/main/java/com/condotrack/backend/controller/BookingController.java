@@ -39,11 +39,7 @@ public class BookingController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("""
-        @bookingAccessService.canCreate(
-            authentication,
-            #request.unitId,
-            #request.residentId
-        )
+        @bookingAccessService.canCreate(authentication, #request.unitId, #request.residentId)
     """)
     public BookingResponse createBooking(
             @Valid @RequestBody BookingCreateRequest request,
@@ -62,10 +58,6 @@ public class BookingController {
             @Valid @RequestBody BookingStatusUpdateRequest request,
             Authentication authentication
     ) {
-        return bookingService.updateStatus(
-                bookingId,
-                request,
-                authentication
-        );
+        return bookingService.updateStatus(bookingId,request,authentication);
     }
 }

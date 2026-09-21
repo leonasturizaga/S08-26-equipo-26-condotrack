@@ -133,10 +133,6 @@ public class BookingService {
         booking.setPurpose(normalizeOptional(request.purpose()));
         booking.setUpdatedBy(currentUser.getId());
 
-        /*
-         * Según la regla “el primero que reserva gana”,
-         * se puede crear directamente como APPROVED.
-         */
         booking.setStatus(Enums.BookingStatus.APPROVED);
 
         try {

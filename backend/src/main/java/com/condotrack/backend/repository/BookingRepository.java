@@ -18,11 +18,4 @@ public interface BookingRepository extends JpaRepository<Booking, UUID> {
     Optional<Booking> findByIdAndResident_User_EmailIgnoreCase(UUID bookingId, String email);
 
     boolean existsByIdAndResident_User_EmailIgnoreCase(UUID bookingId,String email);
-
-    List<Booking> findByCommonAreaIdAndStartAtLessThanAndEndAtGreaterThanAndStatusIn(
-            UUID commonAreaId,
-            java.time.OffsetDateTime endAt,
-            java.time.OffsetDateTime startAt,
-            List<Enums.BookingStatus> statuses
-    );
 }

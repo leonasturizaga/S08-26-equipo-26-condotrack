@@ -1,8 +1,5 @@
 package com.condotrack.backend.service;
 
-import com.condotrack.backend.model.Booking;
-import com.condotrack.backend.model.CommonArea;
-import com.condotrack.backend.model.User;
 import com.condotrack.backend.repository.BookingRepository;
 import com.condotrack.backend.repository.ResidentRepository;
 import lombok.RequiredArgsConstructor;
