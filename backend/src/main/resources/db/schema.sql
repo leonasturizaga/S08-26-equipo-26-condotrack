@@ -441,7 +441,8 @@ VALUES
     ('22222222-2222-2222-2222-222222220060', 'USER_MANAGEMENT_UPDATE', 'Update users', 'Modify users, roles and account state.'),
     ('22222222-2222-2222-2222-222222220061', 'COMMUNICATIONS_VIEW', 'View communications', 'Receive and view announcements and notifications.'),
     ('22222222-2222-2222-2222-222222220062', 'COMMUNICATIONS_CREATE', 'Create communications', 'Create and send announcements and communications.'),
-    ('22222222-2222-2222-2222-222222220063', 'INCIDENTS_VIEW_UNIT', 'View incidents for own units', 'View incidents associated with units where the authenticated owner has an active resident relationship.')
+    ('22222222-2222-2222-2222-222222220063', 'INCIDENTS_VIEW_UNIT', 'View incidents for own units', 'View incidents associated with units where the authenticated owner has an active resident relationship.'),
+    ('22222222-2222-2222-2222-222222220064', 'MAINTENANCE_VIEW_UNIT', 'View maintenance for own units', 'View maintenance requests associated with units where the authenticated owner has an active resident relationship.')
 ON CONFLICT (code) DO NOTHING;
 
 INSERT INTO role_permissions (role_id, permission_id)
@@ -491,7 +492,7 @@ JOIN permissions p ON p.code IN (
     'UNITS_VIEW_OWN',
     'RESIDENTS_VIEW_OWN', 'RESIDENTS_UPDATE_OWN',
     'INCIDENTS_VIEW_UNIT',
-    'MAINTENANCE_VIEW',
+    'MAINTENANCE_VIEW_UNIT',
     'MOVES_VIEW', 'MOVES_APPROVE',
     'COMMUNICATIONS_VIEW'
 )

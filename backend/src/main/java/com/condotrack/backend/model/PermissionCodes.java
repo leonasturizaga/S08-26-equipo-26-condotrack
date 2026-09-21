@@ -1,3 +1,4 @@
+//----------------------- M17 ----------------
 package com.condotrack.backend.model;
 
 public final class PermissionCodes {
@@ -56,6 +57,7 @@ public final class PermissionCodes {
     public static final String MAINTENANCE_VIEW = "MAINTENANCE_VIEW";
     public static final String MAINTENANCE_VIEW_OWN = "MAINTENANCE_VIEW_OWN";
     public static final String MAINTENANCE_VIEW_ASSIGNED = "MAINTENANCE_VIEW_ASSIGNED";
+    public static final String MAINTENANCE_VIEW_UNIT = "MAINTENANCE_VIEW_UNIT";
     public static final String MAINTENANCE_CREATE = "MAINTENANCE_CREATE";
     public static final String MAINTENANCE_CREATE_OWN = "MAINTENANCE_CREATE_OWN";
     public static final String MAINTENANCE_UPDATE = "MAINTENANCE_UPDATE";

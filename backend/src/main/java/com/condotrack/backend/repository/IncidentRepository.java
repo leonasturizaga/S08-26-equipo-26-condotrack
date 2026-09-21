@@ -39,7 +39,6 @@ public interface IncidentRepository extends JpaRepository<Incident, UUID> {
             String email,
             Pageable pageable
     );
-
     @Query("""
             SELECT DISTINCT i
             FROM Incident i
