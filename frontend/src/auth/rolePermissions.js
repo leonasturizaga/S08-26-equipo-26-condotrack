@@ -104,6 +104,7 @@ export const rolePermissions = {
     buildingConfig: 'full',
     userManagement: 'full',
     communications: 'create',
+    generalSettings: 'full',
   },
 
   RECEPTION: {
