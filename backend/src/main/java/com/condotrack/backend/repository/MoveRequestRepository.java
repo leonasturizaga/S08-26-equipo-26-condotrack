@@ -30,8 +30,6 @@ import java.util.UUID;
 
 public interface MoveRequestRepository extends JpaRepository<MoveRequest, UUID> {
 
-    List<MoveRequest> findByUnitIdAndStatusNotInOrderByRequestedAtDesc(UUID unitId, List<MoveRequestStatus> excludedStatuses);
-
     Page<MoveRequest> findAllByOrderByRequestedAtDesc(Pageable pageable);
 
     Page<MoveRequest> findByUnit_Building_IdInOrderByRequestedAtDesc(Collection<UUID> buildingIds, Pageable pageable);
@@ -49,4 +47,8 @@ public interface MoveRequestRepository extends JpaRepository<MoveRequest, UUID> 
     boolean existsByIdAndResident_User_EmailIgnoreCase(UUID id, String email);
 
     boolean existsByIdAndUnit_Id(UUID id, UUID unitId);
+    List<MoveRequest> findByUnitIdAndStatusNotInOrderByRequestedAtDesc(
+            UUID unitId,
+            List<MoveRequestStatus> excludedStatuses
+    );
 }
