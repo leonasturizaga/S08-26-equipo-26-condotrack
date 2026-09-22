@@ -82,4 +82,6 @@ public final class PermissionCodes {
 
     public static final String COMMUNICATIONS_VIEW = "COMMUNICATIONS_VIEW";
     public static final String COMMUNICATIONS_CREATE = "COMMUNICATIONS_CREATE";
+    public static final String RBAC_MANAGEMENT_VIEW = "RBAC_MANAGEMENT_VIEW";
+    public static final String RBAC_MANAGEMENT_UPDATE = "RBAC_MANAGEMENT_UPDATE";
 }

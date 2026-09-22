@@ -1,3 +1,4 @@
+//----------------------- M17.1 ----------------
 package com.condotrack.backend.service;
 
 import com.condotrack.backend.dto.*;
@@ -45,7 +46,20 @@ public class MaintenanceService {
         Pageable pageable = PageRequest.of(Math.max(page, 0), Math.min(Math.max(size, 1), MAX_PAGE_SIZE));
         Page<MaintenanceResponse> result;
         if (permissionService.hasPermission(authentication, "MAINTENANCE_VIEW")) {
-            result = maintenanceRepository.findAllByOrderByCreatedAtDesc(pageable).map(this::toResponse);
+            List<UUID> staffBuildingIds = staffRepository.findActiveByUserEmailIgnoreCase(authentication.getName()).stream()
+                    .map(staff -> staff.getBuilding().getId())
+                    .distinct()
+                    .filter(buildingId -> permissionService.hasPermission(authentication, "MAINTENANCE_VIEW", buildingId))
+                    .toList();
+
+            boolean administrator = authentication.getAuthorities().stream()
+                    .anyMatch(authority -> "ROLE_ADMINISTRATOR".equals(authority.getAuthority()));
+
+            if (administrator || staffBuildingIds.isEmpty()) {
+                result = maintenanceRepository.findAllByOrderByCreatedAtDesc(pageable).map(this::toResponse);
+            } else {
+                result = maintenanceRepository.findByBuilding_IdInOrderByCreatedAtDesc(staffBuildingIds, pageable).map(this::toResponse);
+            }
         } else if (permissionService.hasPermission(authentication, "MAINTENANCE_VIEW_ASSIGNED")) {
             result = maintenanceRepository.findByAssignedToStaff_User_EmailIgnoreCaseOrderByCreatedAtDesc(authentication.getName(), pageable).map(this::toResponse);
         } else if (permissionService.hasPermission(authentication, "MAINTENANCE_VIEW_OWN")) {
@@ -134,7 +148,7 @@ public class MaintenanceService {
         User currentUser = getAuthenticatedUser(authentication);
         Enums.MaintenanceStatus current = maintenance.getStatus();
         Enums.MaintenanceStatus target = request.status();
-        boolean administrator = permissionService.hasPermission(authentication, "MAINTENANCE_UPDATE");
+        boolean administrator = permissionService.hasPermission(authentication, "MAINTENANCE_UPDATE", maintenance.getBuilding().getId());
 
         if (current == target) throw new IllegalStateException("Maintenance request is already in status " + target);
         if (!administrator && maintenance.getAssignedToStaff() == null) throw new IllegalStateException("Maintenance request is not assigned");
@@ -166,7 +180,13 @@ public class MaintenanceService {
         }
         if (permissionService.hasPermission(authentication, "MAINTENANCE_CREATE")) {
             List<UUID> buildingIds = staffRepository.findActiveByUserEmailIgnoreCase(authentication.getName()).stream()
-                    .map(staff -> staff.getBuilding().getId()).distinct().toList();
+                    .map(staff -> staff.getBuilding().getId())
+                    .distinct()
+                    .filter(buildingId -> permissionService.hasPermission(authentication, "MAINTENANCE_CREATE", buildingId))
+                    .toList();
+            if (buildingIds.isEmpty() && authentication.getAuthorities().stream().anyMatch(a -> "ROLE_ADMINISTRATOR".equals(a.getAuthority()))) {
+                return toUnitOptions(unitRepository.findByActiveTrueOrderByBuildingIdAscUnitNumberAsc());
+            }
             if (buildingIds.isEmpty()) return List.of();
             return toUnitOptions(unitRepository.findByBuildingIdInAndActiveTrueOrderByBuildingIdAscUnitNumberAsc(buildingIds));
         }
@@ -186,18 +206,28 @@ public class MaintenanceService {
     }
 
     private void validateCreateScope(Authentication authentication, Unit unit) {
-        if (permissionService.hasPermission(authentication, "MAINTENANCE_CREATE_OWN")) {
+        UUID buildingId = unit.getBuilding().getId();
+        if (permissionService.hasPermission(authentication, "MAINTENANCE_CREATE_OWN", buildingId)) {
             if (!residentRepository.existsActiveResidentForUserAndUnit(authentication.getName(), unit.getId())) {
                 throw new AccessDeniedException("User can only create maintenance for their own unit");
             }
             return;
         }
-        if (permissionService.hasPermission(authentication, "MAINTENANCE_ASSIGN")) return;
-        if (!staffRepository.existsActiveByUserEmailAndBuildingId(authentication.getName(), unit.getBuilding().getId())) {
-            throw new AccessDeniedException("Reception user is not assigned to the selected building");
+        if (permissionService.hasPermission(authentication, "MAINTENANCE_CREATE", buildingId)
+                || permissionService.hasPermission(authentication, "MAINTENANCE_ASSIGN", buildingId)) {
+            if (hasRole(authentication, "ADMINISTRATOR")) return;
+            if (!staffRepository.existsActiveByUserEmailAndBuildingId(authentication.getName(), buildingId)) {
+                throw new AccessDeniedException("Reception user is not assigned to the selected building");
+            }
+            return;
         }
+        throw new AccessDeniedException("User is not allowed to create maintenance for the selected building");
     }
 
+    private boolean hasRole(Authentication authentication, String roleCode) {
+        return authentication.getAuthorities().stream()
+                .anyMatch(authority -> ("ROLE_" + roleCode).equals(authority.getAuthority()));
+    }
     private void validateUnitActive(Unit unit) {
         if (!unit.isActive()) throw new IllegalStateException("Unit is inactive");
         if (unit.getBuilding() == null || !unit.getBuilding().isActive()) throw new IllegalStateException("Unit belongs to an inactive building");

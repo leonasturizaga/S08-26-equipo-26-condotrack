@@ -1,4 +1,4 @@
-//----------------- M17 ---------------------
+//----------------- M17.1 ---------------------
 package com.condotrack.backend.repository;
 
 import com.condotrack.backend.model.MaintenanceRequest;
@@ -35,6 +35,13 @@ public interface MaintenanceRequestRepository extends JpaRepository<MaintenanceR
 
     boolean existsByIdAndAssignedToStaff_User_EmailIgnoreCase(UUID id, String email);
 
+    @Query("select m.building.id from MaintenanceRequest m where m.id = :id")
+    java.util.Optional<UUID> findBuildingIdById(@Param("id") UUID id);
+
+    @Query("select m.building.id from MaintenanceRequest m where m.unit.id = :unitId")
+    java.util.Optional<UUID> findBuildingIdByUnitId(@Param("unitId") UUID unitId);
+
+    Page<MaintenanceRequest> findByBuilding_IdInOrderByCreatedAtDesc(java.util.Collection<UUID> buildingIds, Pageable pageable);
     @Query("""
             SELECT CASE WHEN COUNT(m) > 0 THEN true ELSE false END
             FROM MaintenanceRequest m

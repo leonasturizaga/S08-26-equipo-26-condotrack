@@ -80,6 +80,19 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>2.9.1</version>
+        </dependency> -->
+
+         <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <!-- Use a stable version fully compatible with Spring Boot 3.3+ -->
+            <version>2.6.0</version> 
+         </dependency>        
+        
          <dependency>
             <groupId>me.paulschwarz</groupId>
             <artifactId>springboot3-dotenv</artifactId>

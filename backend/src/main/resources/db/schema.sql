@@ -44,6 +44,7 @@ CREATE TABLE IF NOT EXISTS permissions (
 CREATE TABLE IF NOT EXISTS role_permissions (
     role_id UUID NOT NULL REFERENCES roles(id) ON DELETE CASCADE,
     permission_id UUID NOT NULL REFERENCES permissions(id) ON DELETE CASCADE,
+    active BOOLEAN NOT NULL DEFAULT TRUE,
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_by UUID,
@@ -65,6 +66,17 @@ CREATE TABLE IF NOT EXISTS buildings (
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_by UUID
+);
+
+CREATE TABLE IF NOT EXISTS building_role_permissions (
+    building_id UUID NOT NULL REFERENCES buildings(id) ON DELETE CASCADE,
+    role_id UUID NOT NULL REFERENCES roles(id) ON DELETE CASCADE,
+    permission_id UUID NOT NULL REFERENCES permissions(id) ON DELETE CASCADE,
+    active BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_by UUID,
+    PRIMARY KEY (building_id, role_id, permission_id)
 );
 
 CREATE TABLE IF NOT EXISTS units (
@@ -366,6 +378,8 @@ CREATE INDEX IF NOT EXISTS idx_notifications_recipient_status ON notifications(r
 CREATE INDEX IF NOT EXISTS idx_audit_logs_entity ON audit_logs(entity_type, entity_id, occurred_at DESC);
 CREATE INDEX IF NOT EXISTS idx_audit_logs_building ON audit_logs(building_id, occurred_at DESC);
 CREATE INDEX IF NOT EXISTS idx_role_permissions_permission_id ON role_permissions(permission_id);
+CREATE INDEX IF NOT EXISTS idx_building_role_permissions_building ON building_role_permissions(building_id);
+CREATE INDEX IF NOT EXISTS idx_building_role_permissions_role_permission ON building_role_permissions(role_id, permission_id);
 
 INSERT INTO roles (id, code, name)
 VALUES
@@ -442,7 +456,9 @@ VALUES
     ('22222222-2222-2222-2222-222222220061', 'COMMUNICATIONS_VIEW', 'View communications', 'Receive and view announcements and notifications.'),
     ('22222222-2222-2222-2222-222222220062', 'COMMUNICATIONS_CREATE', 'Create communications', 'Create and send announcements and communications.'),
     ('22222222-2222-2222-2222-222222220063', 'INCIDENTS_VIEW_UNIT', 'View incidents for own units', 'View incidents associated with units where the authenticated owner has an active resident relationship.'),
-    ('22222222-2222-2222-2222-222222220064', 'MAINTENANCE_VIEW_UNIT', 'View maintenance for own units', 'View maintenance requests associated with units where the authenticated owner has an active resident relationship.')
+    ('22222222-2222-2222-2222-222222220064', 'MAINTENANCE_VIEW_UNIT', 'View maintenance for own units', 'View maintenance requests associated with units where the authenticated owner has an active resident relationship.'),
+    ('22222222-2222-2222-2222-222222220065', 'RBAC_MANAGEMENT_VIEW', 'View role and permission configuration', 'View current RBAC assignments and permission configuration.'),
+    ('22222222-2222-2222-2222-222222220066', 'RBAC_MANAGEMENT_UPDATE', 'Update role and permission configuration', 'Activate, deactivate, or override role permissions.')
 ON CONFLICT (code) DO NOTHING;
 
 INSERT INTO role_permissions (role_id, permission_id)
@@ -461,8 +477,8 @@ JOIN permissions p ON p.code IN (
     'ACCESS_VIEW', 'ACCESS_CREATE', 'ACCESS_UPDATE',
     'DELIVERIES_VIEW', 'DELIVERIES_CREATE', 'DELIVERIES_UPDATE',
     'BOOKINGS_VIEW',
-    'INCIDENTS_VIEW', 'INCIDENTS_CREATE', 'INCIDENTS_UPDATE',
-    'MAINTENANCE_VIEW', 'MAINTENANCE_CREATE',
+    'INCIDENTS_VIEW_OWN', 'INCIDENTS_CREATE', 'INCIDENTS_UPDATE_OWN',
+    'MAINTENANCE_VIEW', 'MAINTENANCE_CREATE', 'MAINTENANCE_UPDATE',
     'MOVES_VIEW'
 )
 WHERE r.code = 'RECEPTION'
@@ -477,8 +493,8 @@ JOIN permissions p ON p.code IN (
     'ACCESS_VIEW_OWN', 'ACCESS_CREATE_OWN', 'ACCESS_UPDATE_OWN',
     'DELIVERIES_VIEW_OWN',
     'BOOKINGS_VIEW_OWN', 'BOOKINGS_CREATE_OWN', 'BOOKINGS_UPDATE_OWN', 'BOOKINGS_CANCEL_OWN',
-    'INCIDENTS_VIEW_OWN', 'INCIDENTS_CREATE', 'INCIDENTS_UPDATE_OWN',
-    'MAINTENANCE_VIEW_OWN', 'MAINTENANCE_CREATE_OWN', 'MAINTENANCE_UPDATE_OWN',
+    'INCIDENTS_VIEW_OWN', 'INCIDENTS_CREATE_OWN',
+    'MAINTENANCE_VIEW_OWN', 'MAINTENANCE_CREATE_OWN',
     'MOVES_VIEW_OWN', 'MOVES_CREATE_OWN',
     'COMMUNICATIONS_VIEW'
 )

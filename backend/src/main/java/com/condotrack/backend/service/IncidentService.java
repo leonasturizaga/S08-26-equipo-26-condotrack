@@ -1,3 +1,4 @@
+//----------------------- M17.1 ----------------
 package com.condotrack.backend.service;
 
 import com.condotrack.backend.dto.IncidentAssignmentRequest;
@@ -48,7 +49,20 @@ public class IncidentService {
         Page<IncidentResponse> incidents;
 
         if (permissionService.hasPermission(authentication, "INCIDENTS_VIEW")) {
-            incidents = incidentRepository.findAllByOrderByCreatedAtDesc(pageable).map(this::toResponse);
+            List<UUID> staffBuildingIds = staffRepository.findActiveByUserEmailIgnoreCase(authentication.getName()).stream()
+                    .map(staff -> staff.getBuilding().getId())
+                    .distinct()
+                    .filter(buildingId -> permissionService.hasPermission(authentication, "INCIDENTS_VIEW", buildingId))
+                    .toList();
+
+            boolean administrator = authentication.getAuthorities().stream()
+                    .anyMatch(authority -> "ROLE_ADMINISTRATOR".equals(authority.getAuthority()));
+
+            if (administrator || staffBuildingIds.isEmpty()) {
+                incidents = incidentRepository.findAllByOrderByCreatedAtDesc(pageable).map(this::toResponse);
+            } else {
+                incidents = incidentRepository.findByBuilding_IdInOrderByCreatedAtDesc(staffBuildingIds, pageable).map(this::toResponse);
+            }
         } else if (permissionService.hasPermission(authentication, "INCIDENTS_VIEW_ASSIGNED")) {
             incidents = incidentRepository
                     .findByAssignedToStaff_User_EmailIgnoreCaseOrderByCreatedAtDesc(
@@ -179,7 +193,7 @@ public class IncidentService {
 
         Enums.IncidentStatus currentStatus = incident.getStatus();
         Enums.IncidentStatus targetStatus = request.status();
-        boolean administrator = permissionService.hasPermission(authentication, "INCIDENTS_UPDATE");
+        boolean administrator = permissionService.hasPermission(authentication, "INCIDENTS_UPDATE", incident.getBuilding().getId());
 
         validateTransition(currentStatus, targetStatus, administrator);
 
@@ -230,7 +244,9 @@ public class IncidentService {
         if (permissionService.hasPermission(authentication, "INCIDENTS_CREATE")) {
             return unitRepository.findByActiveTrueOrderByBuildingIdAscUnitNumberAsc()
                     .stream()
-                    .filter(unit -> unit.getBuilding() != null && unit.getBuilding().isActive())
+                    .filter(unit -> unit.getBuilding() != null
+                            && unit.getBuilding().isActive()
+                            && permissionService.hasPermission(authentication, "INCIDENTS_CREATE", unit.getBuilding().getId()))
                     .map(unit -> new IncidentUnitOptionResponse(
                             unit.getId(),
                             unit.getUnitNumber(),
