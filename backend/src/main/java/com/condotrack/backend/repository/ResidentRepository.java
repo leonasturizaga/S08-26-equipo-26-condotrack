@@ -127,7 +127,30 @@ public interface ResidentRepository extends JpaRepository<Resident, UUID> {
             @Param("residentId") UUID residentId
     );
 
+	// milestone 18
+    @Query("""
+            SELECT DISTINCT r.unit.id
+            FROM Resident r
+            WHERE LOWER(r.user.email) = LOWER(:email)
+              AND r.active = true
+              AND r.unit.active = true
+            """)
+    List<UUID> findActiveUnitIdsForUser(@Param("email") String email);
     // milestone 15 Additional method to check if a resident with a specific ID belongs to a specific unit and is active
         boolean existsByIdAndUnitIdAndActiveTrue(UUID residentId, UUID unitId);
+
+	// milestone 18
+    @Query("""
+            SELECT CASE WHEN COUNT(r) > 0 THEN true ELSE false END
+            FROM Resident r
+            WHERE LOWER(r.user.email) = LOWER(:email)
+              AND r.unit.id = :unitId
+              AND r.active = true
+              AND r.residentType = com.condotrack.backend.model.Enums.ResidentType.OWNER
+            """)
+    boolean existsActiveOwnerForUserAndUnit(
+            @Param("email") String email,
+            @Param("unitId") UUID unitId
+    );
 
 }

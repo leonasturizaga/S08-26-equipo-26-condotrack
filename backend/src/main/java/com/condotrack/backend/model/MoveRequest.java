@@ -1,3 +1,4 @@
+//---------------- milestone M18 -----------------
 package com.condotrack.backend.model;
 
 import jakarta.persistence.*;
@@ -21,5 +22,9 @@ public class MoveRequest extends BaseEntity {
     @Column(name = "scheduled_end") private OffsetDateTime scheduledEnd;
     @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "approved_by_staff_id") private Staff approvedByStaff;
     @Column(name = "approved_at") private OffsetDateTime approvedAt;
+    @Column(name = "owner_authorized", nullable = false) private boolean ownerAuthorized = false;
+    @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "owner_authorized_by_user_id") private User ownerAuthorizedByUser;
+    @Column(name = "owner_authorized_at") private OffsetDateTime ownerAuthorizedAt;
+    @Column(name = "owner_authorization_notes", columnDefinition = "TEXT") private String ownerAuthorizationNotes;
     @Column(columnDefinition = "TEXT") private String notes;
 }

@@ -1,4 +1,4 @@
-//----------------------- M17 ----------------
+//----------------------- M18 ----------------
 package com.condotrack.backend.model;
 
 public final class PermissionCodes {
@@ -70,6 +70,8 @@ public final class PermissionCodes {
     public static final String MOVES_CREATE = "MOVES_CREATE";
     public static final String MOVES_CREATE_OWN = "MOVES_CREATE_OWN";
     public static final String MOVES_APPROVE = "MOVES_APPROVE";
+    public static final String MOVES_VIEW_UNIT = "MOVES_VIEW_UNIT";
+    public static final String MOVES_AUTHORIZE = "MOVES_AUTHORIZE";
 
     public static final String REPORTS_VIEW = "REPORTS_VIEW";
 
