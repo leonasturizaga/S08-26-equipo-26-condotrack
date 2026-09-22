@@ -133,11 +133,9 @@ public class RbacService {
             throw new IllegalStateException("Administrator permissions are managed globally and cannot be overridden per building.");
         }
 
-        if (request.buildingId() == null
-                && "ADMINISTRATOR".equals(role.getCode())
-                && (RBAC_UPDATE_PERMISSION.equals(permission.getCode()) || RBAC_VIEW_PERMISSION.equals(permission.getCode()))
-                && !request.active()) {
-            throw new IllegalStateException("RBAC management permissions cannot be globally disabled for Administrator.");
+
+        if ("ADMINISTRATOR".equals(role.getCode()) && !request.active()) {
+            throw new IllegalStateException("Administrator permissions cannot be disabled.");
         }
 
         if (request.buildingId() == null) {

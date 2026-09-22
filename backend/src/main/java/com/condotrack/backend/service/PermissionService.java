@@ -79,6 +79,12 @@ public class PermissionService {
             return false;
         }
 
+        // Administrators have global, building-independent permissions.
+        // Building-specific overrides are not applicable to this role.
+        if (roleCodes.contains("ADMINISTRATOR")) {
+            return rolePermissionRepository.findByRoleCodes(Set.of("ADMINISTRATOR")).stream()
+                    .anyMatch(rp -> permissionCode.equals(rp.getPermission().getCode()) && rp.isActive());
+        }
         Map<String, Boolean> global = new HashMap<>();
         for (RolePermission rp : rolePermissionRepository.findByRoleCodes(roleCodes)) {
             if (permissionCode.equals(rp.getPermission().getCode())) {
