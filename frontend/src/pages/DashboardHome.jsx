@@ -1,5 +1,6 @@
 import { NavLink } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext.jsx'
+import Icon from '../components/Icon.jsx'
 import {
   getModulePermission,
   getVisibleModules,
@@ -78,7 +79,7 @@ function DashboardHome() {
                   className="module-link"
                 >
                   <span className="module-link-icon">
-                    {module.icon}
+                    <Icon name={module.icon} size={18} />
                   </span>
 
                   <span className="module-link-content">
@@ -93,7 +94,7 @@ function DashboardHome() {
                   </span>
 
                   <span className="module-link-arrow">
-                    →
+                    <Icon name="chevronRight" size={16} />
                   </span>
                 </NavLink>
               )
