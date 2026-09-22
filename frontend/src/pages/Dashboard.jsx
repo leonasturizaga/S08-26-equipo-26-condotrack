@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { NavLink, Outlet } from 'react-router-dom'
 
 import LanguageToggle from '../components/LanguageToggle.jsx'
+import Icon from '../components/Icon.jsx'
 import { useAuth } from '../auth/AuthContext.jsx'
 import {
   getModulePermission,
@@ -14,61 +15,61 @@ import { useTranslation } from '../i18n/i18n.js'
 const sidebarModules = [
   {
     key: 'buildings',
-    icon: '▦',
+    icon: 'building',
     label: 'Buildings',
     path: '/dashboard/buildings',
   },
   {
     key: 'units',
-    icon: '⌂',
+    icon: 'unit',
     label: 'Units',
     path: '/dashboard/units',
   },
   {
     key: 'residents',
-    icon: '♙',
+    icon: 'users',
     label: 'Residents / Owners',
     path: '/dashboard/residents',
   },
   {
     key: 'access',
-    icon: '◉',
+    icon: 'door',
     label: 'Access / Visitors',
     path: '/dashboard/access',
   },
   {
     key: 'deliveries',
-    icon: '□',
+    icon: 'package',
     label: 'Deliveries / Mail',
     path: '/dashboard/deliveries',
   },
   {
     key: 'bookings',
-    icon: '◷',
+    icon: 'calendar',
     label: 'Common Area Bookings',
     path: '/dashboard/bookings',
   },
   {
     key: 'incidents',
-    icon: '!',
+    icon: 'alert',
     label: 'Incidents',
     path: '/dashboard/incidents',
   },
   {
     key: 'maintenance',
-    icon: '⌁',
+    icon: 'wrench',
     label: 'Maintenance',
     path: '/dashboard/maintenance',
   },
   {
     key: 'moves',
-    icon: '⇄',
+    icon: 'move',
     label: 'Move Requests',
     path: '/dashboard/moves',
   },
   {
     key: 'notifications',
-    icon: '○',
+    icon: 'megaphone',
     label: 'Notifications',
     path: '/dashboard/notifications',
   },
@@ -144,7 +145,7 @@ function DashboardHome({
                   }
                 >
                   <span className="module-link-icon">
-                    {module.icon}
+                    <Icon name={module.icon} size={18} />
                   </span>
 
                   <span className="module-link-content">
@@ -154,7 +155,7 @@ function DashboardHome({
                     </small>
                   </span>
 
-                  <span className="module-link-arrow">→</span>
+                  <span className="module-link-arrow"><Icon name="chevronRight" size={16} /></span>
                 </NavLink>
               )
             })}
@@ -232,7 +233,7 @@ function Dashboard() {
         }`}
       >
         <div className="brand">
-          <div className="brand-mark">CT</div>
+          <div className="brand-mark"><Icon name="building" size={22} /></div>
 
           <div>
             <strong>{t('CondoTrack')}</strong>
@@ -245,7 +246,7 @@ function Dashboard() {
             aria-label={t('Close')}
             type="button"
           >
-            ×
+            <Icon name="x" size={18} />
           </button>
         </div>
 
@@ -258,7 +259,7 @@ function Dashboard() {
             }
             onClick={() => setSidebarOpen(false)}
           >
-            <span className="nav-icon">⌂</span>
+            <span className="nav-icon"><Icon name="home" size={17} /></span>
             <span>{t('Dashboard')}</span>
           </NavLink>
 
@@ -272,7 +273,7 @@ function Dashboard() {
               onClick={() => setSidebarOpen(false)}
             >
               <span className="nav-icon">
-                {module.icon}
+                <Icon name={module.icon} size={17} />
               </span>
 
               <span>{t(module.label)}</span>
@@ -290,7 +291,7 @@ function Dashboard() {
               className="nav-item"
               onClick={() => setSidebarOpen(false)}
             >
-              <span className="nav-icon">⚙</span>
+              <span className="nav-icon"><Icon name="user" size={17} /></span>
               <span>{t('User Management')}</span>
             </NavLink>
           )}
@@ -304,7 +305,7 @@ function Dashboard() {
               className="nav-item"
               onClick={() => setSidebarOpen(false)}
             >
-              <span className="nav-icon">⚙</span>
+              <span className="nav-icon"><Icon name="settings" size={17} /></span>
               <span>{t('General Settings')}</span>
             </NavLink>
           )}
@@ -313,7 +314,7 @@ function Dashboard() {
             onClick={logout}
             type="button"
           >
-            <span className="nav-icon">↪</span>
+            <span className="nav-icon"><Icon name="logout" size={17} /></span>
             <span>{t('Sign Out')}</span>
           </button>
         </div>
@@ -327,7 +328,7 @@ function Dashboard() {
             aria-label={t('Open navigation')}
             type="button"
           >
-            ☰
+            <Icon name="menu" size={19} />
           </button>
 
           <div className="topbar-title">

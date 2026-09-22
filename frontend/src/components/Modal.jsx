@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 
 import { useTranslation } from '../i18n/i18n.js'
+import Icon from './Icon.jsx'
 
 function Modal({
   open,
