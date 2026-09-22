@@ -136,8 +136,6 @@ public interface ResidentRepository extends JpaRepository<Resident, UUID> {
               AND r.unit.active = true
             """)
     List<UUID> findActiveUnitIdsForUser(@Param("email") String email);
-    // milestone 15 Additional method to check if a resident with a specific ID belongs to a specific unit and is active
-        boolean existsByIdAndUnitIdAndActiveTrue(UUID residentId, UUID unitId);
 
 	// milestone 18
     @Query("""
@@ -153,4 +151,6 @@ public interface ResidentRepository extends JpaRepository<Resident, UUID> {
             @Param("unitId") UUID unitId
     );
 
+    // milestone 15 Additional method to check if a resident with a specific ID belongs to a specific unit and is active
+        boolean existsByIdAndUnitIdAndActiveTrue(UUID residentId, UUID unitId);
 }
