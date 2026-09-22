@@ -264,6 +264,10 @@ CREATE TABLE IF NOT EXISTS move_requests (
     scheduled_end TIMESTAMPTZ,
     approved_by_staff_id UUID REFERENCES staff(id),
     approved_at TIMESTAMPTZ,
+    owner_authorized BOOLEAN NOT NULL DEFAULT FALSE,
+    owner_authorized_by_user_id UUID REFERENCES users(id),
+    owner_authorized_at TIMESTAMPTZ,
+    owner_authorization_notes TEXT,
     notes TEXT,
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -446,7 +450,9 @@ VALUES
     ('22222222-2222-2222-2222-222222220051', 'MOVES_VIEW_OWN', 'View own move requests', 'View move requests within the authenticated user scope.'),
     ('22222222-2222-2222-2222-222222220052', 'MOVES_CREATE', 'Create move requests', 'Create move requests.'),
     ('22222222-2222-2222-2222-222222220053', 'MOVES_CREATE_OWN', 'Create own move requests', 'Create move requests within the authenticated user scope.'),
-    ('22222222-2222-2222-2222-222222220054', 'MOVES_APPROVE', 'Approve move requests', 'Approve or authorize move requests.'),
+    ('22222222-2222-2222-2222-222222220054', 'MOVES_APPROVE', 'Approve move requests', 'Approve or reject move requests for administration.'),
+    ('22222222-2222-2222-2222-222222220067', 'MOVES_VIEW_UNIT', 'View move requests for own units', 'View move requests associated with units owned by the authenticated owner.'),
+    ('22222222-2222-2222-2222-222222220068', 'MOVES_AUTHORIZE', 'Authorize unit move requests', 'Authorize move requests affecting units owned by the authenticated owner.'),
     ('22222222-2222-2222-2222-222222220055', 'REPORTS_VIEW', 'View reports', 'View operational reports and KPIs.'),
     ('22222222-2222-2222-2222-222222220056', 'BUILDING_CONFIG_VIEW', 'View building configuration', 'View building configuration.'),
     ('22222222-2222-2222-2222-222222220057', 'BUILDING_CONFIG_UPDATE', 'Update building configuration', 'Modify building configuration and policies.'),
@@ -509,7 +515,7 @@ JOIN permissions p ON p.code IN (
     'RESIDENTS_VIEW_OWN', 'RESIDENTS_UPDATE_OWN',
     'INCIDENTS_VIEW_UNIT',
     'MAINTENANCE_VIEW_UNIT',
-    'MOVES_VIEW', 'MOVES_APPROVE',
+    'MOVES_VIEW_UNIT', 'MOVES_AUTHORIZE',
     'COMMUNICATIONS_VIEW'
 )
 WHERE r.code = 'OWNER'
