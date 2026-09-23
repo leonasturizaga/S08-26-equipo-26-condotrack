@@ -63,7 +63,7 @@ public class MoveController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    @PreAuthorize("@moveAccessService.canCreate(authentication, #request.unitId)")
+    @PreAuthorize("@moveAccessService.canCreate(authentication, #request)")
     @Operation(summary = "Create a move request")
     public MoveResponse createMove(
             @Valid @RequestBody MoveCreateRequest request,

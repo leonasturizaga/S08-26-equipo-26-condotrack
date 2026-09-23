@@ -36,22 +36,22 @@ public interface UnitRepository extends JpaRepository<Unit, UUID> {
             Pageable pageable
     );
 
-    Page<Unit> findAllByOrderByBuildingIdAscUnitNumberAsc(Pageable pageable);
+   //  Page<Unit> findAllByOrderByBuildingIdAscUnitNumberAsc(Pageable pageable);
 
-    @Query("""
-            SELECT DISTINCT u
-            FROM Unit u
-            JOIN u.residents r
-            JOIN r.user user
-            WHERE LOWER(user.email) = LOWER(:email)
-              AND r.active = true
+   //  @Query("""
+   //          SELECT DISTINCT u
+   //          FROM Unit u
+   //          JOIN u.residents r
+   //          JOIN r.user user
+   //          WHERE LOWER(user.email) = LOWER(:email)
+   //            AND r.active = true
            
-            ORDER BY u.building.id ASC, u.unitNumber ASC
-            """)
-    Page<Unit> findUnitsForUser(
-            @Param("email") String email,
-            Pageable pageable
-    );
+   //          ORDER BY u.building.id ASC, u.unitNumber ASC
+   //          """)
+   //  Page<Unit> findUnitsForUser(
+   //          @Param("email") String email,
+   //          Pageable pageable
+   //  );
 
     boolean existsByBuildingIdAndUnitNumberIgnoreCase(UUID buildingId, String unitNumber);
 
