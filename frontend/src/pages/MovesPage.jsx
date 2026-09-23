@@ -67,10 +67,12 @@ function defaultStatusForm() {
 function MovePage() {
   const { t } = useTranslation()
   const { user } = useAuth()
-  const role = user?.roles?.[0] || user?.role
-  const isAdmin = role === 'ADMINISTRATOR'
-  const isOwner = role === 'OWNER'
-  const canCreate = role === 'ADMINISTRATOR' || role === 'RESIDENT'
+const rawRole = user?.roles?.[0] ?? user?.role ?? ''
+const role = String(rawRole).trim().toUpperCase()
+
+const isAdmin = role === 'ADMINISTRATOR'
+const isOwner = role === 'OWNER'
+const canCreate = isAdmin || role === 'RESIDENT'
   const canList = ['ADMINISTRATOR', 'RECEPTION', 'RESIDENT', 'OWNER'].includes(role)
 
   const [items, setItems] = useState([])
@@ -142,18 +144,22 @@ function MovePage() {
   )
 
   useEffect(() => {
-    if (!isAdmin || !createForm.unitId) {
+    if (!isAdmin || createForm.requestType !== 'MOVE_OUT' || !createForm.unitId) {
       setResidentOptions([])
       return
     }
     getMoveResidentOptions(createForm.unitId)
       .then((response) => setResidentOptions(Array.isArray(response) ? response : []))
       .catch(() => setResidentOptions([]))
-  }, [isAdmin, createForm.unitId])
+  }, [isAdmin, createForm.requestType, createForm.unitId])
 
   const handleCreateChange = (event) => {
     const { name, value } = event.target
-    setCreateForm((current) => ({ ...current, [name]: value }))
+    setCreateForm((current) => ({
+      ...current,
+      [name]: value,
+      ...(name === 'requestType' && value === 'MOVE_IN' ? { residentId: '' } : {}),
+    }))
   }
 
   const openCreate = () => {
@@ -357,16 +363,22 @@ function MovePage() {
             </select>
           </label>
 
-          {isAdmin && (
+          {isAdmin && createForm.requestType === 'MOVE_OUT' && (
             <label className="form-field">
               <span>{t('Resident')}</span>
               <select name="residentId" value={createForm.residentId} onChange={handleCreateChange} disabled={saving || !createForm.unitId}>
                 <option value="">{t('Select resident')}</option>
                 {residentOptions.map((resident) => <option key={resident.id} value={resident.id}>{resident.firstName} {resident.lastName} · {t(resident.residentType)}</option>)}
               </select>
+              <small>{t('For move-out, select the current resident of the unit. For move-in, the incoming resident can be assigned after approval.')}</small>
             </label>
           )}
 
+          {isAdmin && createForm.requestType === 'MOVE_IN' && (
+            <div className="feedback feedback-info">
+              {t('Move-in requests can be created for an active unit without an existing resident assignment. The incoming resident can be assigned after approval.')}
+            </div>
+          )}
           <div className="form-grid-2">
             <label className="form-field">
               <span>{t('Request type')}</span>
