@@ -1,5 +1,8 @@
+//-------------------- Milestone 18.3 rev3 ----------------------
 package com.condotrack.backend.service;
 
+import com.condotrack.backend.dto.MoveCreateRequest;
+import com.condotrack.backend.model.Unit;
 import com.condotrack.backend.repository.MoveRequestRepository;
 import com.condotrack.backend.repository.ResidentRepository;
 import com.condotrack.backend.repository.StaffRepository;
@@ -49,19 +52,44 @@ public class MoveAccessService {
     }
 
     @Transactional(readOnly = true)
-    public boolean canCreate(Authentication authentication, UUID unitId) {
-        if (authentication == null || !authentication.isAuthenticated() || unitId == null) return false;
+    public boolean canCreate(Authentication authentication, MoveCreateRequest request) {
+        if (authentication == null || !authentication.isAuthenticated() || request == null || request.unitId() == null) {
+            return false;
+        }
+
+        UUID unitId = request.unitId();
+
+        // Administrators are global and can create moves for any active unit.
+        if (hasRole(authentication, "ADMINISTRATOR")) {
+            return permissionService.hasPermission(authentication, "MOVES_CREATE");
+        }
+
+        // Residents may create requests only for their own active unit.
         if (permissionService.hasPermission(authentication, "MOVES_CREATE_OWN")) {
             return residentRepository.existsActiveResidentForUserAndUnit(authentication.getName(), unitId);
         }
-        var unit = unitRepository.findById(unitId).orElse(null);
-        if (unit == null || unit.getBuilding() == null) return false;
+
+        Unit unit = unitRepository.findById(unitId).orElse(null);
+        if (unit == null || unit.getBuilding() == null) {
+            return false;
+        }
+
         UUID buildingId = unit.getBuilding().getId();
-        return permissionService.hasPermission(authentication, "MOVES_CREATE", buildingId);
+
+        // Reception/staff users must have the global permission, the effective
+        // building permission, and an active staff assignment for that building.
+        if (!permissionService.hasPermission(authentication, "MOVES_CREATE", buildingId)) {
+            return false;
+        }
+
+        return staffRepository.findActiveByUserEmailIgnoreCase(authentication.getName()).stream()
+                .anyMatch(staff -> staff.getBuilding() != null
+                        && staff.getBuilding().getId().equals(buildingId));
     }
 
     public boolean canCreateOptions(Authentication authentication) {
-        return authentication != null && authentication.isAuthenticated()
+        return authentication != null
+                && authentication.isAuthenticated()
                 && (permissionService.hasPermission(authentication, "MOVES_CREATE")
                 || permissionService.hasPermission(authentication, "MOVES_CREATE_OWN"));
     }

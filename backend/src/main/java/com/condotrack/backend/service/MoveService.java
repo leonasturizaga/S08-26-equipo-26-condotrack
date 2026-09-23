@@ -1,3 +1,4 @@
+//--------------- Milestone 18.4 rev4 ----------------------
 package com.condotrack.backend.service;
 
 import com.condotrack.backend.dto.MoveCreateRequest;
@@ -99,9 +100,25 @@ public class MoveService {
         if (hasRole(authentication, "ADMINISTRATOR") && permissionService.hasPermission(authentication, "MOVES_CREATE")) {
             return toUnitOptions(unitRepository.findByActiveTrueOrderByBuildingIdAscUnitNumberAsc());
         }
-        if (permissionService.hasPermission(authentication, "MOVES_CREATE_OWN")) {
-            return toUnitOptions(unitRepository.findActiveUnitsForUser(authentication.getName(), PageRequest.of(0, 100)).getContent());
+
+        if (permissionService.hasPermission(authentication, "MOVES_CREATE")) {
+            List<UUID> buildingIds = staffRepository.findActiveByUserEmailIgnoreCase(authentication.getName()).stream()
+                    .map(staff -> staff.getBuilding() == null ? null : staff.getBuilding().getId())
+                    .filter(java.util.Objects::nonNull)
+                    .distinct()
+                    .filter(buildingId -> permissionService.hasPermission(authentication, "MOVES_CREATE", buildingId))
+                    .toList();
+
+            return buildingIds.isEmpty()
+                    ? List.of()
+                    : toUnitOptions(unitRepository.findByBuildingIdInAndActiveTrueOrderByBuildingIdAscUnitNumberAsc(buildingIds));
         }
+
+        if (permissionService.hasPermission(authentication, "MOVES_CREATE_OWN")) {
+            return toUnitOptions(unitRepository.findActiveUnitsForUser(
+                    authentication.getName(), PageRequest.of(0, 100)).getContent());
+        }
+
         throw new AccessDeniedException("User is not allowed to create move requests");
     }
 
@@ -110,10 +127,15 @@ public class MoveService {
         Unit unit = unitRepository.findById(unitId)
                 .orElseThrow(() -> new IllegalArgumentException("Unit not found: " + unitId));
         validateActiveUnit(unit);
-        boolean administrator = hasRole(authentication, "ADMINISTRATOR") && permissionService.hasPermission(authentication, "MOVES_CREATE", unit.getBuilding().getId());
+        boolean administrator = hasRole(authentication, "ADMINISTRATOR")
+                && permissionService.hasPermission(authentication, "MOVES_CREATE");
         boolean own = permissionService.hasPermission(authentication, "MOVES_CREATE_OWN", unit.getBuilding().getId())
                 && residentRepository.existsActiveResidentForUserAndUnit(authentication.getName(), unitId);
-        if (!administrator && !own) {
+        boolean assignedStaff = permissionService.hasPermission(authentication, "MOVES_CREATE", unit.getBuilding().getId())
+                && staffRepository.findActiveByUserEmailIgnoreCase(authentication.getName()).stream()
+                .anyMatch(staff -> staff.getBuilding() != null
+                        && staff.getBuilding().getId().equals(unit.getBuilding().getId()));
+        if (!administrator && !own && !assignedStaff) {
             throw new AccessDeniedException("User is not allowed to list residents for this unit");
         }
         return residentRepository.findByUnitIdAndActiveTrue(unitId).stream()
@@ -144,19 +166,18 @@ public class MoveService {
         move.setStatus(Enums.MoveRequestStatus.PENDING_APPROVAL);
 
         Resident resident;
-        if (permissionService.hasPermission(authentication, "MOVES_CREATE_OWN")) {
+        // Administrator has unrestricted move-creation scope and must never be
+        // forced through the MOVES_CREATE_OWN branch, even if the administrator
+        // role also carries that permission in the global permission catalog.
+        if (hasRole(authentication, "ADMINISTRATOR")) {
+            resident = resolveSelectedResidentForUnit(request.residentId(), unit);
+        } else if (permissionService.hasPermission(authentication, "MOVES_CREATE_OWN")) {
             resident = residentRepository.findByUnitIdAndActiveTrue(unit.getId()).stream()
                     .filter(r -> r.getUser().getEmail().equalsIgnoreCase(authentication.getName()))
                     .findFirst()
                     .orElseThrow(() -> new AccessDeniedException("User is not an active resident of the selected unit"));
-        } else if (request.residentId() != null) {
-            resident = residentRepository.findById(request.residentId())
-                    .orElseThrow(() -> new IllegalArgumentException("Resident not found: " + request.residentId()));
-            if (!resident.isActive() || !resident.getUnit().getId().equals(unit.getId())) {
-                throw new IllegalArgumentException("Selected resident must be active and belong to the selected unit");
-            }
         } else {
-            resident = null;
+            resident = resolveSelectedResidentForUnit(request.residentId(), unit);
         }
 
         move.setResident(resident);
@@ -236,20 +257,49 @@ public class MoveService {
     }
 
     private void validateCreateScope(Authentication authentication, UUID unitId) {
+        // Administrator is the global exception: MOVES_CREATE is sufficient and
+        // building-level overrides are intentionally ignored by PermissionService.
+        // This check must happen before MOVES_CREATE_OWN because administrators may
+        // also inherit OWN permissions from the global permission catalog.
+        if (hasRole(authentication, "ADMINISTRATOR")) {
+            if (!permissionService.hasPermission(authentication, "MOVES_CREATE")) {
+                throw new AccessDeniedException("Administrator is not allowed to create move requests");
+            }
+            return;
+        }
+
         if (permissionService.hasPermission(authentication, "MOVES_CREATE_OWN")) {
             if (!residentRepository.existsActiveResidentForUserAndUnit(authentication.getName(), unitId)) {
                 throw new AccessDeniedException("User can only create move requests for their own unit");
             }
             return;
         }
-        Unit unit = unitRepository.findById(unitId).orElseThrow(() -> new IllegalArgumentException("Unit not found: " + unitId));
+
+        Unit unit = unitRepository.findById(unitId)
+                .orElseThrow(() -> new IllegalArgumentException("Unit not found: " + unitId));
         UUID buildingId = unit.getBuilding().getId();
         if (!permissionService.hasPermission(authentication, "MOVES_CREATE", buildingId)) {
             throw new AccessDeniedException("User is not allowed to create move requests for this building");
         }
-        if (!hasRole(authentication, "ADMINISTRATOR")) {
-            throw new AccessDeniedException("Only administrators may create moves outside their own resident scope");
+        // Non-administrator roles that receive MOVES_CREATE are expected to have
+        // their building scope validated by MoveAccessService.canCreate().
+    }
+
+    private Resident resolveSelectedResidentForUnit(UUID residentId, Unit unit) {
+        if (residentId == null) {
+            return null;
         }
+
+        Resident resident = residentRepository.findById(residentId)
+                .orElseThrow(() -> new IllegalArgumentException("Resident not found: " + residentId));
+
+        if (!resident.isActive()
+                || resident.getUnit() == null
+                || !resident.getUnit().getId().equals(unit.getId())) {
+            throw new IllegalArgumentException("Selected resident must be active and belong to the selected unit");
+        }
+
+        return resident;
     }
 
     private boolean requiresOwnerAuthorization(MoveRequest move) {
