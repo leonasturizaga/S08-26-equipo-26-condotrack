@@ -67,10 +67,12 @@ function defaultStatusForm() {
 function MovePage() {
   const { t } = useTranslation()
   const { user } = useAuth()
-  const role = user?.roles?.[0] || user?.role
-  const isAdmin = role === 'ADMINISTRATOR'
-  const isOwner = role === 'OWNER'
-  const canCreate = role === 'ADMINISTRATOR' || role === 'RESIDENT'
+const rawRole = user?.roles?.[0] ?? user?.role ?? ''
+const role = String(rawRole).trim().toUpperCase()
+
+const isAdmin = role === 'ADMINISTRATOR'
+const isOwner = role === 'OWNER'
+const canCreate = isAdmin || role === 'RESIDENT'
   const canList = ['ADMINISTRATOR', 'RECEPTION', 'RESIDENT', 'OWNER'].includes(role)
 
   const [items, setItems] = useState([])
