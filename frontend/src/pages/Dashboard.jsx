@@ -69,9 +69,15 @@ const sidebarModules = [
   },
   {
     key: 'notifications',
-    icon: 'megaphone',
+    icon: 'bell',
     label: 'Notifications',
     path: '/dashboard/notifications',
+  },
+  {
+    key: 'communications',
+    icon: 'megaphone',
+    label: 'Communications',
+    path: '/dashboard/communications',
   },
 ]
 
