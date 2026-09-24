@@ -2373,3 +2373,28 @@ body {
   color: #7c828d;
   background: #f7f8fa;
 }
+
+
+/* Communications / Notifications */
+.compact-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-top: 18px;
+}
+
+.table-secondary-text {
+  margin-top: 4px;
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 1.45;
+  max-width: 560px;
+}
+
+.table-row-unread td {
+  background: var(--blue-50);
+}
+
+@media (max-width: 900px) {
+  .compact-grid {
+    grid-template-columns: 1fr;
+  }
+}

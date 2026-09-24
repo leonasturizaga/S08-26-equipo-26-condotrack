@@ -74,6 +74,12 @@ export const moduleDefinitions = [
     path: '/dashboard/user-management',
   },
   {
+    key: 'notifications',
+    icon: 'bell',
+    label: 'Notifications',
+    path: '/dashboard/notifications',
+  },
+  {
     key: 'communications',
     icon: 'megaphone',
     label: 'Communications',
@@ -103,6 +109,7 @@ export const rolePermissions = {
     reports: 'full',
     buildingConfig: 'full',
     userManagement: 'full',
+    notifications: 'full',
     communications: 'create',
     generalSettings: 'full',
   },
@@ -120,6 +127,7 @@ export const rolePermissions = {
     reports: 'none',
     buildingConfig: 'none',
     userManagement: 'none',
+    notifications: 'none',
     communications: 'none',
   },
 
@@ -136,7 +144,8 @@ export const rolePermissions = {
     reports: 'none',
     buildingConfig: 'none',
     userManagement: 'none',
-    communications: 'view',
+    notifications: 'view',
+    communications: 'none',
   },
 
   OWNER: {
@@ -152,7 +161,8 @@ export const rolePermissions = {
     reports: 'none',
     buildingConfig: 'none',
     userManagement: 'none',
-    communications: 'view',
+    notifications: 'view',
+    communications: 'none',
   },
 
   PROVIDER: {
@@ -168,6 +178,7 @@ export const rolePermissions = {
     reports: 'none',
     buildingConfig: 'none',
     userManagement: 'none',
+    notifications: 'none',
     communications: 'none',
   },
 }
