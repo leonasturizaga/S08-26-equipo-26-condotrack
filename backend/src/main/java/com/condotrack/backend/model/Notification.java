@@ -13,6 +13,7 @@ import java.util.UUID;
 @Getter @Setter @NoArgsConstructor
 public class Notification extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "building_id") private Building building;
+    @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "communication_id") private Communication communication;
     @ManyToOne(fetch = FetchType.LAZY, optional = false) @JoinColumn(name = "recipient_user_id", nullable = false) private User recipientUser;
     @Column(name = "notification_type", nullable = false, length = 40) private String notificationType;
     @Enumerated(EnumType.STRING) @Column(nullable = false, length = 20) private Enums.NotificationStatus status = Enums.NotificationStatus.PENDING;

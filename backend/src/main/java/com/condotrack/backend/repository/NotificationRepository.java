@@ -49,4 +49,7 @@ public interface NotificationRepository extends JpaRepository<Notification, UUID
             @Param("email") String email,
             @Param("statuses") Collection<Enums.NotificationStatus> statuses
     );
+    long countByCommunication_Id(UUID communicationId);
+
+    long countByCommunication_IdAndStatus(UUID communicationId, Enums.NotificationStatus status);
 }
