@@ -418,8 +418,16 @@ public class CommunicationService {
     }
 
     private void requireAdmin(Authentication authentication) {
-        if (authentication == null || !authentication.getAuthorities().stream()
-                .anyMatch(a -> "ROLE_ADMINISTRATOR".equals(a.getAuthority()))) {
+        if (!permissionService.hasPermission(authentication, "COMMUNICATIONS_VIEW")) {
+            throw new AccessDeniedException("User is not allowed to view sent communications");
+        }
+
+        if (authentication == null || authentication.getName() == null) {
+            throw new AccessDeniedException("Authenticated user is required");
+        }
+
+        Set<String> roleCodes = userRepository.findRoleCodesByEmailIgnoreCase(authentication.getName());
+        if (!roleCodes.contains("ADMINISTRATOR")) {
             throw new AccessDeniedException("Administrator role is required");
         }
     }

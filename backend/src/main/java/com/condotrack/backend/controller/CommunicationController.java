@@ -26,7 +26,7 @@ public class CommunicationController {
 
     @GetMapping
     @Operation(summary = "List sent communications")
-    @PreAuthorize("hasRole('ADMINISTRATOR')")
+    @PreAuthorize("isAuthenticated()")
     public CommunicationPageResponse getCommunications(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
@@ -37,7 +37,7 @@ public class CommunicationController {
 
     @GetMapping("/{communicationId}")
     @Operation(summary = "Get one sent communication and recipient read statistics")
-    @PreAuthorize("hasRole('ADMINISTRATOR')")
+    @PreAuthorize("isAuthenticated()")
     public CommunicationResponse getCommunication(
             @PathVariable UUID communicationId,
             Authentication authentication
