@@ -6,3 +6,11 @@ export function sendCommunication(payload) {
     body: payload,
   })
 }
+
+export function getCommunications(page = 0, size = 20) {
+  return apiRequest(`/api/communications?page=${page}&size=${size}`)
+}
+
+export function getCommunication(communicationId) {
+  return apiRequest(`/api/communications/${communicationId}`)
+}
