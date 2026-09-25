@@ -1336,7 +1336,7 @@ input:disabled {
 .pagination-actions {
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
+  /* flex-wrap: wrap; */
   gap: 8px;
 }
 
