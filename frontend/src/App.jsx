@@ -22,6 +22,7 @@ import RbacSettingsPage from './pages/RbacSettingsPage.jsx'
 import NotificationsPage from './pages/NotificationsPage.jsx'
 import CommunicationsPage from './pages/CommunicationsPage.jsx'
 import AuditPage from './pages/AuditPage.jsx'
+import BookingsPage from './pages/BookingsPage.jsx'
 
 const protectedModules = [
   'buildings',
@@ -72,6 +73,9 @@ function App() {
             <Route element={<ProtectedRoute moduleKey="deliveries" />}>
               <Route path="deliveries" element={<DeliveriesPage />} />
             </Route>
+            <Route element={<ProtectedRoute moduleKey="bookings" />}>
+              <Route path="bookings" element={<BookingsPage />} />
+            </Route>
             <Route element={<ProtectedRoute moduleKey="incidents" />}>
               <Route path="incidents" element={<IncidentsPage />} />
             </Route>
@@ -101,7 +105,7 @@ function App() {
             </Route>
 
             {protectedModules
-              .filter((moduleKey) => !['buildings', 'units', 'residents', 'access', 'deliveries', 'incidents', 'maintenance', 'moves', 'notifications', 'communications', 'audit', 'userManagement'].includes(moduleKey))
+              .filter((moduleKey) => !['buildings', 'units', 'residents', 'access', 'deliveries', 'bookings', 'incidents', 'maintenance', 'moves', 'notifications', 'communications', 'audit', 'userManagement'].includes(moduleKey))
               .map((moduleKey) => (
 
                 <Route

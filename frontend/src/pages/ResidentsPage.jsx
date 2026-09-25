@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-
+import Icon from '../components/Icon.jsx'
 import Modal from '../components/Modal.jsx'
 import { getUnits } from '../api/unitsApi.js'
 import {
@@ -412,16 +412,19 @@ function ResidentsPage() {
                     <td>
                       <div className="table-actions">
                         <button className="button button-ghost" type="button" onClick={() => viewResident(resident.id)}>
-                          {t('View')}
+                          {/* {t('View')} */}
+                           <Icon name="eye" size={18} />
                         </button>
                         {canEdit && (
                           <button className="button button-ghost" type="button" onClick={() => startProfileEdit(resident)}>
-                            {t('Edit')}
+                            {/* {t('Edit')} */}
+                           <Icon name="edit" size={18} />
                           </button>
                         )}
                         {isAdministrator && resident.active && (
-                          <button className="button button-secondary" type="button" onClick={() => startReassign(resident)}>
-                            {t('Reassign unit')}
+                          <button className="button button-ghost" type="button" onClick={() => startReassign(resident)}>
+                            {/* {t('Reassign unit')} */}
+                            <Icon name="shuffle" size={18} />
                           </button>
                         )}
                       </div>
