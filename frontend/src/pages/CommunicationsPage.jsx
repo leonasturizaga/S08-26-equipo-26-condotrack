@@ -432,6 +432,7 @@ function CommunicationsPage() {
             <p className="eyebrow">{t('SENT COMMUNICATIONS')}</p>
             <h3>{totalElements} {t('communications')}</h3>
           </div>
+          <button className="button button-secondary button-small" type="button" onClick={() => loadCommunications(page)} disabled={loadingCommunications}>↻ {t('Refresh')}</button>
         </div>
 
         {loadingCommunications ? (

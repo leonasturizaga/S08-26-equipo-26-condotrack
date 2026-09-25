@@ -652,5 +652,22 @@
   "No sent communications found.": "No sent communications found.",
   "Unable to load sent communications.": "Unable to load sent communications.",
   "Unable to load communication details.": "Unable to load communication details.",
-  "View in-app communications and review sent communication history.": "View in-app communications and review sent communication history."
+  "View in-app communications and review sent communication history.": "View in-app communications and review sent communication history.",
+
+
+  "Audit & Traceability": "Audit & Traceability",
+  "AUDIT / TRACEABILITY": "AUDIT / TRACEABILITY",
+  "Review operational changes and who performed them.": "Review operational changes and who performed them.",
+  "AUDIT LOG": "AUDIT LOG",
+  "Audit record": "Audit record",
+  "Audit records": "Audit records",
+  "No audit records found.": "No audit records found.",
+  "Entity ID": "Entity ID",
+  "Previous status": "Previous status",
+  "New status": "New status",
+  "Actor email": "Actor email",
+  "Apply filters": "Apply filters",
+  "All buildings": "All buildings",
+  "Refresh": "Refresh",
+  "Entity": "Entity"
 }

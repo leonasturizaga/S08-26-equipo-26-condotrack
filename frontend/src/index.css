@@ -2398,3 +2398,15 @@ body {
     grid-template-columns: 1fr;
   }
 }
+
+.audit-details {
+  margin: 0;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface-muted, #f7f9fc);
+  font-size: 12px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow: auto;
+}

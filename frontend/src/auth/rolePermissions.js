@@ -85,6 +85,12 @@ export const moduleDefinitions = [
     label: 'Communications',
     path: '/dashboard/communications',
   },
+  {
+    key: 'audit',
+    icon: 'clipboard',
+    label: 'Audit & Traceability',
+    path: '/dashboard/audit',
+  },
 ]
 
 export const roleLabels = {
@@ -112,6 +118,7 @@ export const rolePermissions = {
     notifications: 'full',
     communications: 'create',
     generalSettings: 'full',
+    audit: 'view',
   },
 
   RECEPTION: {
@@ -129,6 +136,7 @@ export const rolePermissions = {
     userManagement: 'none',
     notifications: 'none',
     communications: 'none',
+    audit: 'none'
   },
 
   RESIDENT: {
@@ -146,6 +154,7 @@ export const rolePermissions = {
     userManagement: 'none',
     notifications: 'view',
     communications: 'none',
+    audit: 'none'
   },
 
   OWNER: {
@@ -163,6 +172,7 @@ export const rolePermissions = {
     userManagement: 'none',
     notifications: 'view',
     communications: 'none',
+    audit: 'none'
   },
 
   PROVIDER: {
@@ -180,6 +190,7 @@ export const rolePermissions = {
     userManagement: 'none',
     notifications: 'none',
     communications: 'none',
+    audit: 'none'
   },
 }
 

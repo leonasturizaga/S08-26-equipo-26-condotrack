@@ -21,6 +21,7 @@ import ModulePlaceholder from './pages/ModulePlaceholder.jsx'
 import RbacSettingsPage from './pages/RbacSettingsPage.jsx'
 import NotificationsPage from './pages/NotificationsPage.jsx'
 import CommunicationsPage from './pages/CommunicationsPage.jsx'
+import AuditPage from './pages/AuditPage.jsx'
 
 const protectedModules = [
   'buildings',
@@ -33,6 +34,7 @@ const protectedModules = [
   'maintenance',
   'moves',
   'notifications',
+  'audit',
   'reports',
   'buildingConfig',
   'userManagement',
@@ -87,6 +89,9 @@ function App() {
             <Route element={<ProtectedRoute moduleKey="communications" />}>
               <Route path="communications" element={<CommunicationsPage />} />
             </Route>
+            <Route element={<ProtectedRoute moduleKey="audit" />}>
+              <Route path="audit" element={<AuditPage />} />
+            </Route>
             <Route element={<ProtectedRoute moduleKey="userManagement" />}>
               <Route path="user-management" element={<UserManagementPage />} />
             </Route>
@@ -96,7 +101,7 @@ function App() {
             </Route>
 
             {protectedModules
-              .filter((moduleKey) => !['buildings', 'units', 'residents', 'access', 'deliveries', 'incidents', 'maintenance', 'moves', 'notifications', 'communications', 'userManagement'].includes(moduleKey))
+              .filter((moduleKey) => !['buildings', 'units', 'residents', 'access', 'deliveries', 'incidents', 'maintenance', 'moves', 'notifications', 'communications', 'audit', 'userManagement'].includes(moduleKey))
               .map((moduleKey) => (
 
                 <Route

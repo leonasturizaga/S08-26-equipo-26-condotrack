@@ -79,6 +79,12 @@ const sidebarModules = [
     label: 'Communications',
     path: '/dashboard/communications',
   },
+  {
+    key: 'audit',
+    icon: 'clipboard',
+    label: 'Audit & Traceability',
+    path: '/dashboard/audit',
+  },
 ]
 
 const permissionLabels = {

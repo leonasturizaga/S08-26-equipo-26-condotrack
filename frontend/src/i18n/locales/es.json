@@ -652,5 +652,22 @@
   "No sent communications found.": "No se encontraron comunicaciones enviadas.",
   "Unable to load sent communications.": "No se pudieron cargar las comunicaciones enviadas.",
   "Unable to load communication details.": "No se pudieron cargar los detalles de la comunicación.",
-  "View in-app communications and review sent communication history.": "Envía comunicaciones dentro de la aplicación y revisa el historial de envíos."
+  "View in-app communications and review sent communication history.": "Envía comunicaciones dentro de la aplicación y revisa el historial de envíos.",
+
+
+  "Audit & Traceability": "Auditoría y trazabilidad",
+  "AUDIT / TRACEABILITY": "AUDITORÍA / TRAZABILIDAD",
+  "Review operational changes and who performed them.": "Revisar cambios operativos y quién los realizó.",
+  "AUDIT LOG": "REGISTRO DE AUDITORÍA",
+  "Audit record": "Registro de auditoría",
+  "Audit records": "Registros de auditoría",
+  "No audit records found.": "No se encontraron registros de auditoría.",
+  "Entity ID": "ID de entidad",
+  "Previous status": "Estado anterior",
+  "New status": "Nuevo estado",
+  "Actor email": "Email del actor",
+  "Apply filters": "Aplicar filtros",
+  "All buildings": "Todos los edificios",
+  "Refresh": "Actualizar",
+  "Entity": "Entidad"
 }
