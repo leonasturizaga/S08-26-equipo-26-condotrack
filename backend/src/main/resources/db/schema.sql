@@ -318,9 +318,24 @@ CREATE TABLE IF NOT EXISTS maintenance_requests (
     CONSTRAINT ck_maintenance_priority CHECK (priority IN ('LOW', 'MEDIUM', 'HIGH', 'URGENT'))
 );
 
+CREATE TABLE IF NOT EXISTS communications (
+    id UUID PRIMARY KEY,
+    sent_by_user_id UUID REFERENCES users(id),
+    building_id UUID REFERENCES buildings(id),
+    unit_id UUID REFERENCES units(id),
+    audience_type VARCHAR(40) NOT NULL,
+    subject VARCHAR(255) NOT NULL,
+    message TEXT NOT NULL,
+    sent_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_by UUID,
+    CONSTRAINT ck_communication_audience_type CHECK (audience_type IN ('ALL_RESIDENTS', 'BUILDING_RESIDENTS', 'UNIT_RESIDENTS'))
+);
 CREATE TABLE IF NOT EXISTS notifications (
     id UUID PRIMARY KEY,
     building_id UUID REFERENCES buildings(id),
+    communication_id UUID REFERENCES communications(id),
     recipient_user_id UUID NOT NULL REFERENCES users(id),
     notification_type VARCHAR(40) NOT NULL,
     status VARCHAR(20) NOT NULL DEFAULT 'PENDING',
@@ -338,6 +353,7 @@ CREATE TABLE IF NOT EXISTS notifications (
     CONSTRAINT ck_notification_channel CHECK (channel IN ('IN_APP', 'EMAIL', 'SMS', 'PUSH', 'OTHER'))
 );
 
+CREATE INDEX IF NOT EXISTS idx_notifications_communication ON notifications(communication_id);
 CREATE TABLE IF NOT EXISTS audit_logs (
     id UUID PRIMARY KEY,
     building_id UUID REFERENCES buildings(id),
@@ -459,6 +475,7 @@ VALUES
     ('22222222-2222-2222-2222-222222220058', 'USER_MANAGEMENT_VIEW', 'View users', 'View application users and staff records.'),
     ('22222222-2222-2222-2222-222222220059', 'USER_MANAGEMENT_CREATE', 'Create users', 'Create application users and staff.'),
     ('22222222-2222-2222-2222-222222220060', 'USER_MANAGEMENT_UPDATE', 'Update users', 'Modify users, roles and account state.'),
+    ('22222222-2222-2222-2222-222222220069', 'AUDIT_VIEW', 'View audit trail', 'View application audit and traceability records.'),
     ('22222222-2222-2222-2222-222222220061', 'COMMUNICATIONS_VIEW', 'View communications', 'Receive and view announcements and notifications.'),
     ('22222222-2222-2222-2222-222222220062', 'COMMUNICATIONS_CREATE', 'Create communications', 'Create and send announcements and communications.'),
     ('22222222-2222-2222-2222-222222220063', 'INCIDENTS_VIEW_UNIT', 'View incidents for own units', 'View incidents associated with units where the authenticated owner has an active resident relationship.'),

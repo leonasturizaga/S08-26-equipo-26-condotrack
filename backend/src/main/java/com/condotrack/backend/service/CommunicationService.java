@@ -1,9 +1,12 @@
-//-------------------- milestone 19 ---------------------   
+//-------------------- milestone 19.1 ---------------------
 // package com.condotrack.backend.service;
 
 // import com.condotrack.backend.dto.CommunicationSendRequest;
 // import com.condotrack.backend.dto.CommunicationSendResponse;
+// import com.condotrack.backend.dto.CommunicationPageResponse;
+// import com.condotrack.backend.dto.CommunicationResponse;
 // import com.condotrack.backend.model.Building;
+// import com.condotrack.backend.model.Communication;
 // import com.condotrack.backend.model.Enums;
 // import com.condotrack.backend.model.Notification;
 // import com.condotrack.backend.model.Role;
@@ -11,11 +14,15 @@
 // import com.condotrack.backend.model.User;
 // import com.condotrack.backend.repository.BuildingRepository;
 // import com.condotrack.backend.repository.NotificationRepository;
+// import com.condotrack.backend.repository.CommunicationRepository;
 // import com.condotrack.backend.repository.ResidentRepository;
 // import com.condotrack.backend.repository.RoleRepository;
 // import com.condotrack.backend.repository.UnitRepository;
 // import com.condotrack.backend.repository.UserRepository;
 // import lombok.RequiredArgsConstructor;
+// import org.springframework.data.domain.Page;
+// import org.springframework.data.domain.PageRequest;
+// import org.springframework.data.domain.Pageable;
 // import org.springframework.security.access.AccessDeniedException;
 // import org.springframework.security.core.Authentication;
 // import org.springframework.stereotype.Service;
@@ -35,11 +42,37 @@
 //     private static final String ANNOUNCEMENT = "ANNOUNCEMENT";
 
 //     private final NotificationRepository notificationRepository;
+//     private final CommunicationRepository communicationRepository;
 //     private final ResidentRepository residentRepository;
 //     private final BuildingRepository buildingRepository;
 //     private final UnitRepository unitRepository;
 //     private final UserRepository userRepository;
 //     private final PermissionService permissionService;
+
+//     @Transactional(readOnly = true)
+//     public CommunicationPageResponse getCommunications(
+//             Authentication authentication, int page, int size
+//     ) {
+//         requireAdmin(authentication);
+//         Pageable pageable = PageRequest.of(
+//                 Math.max(page, 0),
+//                 Math.min(Math.max(size, 1), 100)
+//         );
+//         Page<CommunicationResponse> communications = communicationRepository
+//                 .findAllByOrderBySentAtDesc(pageable)
+//                 .map(this::toResponse);
+//         return CommunicationPageResponse.from(communications);
+//     }
+
+//     @Transactional(readOnly = true)
+//     public CommunicationResponse getCommunication(UUID communicationId, Authentication authentication) {
+//         requireAdmin(authentication);
+//         Communication communication = communicationRepository.findById(communicationId)
+//                 .orElseThrow(() -> new IllegalArgumentException(
+//                         "Communication not found: " + communicationId
+//                 ));
+//         return toResponse(communication);
+//     }
 
 //     @Transactional
 //     public CommunicationSendResponse send(
@@ -54,6 +87,17 @@
 //         AudienceTarget target = resolveTarget(audienceType, request);
 //         User sender = getAuthenticatedUser(authentication);
 //         OffsetDateTime sentAt = OffsetDateTime.now();
+
+//         Communication communication = new Communication();
+//         communication.setSentByUser(sender);
+//         communication.setBuilding(target.building());
+//         communication.setUnit(target.unit());
+//         communication.setAudienceType(audienceType);
+//         communication.setSubject(request.subject().trim());
+//         communication.setMessage(request.message().trim());
+//         communication.setSentAt(sentAt);
+//         communication.setUpdatedBy(sender.getId());
+//         communicationRepository.save(communication);
 
 //         List<User> recipients = target.recipientIds().stream()
 //                 .map(id -> userRepository.findById(id).orElse(null))
@@ -71,7 +115,8 @@
 //                         target.building(),
 //                         request,
 //                         sentAt,
-//                         sender
+//                         sender,
+//                         communication
 //                 ))
 //                 .toList();
 
@@ -91,10 +136,12 @@
 //             Building building,
 //             CommunicationSendRequest request,
 //             OffsetDateTime sentAt,
-//             User sender
+//             User sender,
+//             Communication communication
 //     ) {
 //         Notification notification = new Notification();
 //         notification.setBuilding(building);
+//         notification.setCommunication(communication);
 //         notification.setRecipientUser(recipient);
 //         notification.setNotificationType(ANNOUNCEMENT);
 //         notification.setStatus(Enums.NotificationStatus.SENT);
@@ -110,6 +157,7 @@
 //         return switch (audienceType) {
 //             case "ALL_RESIDENTS" -> new AudienceTarget(
 //                     null,
+//                     null,
 //                     new LinkedHashSet<>(residentRepository.findDistinctActiveRecipientUserIds())
 //             );
 //             case "BUILDING_RESIDENTS" -> {
@@ -122,6 +170,7 @@
 //                         ));
 //                 yield new AudienceTarget(
 //                         building,
+//                         null,
 //                         new LinkedHashSet<>(residentRepository.findDistinctActiveRecipientUserIdsByBuildingId(building.getId()))
 //                 );
 //             }
@@ -138,6 +187,7 @@
 //                 }
 //                 yield new AudienceTarget(
 //                         unit.getBuilding(),
+//                         unit,
 //                         new LinkedHashSet<>(residentRepository.findDistinctActiveRecipientUserIdsByUnitId(unit.getId()))
 //                 );
 //             }
@@ -166,12 +216,55 @@
 //         return audienceType.trim().toUpperCase(Locale.ROOT);
 //     }
 
-//     private record AudienceTarget(Building building, Set<UUID> recipientIds) {
+//     private CommunicationResponse toResponse(Communication communication) {
+//         long recipientCount = notificationRepository.countByCommunication_Id(communication.getId());
+//         long readCount = notificationRepository.countByCommunication_IdAndStatus(
+//                 communication.getId(), Enums.NotificationStatus.READ
+//         );
+//         String buildingCode = communication.getBuilding() == null ? null : communication.getBuilding().getCode();
+//         String unitNumber = communication.getUnit() == null ? null : communication.getUnit().getUnitNumber();
+//         String senderName = communication.getSentByUser() == null
+//                 ? null
+//                 : (communication.getSentByUser().getFirstName() + " " + communication.getSentByUser().getLastName()).trim();
+//         return new CommunicationResponse(
+//                 communication.getId(),
+//                 communication.getSubject(),
+//                 communication.getMessage(),
+//                 communication.getAudienceType(),
+//                 communication.getBuilding() == null ? null : communication.getBuilding().getId(),
+//                 buildingCode,
+//                 communication.getUnit() == null ? null : communication.getUnit().getId(),
+//                 unitNumber,
+//                 communication.getSentByUser() == null ? null : communication.getSentByUser().getId(),
+//                 senderName,
+//                 communication.getSentAt(),
+//                 recipientCount,
+//                 readCount,
+//                 Math.max(recipientCount - readCount, 0)
+//         );
+//     }
+
+//     private void requireAdmin(Authentication authentication) {
+//         if (!permissionService.hasPermission(authentication, "COMMUNICATIONS_VIEW")) {
+//             throw new AccessDeniedException("User is not allowed to view sent communications");
+//         }
+
+//         if (authentication == null || authentication.getName() == null) {
+//             throw new AccessDeniedException("Authenticated user is required");
+//         }
+
+//         Set<String> roleCodes = userRepository.findRoleCodesByEmailIgnoreCase(authentication.getName());
+//         if (!roleCodes.contains("ADMINISTRATOR")) {
+//             throw new AccessDeniedException("Administrator role is required");
+//         }
+//     }
+
+//     private record AudienceTarget(Building building, Unit unit, Set<UUID> recipientIds) {
 //     }
 // }
 
 
-//-------------------- milestone 19.1 ---------------------
+//---------------------- milestone 20 -----------------
 package com.condotrack.backend.service;
 
 import com.condotrack.backend.dto.CommunicationSendRequest;
@@ -221,6 +314,7 @@ public class CommunicationService {
     private final UnitRepository unitRepository;
     private final UserRepository userRepository;
     private final PermissionService permissionService;
+    private final AuditService auditService;
 
     @Transactional(readOnly = true)
     public CommunicationPageResponse getCommunications(
@@ -294,6 +388,8 @@ public class CommunicationService {
                 .toList();
 
         notificationRepository.saveAll(notifications);
+
+        auditService.record(authentication.getName(), communication.getBuilding(), "COMMUNICATION", communication.getId(), "SENT", java.util.Map.of("audienceType", audienceType, "recipientCount", notifications.size()));
 
         return new CommunicationSendResponse(
                 ANNOUNCEMENT,
