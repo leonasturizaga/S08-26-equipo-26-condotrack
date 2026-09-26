@@ -1,4 +1,4 @@
-// src/auth/rolePermissions.js
+//----------------- M23 ---------------
 
 export const moduleDefinitions = [
   {
@@ -6,6 +6,12 @@ export const moduleDefinitions = [
     icon: 'building',
     label: 'Buildings',
     path: '/dashboard/buildings',
+  },
+  {
+    key: 'unitLookup',
+    icon: 'search',
+    label: 'Unified Unit Lookup',
+    path: '/dashboard/unit-lookup',
   },
   {
     key: 'units',
@@ -105,6 +111,7 @@ export const rolePermissions = {
   ADMINISTRATOR: {
     buildings: 'full',
     units: 'full',
+    unitLookup: 'view',
     residents: 'full',
     access: 'view',
     deliveries: 'view',
@@ -124,6 +131,7 @@ export const rolePermissions = {
   RECEPTION: {
     buildings: 'none',
     units: 'view',
+    unitLookup: 'view',
     residents: 'view',
     access: 'create',
     deliveries: 'create',

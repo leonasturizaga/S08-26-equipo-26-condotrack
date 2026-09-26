@@ -1,3 +1,4 @@
+//------------------- M23 ----------------------
 import { apiRequest } from './apiClient.js'
 
 function buildPagePath(page, size) {
@@ -32,5 +33,18 @@ export function updateUnit(unitId, unit) {
   return apiRequest(`/api/units/${unitId}`, {
     method: 'PUT',
     body: unit,
+  })
+}
+
+export function lookupUnits(query) {
+  const params = new URLSearchParams({ query })
+  return apiRequest(`/api/units/lookup?${params.toString()}`, {
+    method: 'GET',
+  })
+}
+
+export function getUnitDashboard(unitId) {
+  return apiRequest(`/api/units/${unitId}/dashboard`, {
+    method: 'GET',
   })
 }

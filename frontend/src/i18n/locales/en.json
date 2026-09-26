@@ -743,5 +743,22 @@
   "accessEvents": "Access events",
   "bookings": "Bookings",
   "maintenance": "Maintenance",
-  "moves": "Moves"
+  "moves": "Moves",
+
+
+  "UNIT LOOKUP": "UNIT LOOKUP",
+  "Search a unit and view its connected operational records in one workspace.": "Search a unit and view its connected operational records in one workspace.",
+  "Search by unit, building name or building code": "Search by unit, building name or building code",
+  "e.g. 4B, Tower A, TWR-A": "e.g. 4B, Tower A, TWR-A",
+  "Unit lookup search": "Unit lookup search",
+  "Enter at least 2 characters.": "Enter at least 2 characters.",
+  "Searching...": "Searching...",
+  "No matching units found.": "No matching units found.",
+  "New search": "New search",
+  "Loading unit workspace...": "Loading unit workspace...",
+  "Recent access": "Recent access",
+  "Unknown carrier": "Unknown carrier",
+  "Unable to search units.": "Unable to search units.",
+  "Unable to load the unit workspace.": "Unable to load the unit workspace.",
+  "UNIT": "UNIT"
 }

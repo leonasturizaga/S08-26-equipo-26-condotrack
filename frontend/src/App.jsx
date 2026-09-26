@@ -1,4 +1,4 @@
-//------------------ milestone 2 ------------------
+//------------------ milestone 23 ------------------
 import { Navigate, Route, Routes } from 'react-router-dom'
 
 import { AuthProvider } from './auth/AuthContext.jsx'
@@ -7,6 +7,7 @@ import ProtectedRoute from './components/ProtectedRoute.jsx'
 import Dashboard from './pages/Dashboard.jsx'
 import BuildingsPage from './pages/BuildingsPage.jsx'
 import UnitsPage from './pages/UnitsPage.jsx'
+import UnitLookupPage from './pages/UnitLookupPage.jsx'
 import ResidentsPage from './pages/ResidentsPage.jsx'
 import UserManagementPage from './pages/UserManagementPage.jsx'
 import AccessPage from './pages/AccessPage.jsx'
@@ -28,6 +29,7 @@ import ReportsPage from './pages/ReportsPage.jsx'
 const protectedModules = [
   'buildings',
   'units',
+  'unitLookup',
   'residents',
   'access',
   'deliveries',
@@ -64,6 +66,9 @@ function App() {
 
             <Route element={<ProtectedRoute moduleKey="units" />}>
               <Route path="units" element={<UnitsPage />} />
+            </Route>
+            <Route element={<ProtectedRoute moduleKey="unitLookup" />}>
+              <Route path="unit-lookup" element={<UnitLookupPage />} />
             </Route>
             <Route element={<ProtectedRoute moduleKey="residents" />}>
               <Route path="residents" element={<ResidentsPage />} />
@@ -109,7 +114,7 @@ function App() {
             </Route>
 
             {protectedModules
-              .filter((moduleKey) => !['buildings', 'units', 'residents', 'access', 'deliveries', 'bookings', 'incidents', 'maintenance', 'moves', 'reports', 'notifications', 'communications', 'audit', 'userManagement'].includes(moduleKey))
+              .filter((moduleKey) => !['buildings', 'units', 'unitLookup', 'residents', 'access', 'deliveries', 'bookings', 'incidents', 'maintenance', 'moves', 'reports', 'notifications', 'communications', 'audit', 'userManagement'].includes(moduleKey))
               .map((moduleKey) => (
 
                 <Route
