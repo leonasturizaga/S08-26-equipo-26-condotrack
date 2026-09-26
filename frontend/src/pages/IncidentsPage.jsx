@@ -3,6 +3,8 @@ import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from '../i18n/i18n.js'
 import { useAuth } from '../auth/AuthContext.jsx'
 import Modal from '../components/Modal.jsx'
+import TableAction from '../components/TableAction.jsx'
+import TableActions from '../components/TableActions.jsx'
 import {
   createIncident,
   getAssignableStaff,
@@ -525,7 +527,7 @@ function IncidentsPage() {
                       <td>{incident.assignedToName || '—'}</td>
                       <td>{formatDateTime(incident.createdAt)}</td>
                       <td>
-                        <button className="button button-ghost" type="button" onClick={() => openIncident(incident.id)}>{t('View')}</button>
+                        <TableActions moreLabel={t('More')}><TableAction icon="eye" label={t('View')} variant="view" onClick={() => openIncident(incident.id)} /></TableActions>
                       </td>
                     </tr>
                   ))}

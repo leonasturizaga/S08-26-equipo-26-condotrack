@@ -1,4 +1,5 @@
-import { useEffect } from 'react'
+import { useEffect, useId } from 'react'
+import { createPortal } from 'react-dom'
 
 import { useTranslation } from '../i18n/i18n.js'
 import Icon from './Icon.jsx'
@@ -14,6 +15,8 @@ function Modal({
   closeOnBackdrop = true,
 }) {
   const { t } = useTranslation()
+  const modalId = useId()
+  const titleId = `modal-title-${modalId}`
 
   useEffect(() => {
     if (!open) {
@@ -40,7 +43,7 @@ function Modal({
     return null
   }
 
-  return (
+  return createPortal(
     <div
       className="modal-backdrop"
       role="presentation"
@@ -54,12 +57,12 @@ function Modal({
         className={`modal-dialog modal-${size}`}
         role="dialog"
         aria-modal="true"
-        aria-labelledby="modal-title"
+        aria-labelledby={titleId}
       >
         <header className="modal-header">
           <div>
             {eyebrow && <p className="eyebrow">{eyebrow}</p>}
-            <h3 id="modal-title">{title}</h3>
+            <h3 id={titleId}>{title}</h3>
           </div>
 
           <button
@@ -83,7 +86,8 @@ function Modal({
           </footer>
         )}
       </div>
-    </div>
+    </div>,
+    document.body,
   )
 }
 

@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState } from 'react'
 
 import Modal from '../components/Modal.jsx'
+import TableAction from '../components/TableAction.jsx'
+import TableActions from '../components/TableActions.jsx'
 import {
   createUser,
   getUser,
@@ -380,26 +382,19 @@ function UserManagementPage() {
                       </span>
                     </td>
                     <td>
-                      <div className="table-actions">
-                        <button className="button button-ghost" type="button" onClick={() => viewUser(account.id)}>
-                          {t('View')}
-                        </button>
-                        <button className="button button-ghost" type="button" onClick={() => startEdit(account)}>
-                          {t('Edit')}
-                        </button>
-                        <button className="button button-ghost" type="button" onClick={() => startRoles(account)}>
-                          {t('Roles')}
-                        </button>
-                        <button
-                          className={`button ${account.active ? 'button-danger' : 'button-secondary'}`}
-                          type="button"
+                      <TableActions moreLabel={t('More')}>
+                        <TableAction icon="eye" label={t('View')} variant="view" onClick={() => viewUser(account.id)} />
+                        <TableAction icon="edit" label={t('Edit')} variant="edit" onClick={() => startEdit(account)} />
+                        <TableAction icon="users" label={t('Roles')} variant="edit" onClick={() => startRoles(account)} />
+                        <TableAction
+                          icon="refreshCw"
+                          label={account.active ? t('Deactivate') : t('Activate')}
+                          variant={account.active ? 'delete' : 'view'}
                           onClick={() => startStatusChange(account)}
                           disabled={account.id === currentUserId}
                           title={account.id === currentUserId ? t('You cannot change your own account status.') : undefined}
-                        >
-                          {account.active ? t('Deactivate') : t('Activate')}
-                        </button>
-                      </div>
+                        />
+                      </TableActions>
                     </td>
                   </tr>
                 ))}

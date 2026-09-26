@@ -2,6 +2,8 @@ import { useCallback, useEffect, useState } from 'react'
 import { getAudit } from '../api/auditApi.js'
 import { getBuildings } from '../api/buildingsApi.js'
 import Modal from '../components/Modal.jsx'
+import TableAction from '../components/TableAction.jsx'
+import TableActions from '../components/TableActions.jsx'
 import { useTranslation } from '../i18n/i18n.js'
 
 const PAGE_SIZE = 25
@@ -91,7 +93,7 @@ export default function AuditPage() {
         <div className="panel-header"><div><p className="eyebrow">{t('AUDIT LOG')}</p><h3>{totalElements} {t('records')}</h3></div></div>
         {loading ? <div className="feedback feedback-info">{t('Loading...')}</div> : items.length === 0 ? <div className="empty-state">{t('No audit records found.')}</div> : (
           <div className="table-wrap"><table className="data-table"><thead><tr><th>{t('Date')}</th><th>{t('Actor')}</th><th>{t('Module')}</th><th>{t('Action')}</th><th>{t('Building')}</th><th>{t('Entity')}</th><th>{t('Actions')}</th></tr></thead><tbody>
-          {items.map((item) => <tr key={item.id}><td>{formatDateTime(item.occurredAt)}</td><td>{item.actorEmail || '—'}</td><td>{titleize(item.entityType)}</td><td><span className="status-pill">{titleize(item.action)}</span></td><td>{item.buildingCode || '—'}</td><td>{String(item.entityId).slice(0, 8)}…</td><td><button className="button button-ghost button-small" type="button" onClick={() => setSelected(item)}>{t('View')}</button></td></tr>)}
+          {items.map((item) => <tr key={item.id}><td>{formatDateTime(item.occurredAt)}</td><td>{item.actorEmail || '—'}</td><td>{titleize(item.entityType)}</td><td><span className="status-pill">{titleize(item.action)}</span></td><td>{item.buildingCode || '—'}</td><td>{String(item.entityId).slice(0, 8)}…</td><td><TableActions moreLabel={t('More')}><TableAction icon="eye" label={t('View')} variant="view" onClick={() => setSelected(item)} /></TableActions></td></tr>)}
           </tbody></table></div>
         )}
         {totalPages > 1 && <div className="pagination"><button className="button button-secondary button-small" type="button" onClick={() => loadAudit(page - 1)} disabled={page <= 0 || loading}>{t('Previous')}</button><span>{t('Page')} {page + 1} {t('of')} {totalPages}</span><button className="button button-secondary button-small" type="button" onClick={() => loadAudit(page + 1)} disabled={page + 1 >= totalPages || loading}>{t('Next')}</button></div>}

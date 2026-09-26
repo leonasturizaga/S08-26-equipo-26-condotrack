@@ -501,11 +501,13 @@
 // export default AccessPage
 
 
-//----------------- milestone 4.1 ------------------
+//----------------- milestone 21.2 ------------------
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { QRCodeCanvas } from 'qrcode.react'
 
 import Modal from '../components/Modal.jsx'
+import TableAction from '../components/TableAction.jsx'
+import TableActions from '../components/TableActions.jsx'
 import {
   checkInVisitorAuthorization,
   checkInVisitorByQrToken,
@@ -590,6 +592,7 @@ function AccessPage() {
 
   const [form, setForm] = useState(createDefaultForm)
   const [saving, setSaving] = useState(false)
+  const [authorizationFormOpen, setAuthorizationFormOpen] = useState(false)
   const [error, setError] = useState('')
   const [successMessage, setSuccessMessage] = useState('')
 
@@ -769,6 +772,7 @@ function AccessPage() {
       })
 
       setCreatedAuthorization(response)
+      setAuthorizationFormOpen(false)
       setSuccessMessage(t('Visitor authorization created successfully.'))
       await Promise.all([loadAuthorizations(), loadActiveVisitors()])
       resetForm()
@@ -860,26 +864,70 @@ function AccessPage() {
             {t('Create visitor authorizations, register entry and monitor visitors currently inside.')}
           </p>
         </div>
+        {canCreate && (
+          <button
+            className="button button-primary"
+            type="button"
+            onClick={() => {
+              setError('')
+              setAuthorizationFormOpen(true)
+            }}
+          >
+            {t('Authorize a visitor')}
+          </button>
+        )}
       </div>
 
       {successMessage && <div className="feedback feedback-success" role="status">{successMessage}</div>}
-      {error && <div className="feedback feedback-error" role="alert">{error}</div>}
       {optionsError && <div className="feedback feedback-error" role="alert">{optionsError}</div>}
 
       {canCreate && (
-        <article className="panel panel-wide">
-          <div className="panel-header">
-            <div>
-              <p className="eyebrow">{t('VISITOR AUTHORIZATION')}</p>
-              <h3>{t('Authorize a visitor')}</h3>
+        <Modal
+          open={authorizationFormOpen}
+          eyebrow={t('VISITOR AUTHORIZATION')}
+          title={t('Authorize a visitor')}
+          onClose={() => {
+            if (!saving) {
+              setAuthorizationFormOpen(false)
+              setError('')
+              resetForm()
+            }
+          }}
+          size="large"
+          footer={
+            <div className="modal-actions">
+              <button
+                className="button button-secondary"
+                type="button"
+                onClick={() => {
+                  if (!saving) {
+                    setAuthorizationFormOpen(false)
+                    setError('')
+                    resetForm()
+                  }
+                }}
+                disabled={saving}
+              >
+                {t('Cancel')}
+              </button>
+              <button
+                className="button button-primary"
+                type="submit"
+                form="visitor-authorization-form"
+                disabled={saving || optionsLoading}
+              >
+                {saving ? t('Creating...') : t('Create authorization')}
+              </button>
             </div>
-            <span className="status-pill">{t('Approved on creation')}</span>
-          </div>
+          }
+        >
 
           {optionsLoading ? (
             <div className="feedback feedback-info" role="status">{t('Loading units and residents...')}</div>
           ) : (
-            <form className="entity-form" onSubmit={handleSubmit}>
+            <form id="visitor-authorization-form" className="entity-form" onSubmit={handleSubmit}>
+              {error && <div className="modal-feedback feedback feedback-error" role="alert">{error}</div>}
+              {optionsError && <div className="modal-feedback feedback feedback-error" role="alert">{optionsError}</div>}
               <div className="form-section-label">{t('Authorization scope')}</div>
 
               <div className="form-grid-2">
@@ -958,15 +1006,6 @@ function AccessPage() {
                 </label>
               </div>
 
-              <div className="table-actions">
-                <button className="button button-primary" type="submit" disabled={saving || optionsLoading}>
-                  {saving ? t('Creating...') : t('Create authorization')}
-                </button>
-                <button className="button button-secondary" type="button" onClick={resetForm} disabled={saving}>
-                  {t('Clear')}
-                </button>
-              </div>
-
               {selectedResident && (
                 <div className="feedback feedback-info">
                   {selectedResident.firstName} {selectedResident.lastName} · {selectedResident.unitNumber}
@@ -974,7 +1013,7 @@ function AccessPage() {
               )}
             </form>
           )}
-        </article>
+        </Modal>
       )}
 
       {canOperateStaff && (
@@ -1108,9 +1147,17 @@ function AccessPage() {
                       <td>{visitor.accessMethod}</td>
                       <td>
                         {canOperateStaff ? (
-                          <button className="button button-danger button-small" type="button" onClick={() => handleCheckOut(visitor.authorizationId)} disabled={checkingOutId === visitor.authorizationId}>
-                            {checkingOutId === visitor.authorizationId ? t('Checking out...') : t('Check out')}
-                          </button>
+                          <TableActions moreLabel={t('More')}>
+                            <TableAction
+                              icon="logout"
+                              label={t('Check out')}
+                              variant="delete"
+                              onClick={() => handleCheckOut(visitor.authorizationId)}
+                              disabled={checkingOutId === visitor.authorizationId}
+                              loading={checkingOutId === visitor.authorizationId}
+                              loadingLabel={t('Checking out...')}
+                            />
+                          </TableActions>
                         ) : (
                           <span className="muted">{t('View only')}</span>
                         )}

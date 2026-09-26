@@ -7,6 +7,8 @@ import {
   updateBuilding,
 } from '../api/buildingsApi.js'
 import Modal from '../components/Modal.jsx'
+import TableAction from '../components/TableAction.jsx'
+import TableActions from '../components/TableActions.jsx'
 import { useAuth } from '../auth/AuthContext.jsx'
 import { useTranslation } from '../i18n/i18n.js'
 
@@ -348,27 +350,20 @@ function BuildingsPage() {
                       </span>
                     </td>
                     <td>
-                      <div className="table-actions">
-                        <button className="button button-ghost" type="button" onClick={() => viewBuilding(building.id)}>
-                          {t('View')}
-                        </button>
+                      <TableActions moreLabel={t('More')}>
+                        <TableAction icon="eye" label={t('View')} variant="view" onClick={() => viewBuilding(building.id)} />
+                        {isAdministrator && <TableAction icon="edit" label={t('Edit')} variant="edit" onClick={() => startEdit(building)} />}
                         {isAdministrator && (
-                          <>
-                            <button className="button button-ghost" type="button" onClick={() => startEdit(building)}>
-                              {t('Edit')}
-                            </button>
-                            <button
-                              className="button button-danger button-placeholder-disabled"
-                              type="button"
-                              disabled
-                              title={t('Deletion is not available yet. Use deactivation instead.')}
-                              aria-label={t('Delete')}
-                            >
-                              {t('Delete')}
-                            </button>
-                          </>
+                          <TableAction
+                            icon="trash"
+                            label={t('Delete')}
+                            variant="delete"
+                            disabled
+                            title={t('Deletion is not available yet. Use deactivation instead.')}
+                          />
+
                         )}
-                      </div>
+                      </TableActions>
                     </td>
                   </tr>
                 ))}

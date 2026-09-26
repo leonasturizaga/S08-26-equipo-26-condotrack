@@ -3,6 +3,8 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from '../i18n/i18n.js'
 import { useAuth } from '../auth/AuthContext.jsx'
 import Modal from '../components/Modal.jsx'
+import TableAction from '../components/TableAction.jsx'
+import TableActions from '../components/TableActions.jsx'
 import { getBuildings } from '../api/buildingsApi.js'
 import { getUnits } from '../api/unitsApi.js'
 import { getResidents } from '../api/residentsApi.js'
@@ -392,21 +394,15 @@ function DeliveriesPage() {
                       <td>{formatDateTime(delivery.receivedAt)}</td>
                       <td><span className={`status-badge ${statusClass(delivery.status)}`}>{translateValue(t, delivery.status)}</span></td>
                       <td>
-                        <div className="table-actions">
-                          <button className="button button-ghost" type="button" onClick={() => openDelivery(delivery.id)}>
-                            {t('View')}
-                          </button>
+                        <TableActions moreLabel={t('More')}>
+                          <TableAction icon="eye" label={t('View')} variant="view" onClick={() => openDelivery(delivery.id)} />
                           {actions.includes('NOTIFIED') && (
-                            <button className="button button-primary button-small" type="button" onClick={() => updateStatus(delivery, 'NOTIFIED')} disabled={actionLoadingId === delivery.id}>
-                              {t('Notify')}
-                            </button>
+                            <TableAction icon="bell" label={t('Notify')} variant="edit" onClick={() => updateStatus(delivery, 'NOTIFIED')} disabled={actionLoadingId === delivery.id} />
                           )}
                           {actions.includes('COLLECTED') && (
-                            <button className="button button-primary button-small" type="button" onClick={() => updateStatus(delivery, 'COLLECTED')} disabled={actionLoadingId === delivery.id}>
-                              {t('Collect')}
-                            </button>
+                            <TableAction icon="check" label={t('Collect')} variant="view" onClick={() => updateStatus(delivery, 'COLLECTED')} disabled={actionLoadingId === delivery.id} />
                           )}
-                        </div>
+                        </TableActions>
                       </td>
                     </tr>
                   )
