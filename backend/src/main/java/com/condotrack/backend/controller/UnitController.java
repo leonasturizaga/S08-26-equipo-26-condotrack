@@ -72,15 +72,17 @@
 //     }
 // }
 
-//---------------- milestone 11 ---------------------
+//---------------- milestone 23 ---------------------
 package com.condotrack.backend.controller;
 
 import com.condotrack.backend.dto.UnitCreateRequest;
 import com.condotrack.backend.dto.UnitPageResponse;
+import com.condotrack.backend.dto.UnitLookupResponse;
 import com.condotrack.backend.dto.UnitResponse;
 import com.condotrack.backend.dto.UnitUpdateRequest;
 import com.condotrack.backend.service.UnitAccessService;
 import com.condotrack.backend.service.UnitService;
+import com.condotrack.backend.service.UnitLookupService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -96,6 +98,7 @@ import org.springframework.web.bind.annotation.RestController;
 import jakarta.validation.Valid;
 
 import java.util.UUID;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/units")
@@ -104,6 +107,7 @@ public class UnitController {
 
     private final UnitAccessService unitAccessService;
     private final UnitService unitService;
+    private final UnitLookupService unitLookupService;
 
     @GetMapping
     @PreAuthorize("@unitCollectionAccessService.canViewCollection(authentication)")
@@ -115,6 +119,11 @@ public class UnitController {
         return unitService.getUnits(authentication, page, size);
     }
 
+    @GetMapping("/lookup")
+    @PreAuthorize("@permissionService.hasPermission(authentication, 'UNITS_VIEW')")
+    public List<UnitLookupResponse> lookupUnits(@RequestParam String query) {
+        return unitLookupService.search(query);
+    }
     @GetMapping("/{unitId}")
     @PreAuthorize("@unitAccessService.canView(authentication, #unitId)")
     public UnitResponse getUnit(@PathVariable UUID unitId) {

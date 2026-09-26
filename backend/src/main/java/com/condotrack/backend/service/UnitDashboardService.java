@@ -1,3 +1,4 @@
+//-------------------- M23 ----------------------
 package com.condotrack.backend.service;
 
 import com.condotrack.backend.dto.UnitDashboardResponse;
@@ -58,7 +59,7 @@ public class UnitDashboardService {
 
         var bookings = bookingRepository.findByUnitIdOrderByStartAtDesc(unitId).stream()
                 .map(b -> new UnitDashboardResponse.BookingSummary(
-                        b.getId(), b.getCommonArea().getId(), b.getStatus().name(), b.getStartAt(), b.getEndAt(), b.getPurpose()))
+                        b.getId(), b.getCommonArea().getId(), b.getCommonArea().getName(), b.getStatus().name(), b.getStartAt(), b.getEndAt(), b.getPurpose()))
                 .toList();
 
         var activeMoveRequests = moveRequestRepository.findByUnitIdAndStatusNotInOrderByRequestedAtDesc(
@@ -84,7 +85,7 @@ public class UnitDashboardService {
 
         return new UnitDashboardResponse(
                 new UnitDashboardResponse.UnitSummary(
-                        unit.getId(), unit.getBuilding().getId(), unit.getUnitNumber(), unit.getFloorNumber(), unit.getUnitType().name()),
+                        unit.getId(), unit.getBuilding().getId(), unit.getBuilding().getName(), unit.getUnitNumber(), unit.getFloorNumber(), unit.getUnitType().name()),
                 residents, accessHistory, pendingDeliveries, bookings, activeMoveRequests, incidents, maintenanceRequests);
     }
 }

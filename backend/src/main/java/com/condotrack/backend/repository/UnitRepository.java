@@ -1,4 +1,4 @@
-//------------------ M17 ---------------------
+//------------------ M23 ---------------------
 package com.condotrack.backend.repository;
 
 import com.condotrack.backend.model.Unit;
@@ -52,6 +52,22 @@ public interface UnitRepository extends JpaRepository<Unit, UUID> {
    //          @Param("email") String email,
    //          Pageable pageable
    //  );
+
+
+    @Query("""
+            SELECT u
+            FROM Unit u
+            JOIN u.building b
+            WHERE u.active = true
+              AND b.active = true
+              AND (
+                    LOWER(u.unitNumber) LIKE LOWER(CONCAT('%', :query, '%'))
+                    OR LOWER(b.name) LIKE LOWER(CONCAT('%', :query, '%'))
+                    OR LOWER(b.code) LIKE LOWER(CONCAT('%', :query, '%'))
+              )
+            ORDER BY b.name ASC, u.unitNumber ASC
+            """)
+    List<Unit> searchActiveUnits(@Param("query") String query, Pageable pageable);
 
     boolean existsByBuildingIdAndUnitNumberIgnoreCase(UUID buildingId, String unitNumber);
 
