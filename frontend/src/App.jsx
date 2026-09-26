@@ -23,6 +23,7 @@ import NotificationsPage from './pages/NotificationsPage.jsx'
 import CommunicationsPage from './pages/CommunicationsPage.jsx'
 import AuditPage from './pages/AuditPage.jsx'
 import BookingsPage from './pages/BookingsPage.jsx'
+import ReportsPage from './pages/ReportsPage.jsx'
 
 const protectedModules = [
   'buildings',
@@ -93,6 +94,9 @@ function App() {
             <Route element={<ProtectedRoute moduleKey="communications" />}>
               <Route path="communications" element={<CommunicationsPage />} />
             </Route>
+            <Route element={<ProtectedRoute moduleKey="reports" />}>
+              <Route path="reports" element={<ReportsPage />} />
+            </Route>
             <Route element={<ProtectedRoute moduleKey="audit" />}>
               <Route path="audit" element={<AuditPage />} />
             </Route>
@@ -105,7 +109,7 @@ function App() {
             </Route>
 
             {protectedModules
-              .filter((moduleKey) => !['buildings', 'units', 'residents', 'access', 'deliveries', 'bookings', 'incidents', 'maintenance', 'moves', 'notifications', 'communications', 'audit', 'userManagement'].includes(moduleKey))
+              .filter((moduleKey) => !['buildings', 'units', 'residents', 'access', 'deliveries', 'bookings', 'incidents', 'maintenance', 'moves', 'reports', 'notifications', 'communications', 'audit', 'userManagement'].includes(moduleKey))
               .map((moduleKey) => (
 
                 <Route

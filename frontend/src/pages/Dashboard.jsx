@@ -68,6 +68,12 @@ const sidebarModules = [
     path: '/dashboard/moves',
   },
   {
+    key: 'reports',
+    icon: 'chart',
+    label: 'Reports / KPIs',
+    path: '/dashboard/reports',
+  },
+  {
     key: 'notifications',
     icon: 'bell',
     label: 'Notifications',
