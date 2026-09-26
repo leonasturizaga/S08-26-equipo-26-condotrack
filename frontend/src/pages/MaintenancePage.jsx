@@ -2,6 +2,8 @@ import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from '../i18n/i18n.js'
 import { useAuth } from '../auth/AuthContext.jsx'
 import Modal from '../components/Modal.jsx'
+import TableAction from '../components/TableAction.jsx'
+import TableActions from '../components/TableActions.jsx'
 import { createMaintenance, getAssignableMaintenanceStaff, getMaintenance, getMaintenanceRequest, getMaintenanceUnitOptions, updateMaintenance, updateMaintenanceAssignment, updateMaintenanceStatus } from '../api/maintenanceApi.js'
 
 const PAGE_SIZE = 20
@@ -83,7 +85,7 @@ function MaintenancePage() {
     {!canList ? <div className="panel"><div className="empty-state">{t('Maintenance requests you create will appear here when list access is available.')}</div></div> : <div className="panel">
       <div className="panel-header"><div><h2>{t('Maintenance requests')}</h2><span className="panel-meta">{totalElements} {t('records')}</span></div></div>
       {error&&<div className="feedback feedback-error" role="alert">{error}</div>}
-      {loading?<div className="feedback feedback-info">{t('Loading maintenance...')}</div>:items.length===0?<div className="empty-state">{t('No maintenance requests found.')}</div>:<div className="table-wrap"><table className="data-table"><thead><tr><th>{t('Building')}</th><th>{t('Unit')}</th><th>{t('Category')}</th><th>{t('Priority')}</th><th>{t('Status')}</th><th>{t('Scheduled at')}</th><th>{t('Actions')}</th></tr></thead><tbody>{items.map(item=><tr key={item.id}><td>{item.buildingCode}</td><td>{item.unitNumber}</td><td>{item.category}</td><td><span className={`status-pill ${priorityClass(item.priority)}`}>{t(item.priority)}</span></td><td><span className={`status-pill ${statusClass(item.status)}`}>{t(item.status)}</span></td><td>{formatDateTime(item.scheduledAt)}</td><td><button className="button button-ghost button-small" type="button" onClick={()=>openItem(item.id)}>{t('View')}</button></td></tr>)}</tbody></table></div>}
+      {loading?<div className="feedback feedback-info">{t('Loading maintenance...')}</div>:items.length===0?<div className="empty-state">{t('No maintenance requests found.')}</div>:<div className="table-wrap"><table className="data-table"><thead><tr><th>{t('Building')}</th><th>{t('Unit')}</th><th>{t('Category')}</th><th>{t('Priority')}</th><th>{t('Status')}</th><th>{t('Scheduled at')}</th><th>{t('Actions')}</th></tr></thead><tbody>{items.map(item=><tr key={item.id}><td>{item.buildingCode}</td><td>{item.unitNumber}</td><td>{item.category}</td><td><span className={`status-pill ${priorityClass(item.priority)}`}>{t(item.priority)}</span></td><td><span className={`status-pill ${statusClass(item.status)}`}>{t(item.status)}</span></td><td>{formatDateTime(item.scheduledAt)}</td><td><TableActions moreLabel={t('More')}><TableAction icon="eye" label={t('View')} variant="view" onClick={()=>openItem(item.id)} /></TableActions></td></tr>)}</tbody></table></div>}
       {totalPages>1&&<div className="pagination"><button className="button button-secondary button-small" type="button" onClick={()=>load(Math.max(page-1,0))} disabled={page===0||loading}>{t('Previous')}</button><span>{t('Page')} {page+1} {t('of')} {totalPages}</span><button className="button button-secondary button-small" type="button" onClick={()=>load(Math.min(page+1,totalPages-1))} disabled={page>=totalPages-1||loading}>{t('Next')}</button></div>}
     </div>}
 

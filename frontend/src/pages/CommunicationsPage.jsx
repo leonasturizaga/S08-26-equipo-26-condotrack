@@ -264,6 +264,8 @@ import { getCommunication, getCommunications, sendCommunication } from '../api/c
 import { getBuildings } from '../api/buildingsApi.js'
 import { getUnits } from '../api/unitsApi.js'
 import Modal from '../components/Modal.jsx'
+import TableAction from '../components/TableAction.jsx'
+import TableActions from '../components/TableActions.jsx'
 import { useAuth } from '../auth/AuthContext.jsx'
 import Icon from '../components/Icon.jsx'
 import { useTranslation } from '../i18n/i18n.js'
@@ -451,7 +453,7 @@ function CommunicationsPage() {
                     <td>{formatDateTime(communication.sentAt)}</td>
                     <td>{communication.readCount} / {communication.recipientCount}</td>
                     <td>{communication.unreadCount}</td>
-                    <td><button className="button button-ghost button-small" type="button" onClick={() => openCommunication(communication)}>{t('View')}</button></td>
+                    <td><TableActions moreLabel={t('More')}><TableAction icon="eye" label={t('View')} variant="view" onClick={() => openCommunication(communication)} /></TableActions></td>
                   </tr>
                 ))}
               </tbody>

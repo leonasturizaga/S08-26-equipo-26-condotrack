@@ -6,6 +6,8 @@ import {
   markNotificationRead,
 } from '../api/notificationsApi.js'
 import Modal from '../components/Modal.jsx'
+import TableAction from '../components/TableAction.jsx'
+import TableActions from '../components/TableActions.jsx'
 import Icon from '../components/Icon.jsx'
 import { useTranslation } from '../i18n/i18n.js'
 
@@ -183,14 +185,15 @@ function NotificationsPage() {
                     </td>
                     <td>{formatDateTime(notification.createdAt)}</td>
                     <td>
-                      <button
-                        className="button button-ghost button-small"
-                        type="button"
-                        onClick={() => openNotification(notification)}
-                        disabled={markingId === notification.id}
-                      >
-                        {t('View')}
-                      </button>
+                      <TableActions moreLabel={t('More')}>
+                        <TableAction
+                          icon="eye"
+                          label={t('View')}
+                          variant="view"
+                          onClick={() => openNotification(notification)}
+                          disabled={markingId === notification.id}
+                        />
+                      </TableActions>
                     </td>
                   </tr>
                 ))}

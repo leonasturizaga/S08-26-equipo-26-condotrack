@@ -2712,3 +2712,182 @@ body {
     flex-basis: 100%;
   }
 }
+
+
+
+/* --------------------------------------------------
+   Side milestone 21.2 - shared table actions + modal viewport isolation
+-------------------------------------------------- */
+
+.module-page,
+.module-page-header,
+.panel,
+.data-panel,
+.table-wrap,
+.table-scroll {
+  min-width: 0;
+}
+
+.table-actions {
+  gap: 4px;
+}
+
+.table-action {
+  width: 32px;
+  height: 32px;
+  flex: 0 0 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color 0.16s ease, background 0.16s ease, border-color 0.16s ease;
+}
+
+.table-action:hover:not(:disabled) {
+  background: var(--blue-50);
+}
+
+.table-action:focus-visible,
+.table-action-menu-item:focus-visible {
+  outline: none;
+  border-color: var(--focus);
+  box-shadow: 0 0 0 3px rgba(113, 172, 233, 0.18);
+}
+
+.table-action:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.table-action-view:hover:not(:disabled),
+.table-action-edit:hover:not(:disabled) {
+  color: var(--blue-600);
+}
+
+.table-action-neutral:hover:not(:disabled),
+.table-action-more:hover:not(:disabled) {
+  color: var(--text-heading, var(--text));
+}
+
+.table-action-delete:hover:not(:disabled) {
+  color: var(--error);
+  background: var(--error-soft);
+}
+
+.table-action-menu {
+  position: fixed;
+  z-index: 300;
+  max-height: min(360px, calc(100vh - 16px));
+  padding: 6px;
+  overflow-y: auto;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: var(--surface);
+  box-shadow: 0 14px 34px rgba(30, 41, 59, 0.18);
+}
+
+.table-action-menu-item {
+  width: 100%;
+  min-height: 36px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 9px;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+}
+
+.table-action-menu-item:hover:not(:disabled) {
+  background: var(--blue-50);
+}
+
+.table-action-menu-item.table-action-delete:hover:not(:disabled) {
+  color: var(--error);
+  background: var(--error-soft);
+}
+
+.table-action-menu-item:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.table-actions-column {
+  width: 1%;
+  white-space: nowrap;
+}
+
+.table-wrap,
+.table-scroll {
+  width: 100%;
+  max-width: 100%;
+}
+
+/* A modal is rendered into document.body, so table width can never affect it. */
+.modal-backdrop {
+  box-sizing: border-box;
+  width: 100vw;
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+.modal-dialog {
+  width: min(720px, calc(100vw - 48px));
+  max-width: min(720px, calc(100vw - 48px));
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+.modal-dialog.modal-medium {
+  width: min(680px, calc(100vw - 48px));
+  max-width: min(680px, calc(100vw - 48px));
+}
+
+.modal-dialog.modal-large {
+  width: min(900px, calc(100vw - 48px));
+  max-width: min(900px, calc(100vw - 48px));
+}
+
+.modal-body,
+.modal-header,
+.modal-footer {
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.modal-body > form,
+.modal-body > .entity-form {
+  width: 100%;
+}
+
+@media (max-width: 760px) {
+  .modal-dialog,
+  .modal-dialog.modal-medium,
+  .modal-dialog.modal-large {
+    width: calc(100vw - 16px);
+    max-width: calc(100vw - 16px);
+  }
+}
+
+@media (max-width: 420px) {
+  .modal-dialog,
+  .modal-dialog.modal-medium,
+  .modal-dialog.modal-large {
+    width: calc(100vw - 12px);
+    max-width: calc(100vw - 12px);
+  }
+
+  .table-action {
+    width: 30px;
+    height: 30px;
+    flex-basis: 30px;
+  }
+}
