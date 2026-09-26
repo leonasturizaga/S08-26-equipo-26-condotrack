@@ -191,6 +191,23 @@ public class BookingAccessService {
     }
 
     @Transactional(readOnly = true)
+    public boolean canUpdate(Authentication authentication, UUID bookingId) {
+        if (authentication == null || !authentication.isAuthenticated() || bookingId == null) {
+            return false;
+        }
+
+        if (permissionService.hasPermission(authentication, "BOOKINGS_UPDATE")) {
+            return bookingRepository.existsById(bookingId);
+        }
+
+        return permissionService.hasPermission(authentication, "BOOKINGS_UPDATE_OWN")
+                && bookingRepository.existsByIdAndResident_User_EmailIgnoreCase(
+                bookingId,
+                authentication.getName()
+        );
+    }
+
+    @Transactional(readOnly = true)
     public boolean canUpdateStatus(
             Authentication authentication,
             UUID bookingId,

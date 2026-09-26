@@ -18,8 +18,8 @@ public record BookingResponse(
         OffsetDateTime startAt,
         OffsetDateTime endAt,
         String purpose,
-        UUID approvedByStaffId,
         OffsetDateTime approvedAt,
+        UUID approvedByStaffId,
         String cancellationReason
 ) {
 }
