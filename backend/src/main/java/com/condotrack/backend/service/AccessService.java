@@ -558,7 +558,7 @@
 // }
 
 
-//---------------- milestone 20 ---------------------
+//---------------- milestone 23.1 ---------------------
 package com.condotrack.backend.service;
 
 import com.condotrack.backend.dto.AccessLogResponse;
@@ -579,6 +579,9 @@ import com.condotrack.backend.repository.UserRepository;
 import com.condotrack.backend.repository.VisitorAuthorizationRepository;
 import com.condotrack.backend.repository.VisitorRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -598,7 +601,53 @@ public class AccessService {
     private final UserRepository userRepository;
     private final PermissionService permissionService;
     private final AuditService auditService;
+    @Transactional(readOnly = true)
+    public Page<VisitorAuthorizationResponse> getVisitorAuthorizations(
+            Authentication authentication,
+            int page,
+            int size,
+            String status
+    ) {
+        Pageable pageable = PageRequest.of(Math.max(page, 0), Math.min(Math.max(size, 1), 100));
+        boolean fullView = permissionService.hasPermission(authentication, "ACCESS_VIEW");
 
+        Enums.VisitorAuthorizationStatus statusFilter = null;
+        if (status != null && !status.isBlank()) {
+            try {
+                statusFilter = Enums.VisitorAuthorizationStatus.valueOf(status.trim().toUpperCase());
+            } catch (IllegalArgumentException ex) {
+                throw new IllegalArgumentException("Invalid visitor authorization status: " + status);
+            }
+        }
+
+        Page<VisitorAuthorization> authorizations;
+        if (fullView) {
+            authorizations = statusFilter == null
+                    ? visitorAuthorizationRepository.findAllForView(pageable)
+                    : visitorAuthorizationRepository.findAllForViewByStatus(statusFilter, pageable);
+        } else {
+            authorizations = statusFilter == null
+                    ? visitorAuthorizationRepository.findForUserView(authentication.getName(), pageable)
+                    : visitorAuthorizationRepository.findForUserViewByStatus(authentication.getName(), statusFilter, pageable);
+        }
+
+        return authorizations.map(this::toAuthorizationResponse);
+    }
+
+    @Transactional(readOnly = true)
+    public VisitorAuthorizationResponse getVisitorAuthorization(
+            UUID authorizationId,
+            Authentication authentication
+    ) {
+        boolean fullView = permissionService.hasPermission(authentication, "ACCESS_VIEW");
+        VisitorAuthorization authorization = fullView
+                ? visitorAuthorizationRepository.findForView(authorizationId)
+                .orElseThrow(() -> new IllegalArgumentException("Visitor authorization not found: " + authorizationId))
+                : visitorAuthorizationRepository.findForUserViewById(authorizationId, authentication.getName())
+                .orElseThrow(() -> new IllegalArgumentException("Visitor authorization not found: " + authorizationId));
+
+        return toAuthorizationResponse(authorization);
+    }
     @Transactional
     public VisitorAuthorizationResponse createAuthorization(
             VisitorAuthorizationCreateRequest request,
