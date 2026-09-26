@@ -712,5 +712,37 @@
   "Save changes": "Guardar cambios",
   "Booking updated successfully.": "Reserva actualizada correctamente.",
   "Unable to update booking.": "No se pudo actualizar la reserva.",
-  "More": "Más"
+  "More": "Más",
+
+
+  "REPORTS / KPIS": "INFORMES / KPIS",
+  "Operational indicators and cross-module activity for condominium management.": "Indicadores operativos y actividad transversal para la gestión del condominio.",
+  "Loading reports...": "Cargando informes...",
+  "Unable to load reports.": "No se pudieron cargar los informes.",
+  "Active units": "Unidades activas",
+  "occupied": "ocupadas",
+  "Occupancy": "Ocupación",
+  "active residents": "residentes activos",
+  "Access events · 30d": "Eventos de acceso · 30d",
+  "Pending deliveries": "Entregas pendientes",
+  "Upcoming bookings · 30d": "Reservas próximas · 30d",
+  "Open incidents": "Incidentes abiertos",
+  "Open maintenance": "Mantenimientos abiertos",
+  "ACTIVITY": "ACTIVIDAD",
+  "Six-month operational trend": "Tendencia operativa de seis meses",
+  "months": "meses",
+  "STATUS": "ESTADO",
+  "Operational status mix": "Distribución de estados operativos",
+  "No status data available.": "No hay datos de estado disponibles.",
+  "BUILDING OVERVIEW": "RESUMEN DE EDIFICIOS",
+  "Building operational summary": "Resumen operativo por edificio",
+  "No buildings found.": "No se encontraron edificios.",
+  "Generated": "Generado",
+  "Access events": "Eventos de acceso",
+  "Moves": "Mudanzas",
+  "accessEvents": "Eventos de acceso",
+  "bookings": "Reservas",
+  "maintenance": "Mantenimiento",
+  "moves": "Mudanzas"
 }
+
