@@ -1,4 +1,4 @@
-//--------------------- milestone 17.1 ---------------------
+//--------------------- milestone 23 ---------------------
 import { useState } from 'react'
 import { NavLink, Outlet } from 'react-router-dom'
 
@@ -18,6 +18,12 @@ const sidebarModules = [
     icon: 'building',
     label: 'Buildings',
     path: '/dashboard/buildings',
+  },
+  {
+    key: 'unitLookup',
+    icon: 'search',
+    label: 'Unified Unit Lookup',
+    path: '/dashboard/unit-lookup',
   },
   {
     key: 'units',

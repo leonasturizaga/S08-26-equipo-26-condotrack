@@ -1,4 +1,6 @@
+//------------------ M23 ---------------------
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 import { getBuildings } from '../api/buildingsApi.js'
 import {
@@ -25,6 +27,7 @@ const emptyForm = {
 
 function UnitsPage() {
   const { t } = useTranslation()
+  const navigate = useNavigate()
   const { user } = useAuth()
   const isAdministrator = user?.roles?.includes('ADMINISTRATOR')
   const canCreateOrEdit = isAdministrator
@@ -203,6 +206,9 @@ function UnitsPage() {
           </p>
         </div>
 
+        <button className="button button-secondary" type="button" onClick={() => navigate('/dashboard/unit-lookup')}>
+          <span aria-hidden="true">⌕</span> {t('Unified Unit Lookup')}
+        </button>
         {canCreateOrEdit && (
           <button className="button button-primary" type="button" onClick={startCreate}>
             + {t('Add unit')}

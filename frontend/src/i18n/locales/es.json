@@ -497,7 +497,7 @@
   "RESOLVED": "Resuelto",
   "CLOSED": "Cerrado",
   "ADMINISTRATOR": "Administrador",
-  "RECEPTION": "REcepción",
+  "RECEPTION": "Recepción",
   "Track maintenance requests, assignments and resolution.": "Seguimiento de solicitudes de mantenimiento, asignaciones y resolución.",
   "Create maintenance request": "Crear solicitud de mantenimiento",
   "Maintenance requests": "Solicitudes de mantenimiento",
@@ -743,6 +743,23 @@
   "accessEvents": "Eventos de acceso",
   "bookings": "Reservas",
   "maintenance": "Mantenimiento",
-  "moves": "Mudanzas"
+  "moves": "Mudanzas",
+
+
+  "UNIT LOOKUP": "CONSULTA UNIFICADA DE UNIDADES",
+  "Search a unit and view its connected operational records in one workspace.": "Busca una unidad y consulta sus registros operativos relacionados en un solo espacio.",
+  "Search by unit, building name or building code": "Buscar por unidad, nombre o código del edificio",
+  "e.g. 4B, Tower A, TWR-A": "ej. 4B, Torre A, TWR-A",
+  "Unit lookup search": "Búsqueda de unidad",
+  "Enter at least 2 characters.": "Introduce al menos 2 caracteres.",
+  "Searching...": "Buscando...",
+  "No matching units found.": "No se encontraron unidades coincidentes.",
+  "New search": "Nueva búsqueda",
+  "Loading unit workspace...": "Cargando espacio de trabajo de la unidad...",
+  "Recent access": "Accesos recientes",
+  "Unknown carrier": "Transportista desconocido",
+  "Unable to search units.": "No se pudieron buscar las unidades.",
+  "Unable to load the unit workspace.": "No se pudo cargar el espacio de trabajo de la unidad.",
+  "UNIT": "UNIDAD"
 }
 
