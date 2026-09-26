@@ -71,6 +71,7 @@ import com.condotrack.backend.dto.BookingCreateRequest;
 import com.condotrack.backend.dto.BookingPageResponse;
 import com.condotrack.backend.dto.BookingResponse;
 import com.condotrack.backend.dto.BookingStatusUpdateRequest;
+import com.condotrack.backend.dto.BookingUpdateRequest;
 import com.condotrack.backend.service.BookingAccessService;
 import com.condotrack.backend.service.BookingService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -121,6 +122,16 @@ public class BookingController {
         return bookingService.createBooking(request, authentication);
     }
 
+    @PutMapping("/{bookingId}")
+    @PreAuthorize("@bookingAccessService.canUpdate(authentication, #bookingId)")
+    @Operation(summary = "Update booking schedule")
+    public BookingResponse updateBooking(
+            @PathVariable UUID bookingId,
+            @Valid @RequestBody BookingUpdateRequest request,
+            Authentication authentication
+    ) {
+        return bookingService.updateBooking(bookingId, request, authentication);
+    }
     @PutMapping("/{bookingId}/status")
     @PreAuthorize("@bookingAccessService.canUpdateStatus(authentication, #bookingId, #request.status)")
     @Operation(summary = "Update booking status")

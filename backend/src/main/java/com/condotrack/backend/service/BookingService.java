@@ -281,16 +281,19 @@ import com.condotrack.backend.dto.BookingCreateRequest;
 import com.condotrack.backend.dto.BookingPageResponse;
 import com.condotrack.backend.dto.BookingResponse;
 import com.condotrack.backend.dto.BookingStatusUpdateRequest;
+import com.condotrack.backend.dto.BookingUpdateRequest;
 import com.condotrack.backend.model.Booking;
 import com.condotrack.backend.model.Building;
 import com.condotrack.backend.model.CommonArea;
 import com.condotrack.backend.model.Enums;
 import com.condotrack.backend.model.Resident;
+import com.condotrack.backend.model.Staff;
 import com.condotrack.backend.model.Unit;
 import com.condotrack.backend.model.User;
 import com.condotrack.backend.repository.BookingRepository;
 import com.condotrack.backend.repository.CommonAreaRepository;
 import com.condotrack.backend.repository.ResidentRepository;
+import com.condotrack.backend.repository.StaffRepository;
 import com.condotrack.backend.repository.UnitRepository;
 import com.condotrack.backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -315,6 +318,7 @@ public class BookingService {
     private final BookingRepository bookingRepository;
     private final UnitRepository unitRepository;
     private final ResidentRepository residentRepository;
+    private final StaffRepository staffRepository;
     private final CommonAreaRepository commonAreaRepository;
     private final UserRepository userRepository;
     private final PermissionService permissionService;
@@ -350,6 +354,9 @@ public class BookingService {
         Building building = unit.getBuilding();
         if (building == null || !building.isActive()) {
             throw new IllegalArgumentException("The unit belongs to an inactive or missing building");
+        }
+        if (request.buildingId() == null || !request.buildingId().equals(building.getId())) {
+            throw new IllegalArgumentException("buildingId does not match the selected unit's building");
         }
 
         CommonArea commonArea = getActiveCommonArea(request.commonAreaId());
@@ -400,6 +407,52 @@ public class BookingService {
     }
 
     @Transactional
+    public BookingResponse updateBooking(UUID bookingId, BookingUpdateRequest request, Authentication authentication) {
+        Booking booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new IllegalArgumentException("Booking not found: " + bookingId));
+
+        if (booking.getStatus() != Enums.BookingStatus.PENDING) {
+            throw new IllegalStateException("Only pending bookings can be rescheduled. Approved bookings must be cancelled and submitted again.");
+        }
+
+        validateDates(request.startAt(), request.endAt());
+
+        User currentUser = getAuthenticatedUser(authentication);
+        OffsetDateTime previousStart = booking.getStartAt();
+        OffsetDateTime previousEnd = booking.getEndAt();
+
+        booking.setStartAt(request.startAt());
+        booking.setEndAt(request.endAt());
+        booking.setPurpose(normalizeOptional(request.purpose()));
+        booking.setUpdatedBy(currentUser.getId());
+
+        try {
+            Booking saved = bookingRepository.saveAndFlush(booking);
+            auditService.record(
+                    authentication.getName(),
+                    saved.getBuilding(),
+                    "BOOKING",
+                    saved.getId(),
+                    "UPDATE",
+                    null,
+                    saved.getStatus().name(),
+                    null,
+                    Map.of(
+                            "previousStartAt", previousStart.toString(),
+                            "previousEndAt", previousEnd.toString(),
+                            "startAt", saved.getStartAt().toString(),
+                            "endAt", saved.getEndAt().toString()
+                    )
+            );
+            return toResponse(saved);
+        } catch (DataIntegrityViolationException exception) {
+            throw new IllegalStateException(
+                    "The requested common-area time slot is already booked or overlaps an active booking"
+            );
+        }
+    }
+
+    @Transactional
     public BookingResponse updateStatus(UUID bookingId, BookingStatusUpdateRequest request, Authentication authentication) {
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new IllegalArgumentException("Booking not found: " + bookingId));
@@ -414,6 +467,11 @@ public class BookingService {
 
         if (targetStatus == Enums.BookingStatus.APPROVED) {
             booking.setApprovedAt(OffsetDateTime.now());
+            staffRepository.findActiveByUserEmailIgnoreCase(authentication.getName()).stream()
+                    .filter(staff -> staff.getBuilding() != null
+                            && staff.getBuilding().getId().equals(booking.getBuilding().getId()))
+                    .findFirst()
+                    .ifPresent(booking::setApprovedByStaff);
         }
 
         if (targetStatus == Enums.BookingStatus.CANCELLED || targetStatus == Enums.BookingStatus.REJECTED) {
@@ -527,11 +585,11 @@ public class BookingService {
                 booking.getStartAt(),
                 booking.getEndAt(),
                 booking.getPurpose(),
+                booking.getApprovedAt(),
                 booking.getApprovedByStaff() == null
                         ? null
-                        : booking.getApprovedByStaff().getId(),                
-                booking.getApprovedAt(),
-                booking.getCancellationReason()            
+                        : booking.getApprovedByStaff().getId(),
+                booking.getCancellationReason()
         );
     }
 
@@ -552,7 +610,5 @@ public class BookingService {
 
         String normalized = value.trim();
         return normalized.isEmpty() ? null : normalized;
-												   
-																				   
     }
 }
