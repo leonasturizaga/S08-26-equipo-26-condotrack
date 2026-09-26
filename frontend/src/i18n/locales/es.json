@@ -707,5 +707,9 @@
   "BBQ": "PARRILLA",
   "COWORKING": "COWORKING",
   "SPORTS_COURT": "CANCHA DEPORTIVA",
-  "MULTIPURPOSE_ROOM": "SALA MULTIUSO"
+  "MULTIPURPOSE_ROOM": "SALA MULTIUSO",
+  "Edit booking": "Editar reserva",
+  "Save changes": "Guardar cambios",
+  "Booking updated successfully.": "Reserva actualizada correctamente.",
+  "Unable to update booking.": "No se pudo actualizar la reserva."
 }

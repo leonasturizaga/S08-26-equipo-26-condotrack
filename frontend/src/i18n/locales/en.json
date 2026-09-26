@@ -707,5 +707,9 @@
   "BBQ": "BBQ",
   "COWORKING": "COWORKING",
   "SPORTS_COURT": "SPORTS COURT",
-  "MULTIPURPOSE_ROOM": "MULTIPURPOSE ROOM"
+  "MULTIPURPOSE_ROOM": "MULTIPURPOSE ROOM",
+  "Edit booking": "Edit booking",
+  "Save changes": "Save changes",
+  "Booking updated successfully.": "Booking updated successfully.",
+  "Unable to update booking.": "Unable to update booking."
 }
