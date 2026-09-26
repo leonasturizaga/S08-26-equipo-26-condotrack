@@ -2410,3 +2410,305 @@ body {
   white-space: pre-wrap;
   overflow: auto;
 }
+
+
+\n\n/* --------------------------------------------------
+   Side milestone 21.1 - Modal + responsive consolidation
+   Final override layer so it wins over older cosmetic rules.
+-------------------------------------------------- */
+
+.module-header {
+  min-width: 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 2px 0;
+}
+
+.module-header h2 {
+  margin: 0;
+  color: var(--text-heading, var(--text));
+  font-size: var(--font-title);
+  line-height: 1.3;
+  font-weight: 650;
+}
+
+.module-header .muted {
+  max-width: 760px;
+  margin: 8px 0 0;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  min-width: 0;
+}
+
+.form-grid-full {
+  grid-column: 1 / -1;
+}
+
+.form-grid > label,
+.form-grid .form-field {
+  min-width: 0;
+}
+
+.form-grid > label:not(.form-field) {
+  display: grid;
+  gap: 7px;
+  color: var(--text-heading, var(--text));
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.form-grid > label input,
+.form-grid > label select,
+.form-grid > label textarea,
+.form-grid .form-field input,
+.form-grid .form-field select,
+.form-grid .form-field textarea {
+  width: 100%;
+  min-width: 0;
+  min-height: 40px;
+  padding: 0 11px;
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text);
+  outline: none;
+}
+
+.form-grid > label textarea,
+.form-grid .form-field textarea {
+  min-height: 96px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  resize: vertical;
+}
+
+.form-grid > label input:focus,
+.form-grid > label select:focus,
+.form-grid > label textarea:focus,
+.form-grid .form-field input:focus,
+.form-grid .form-field select:focus,
+.form-grid .form-field textarea:focus {
+  border-color: var(--focus);
+  box-shadow: 0 0 0 3px rgba(113, 172, 233, 0.16);
+}
+
+.form-grid > label input:disabled,
+.form-grid > label select:disabled,
+.form-grid .form-field input:disabled,
+.form-grid .form-field select:disabled {
+  background: #f6f7f9;
+  color: var(--text-muted);
+}
+
+.modal-body {
+  min-width: 0;
+}
+
+.modal-body > form,
+.modal-body > .entity-form {
+  min-width: 0;
+}
+
+.modal-actions {
+  width: 100%;
+  margin-top: 2px;
+  padding-top: 16px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  border-top: 1px solid var(--line-soft, var(--border));
+}
+
+.booking-edit-context {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.booking-edit-context > div {
+  min-width: 0;
+  padding: 11px 12px;
+  border: 1px solid var(--line-soft, var(--border));
+  border-radius: 9px;
+  background: var(--surface-muted, #f7f8fa);
+}
+
+.booking-edit-context span,
+.booking-edit-context strong {
+  display: block;
+}
+
+.booking-edit-context span {
+  margin-bottom: 4px;
+  color: var(--text-muted);
+  font-size: 11px;
+}
+
+.booking-edit-context strong {
+  overflow: hidden;
+  color: var(--text-heading, var(--text));
+  font-size: 13px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.table-wrap {
+  width: 100%;
+  min-width: 0;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.data-table {
+  min-width: 760px;
+}
+
+/* Correct the old Side 17.2 fixed-sidebar override on narrow screens. */
+@media (max-width: 1024px) {
+  .mobile-only {
+    display: grid;
+  }
+
+  .sidebar {
+    transform: translateX(-100%);
+    transition: transform 0.2s ease;
+    box-shadow: 10px 0 28px rgba(31, 41, 55, 0.08);
+  }
+
+  .sidebar.sidebar-open {
+    transform: translateX(0);
+  }
+
+  .main-area {
+    width: 100%;
+    max-width: none;
+    margin-left: 0 !important;
+  }
+
+  .page-content {
+    width: min(100% - 32px, 1240px);
+  }
+
+  .topbar {
+    padding: 0 18px;
+  }
+
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .module-link-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .form-grid-full {
+    grid-column: 1;
+  }
+
+  .booking-edit-context {
+    grid-template-columns: 1fr;
+  }
+
+  .module-link-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .module-header,
+  .module-page-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .module-header .button,
+  .module-page-header .button {
+    width: 100%;
+  }
+
+  .topbar {
+    min-height: 68px;
+    padding: 0 12px;
+    gap: 8px;
+  }
+
+  .topbar-title h1 {
+    font-size: 18px;
+  }
+
+  .topbar .eyebrow {
+    display: none;
+  }
+
+  .topbar-actions {
+    gap: 6px;
+  }
+
+  .page-content {
+    width: calc(100% - 24px);
+    padding: 22px 0 36px;
+  }
+
+  .panel,
+  .data-panel {
+    padding: 14px;
+  }
+
+  .modal-backdrop {
+    padding: 8px;
+    place-items: center;
+  }
+
+  .modal-dialog,
+  .modal-dialog.modal-medium,
+  .modal-dialog.modal-large {
+    width: 100%;
+    max-width: 100%;
+    max-height: calc(100dvh - 16px);
+    border-radius: 12px;
+  }
+
+  .modal-header {
+    padding: 15px 16px;
+  }
+
+  .modal-body {
+    padding: 16px;
+  }
+
+  .modal-actions {
+    justify-content: stretch;
+  }
+
+  .modal-actions .button {
+    flex: 1 1 140px;
+  }
+}
+
+@media (max-width: 420px) {
+  .topbar-title h1 {
+    font-size: 17px;
+  }
+
+  .language-button {
+    padding: 0 8px;
+  }
+
+  .modal-actions .button {
+    width: 100%;
+    flex-basis: 100%;
+  }
+}

@@ -10,6 +10,7 @@ import {
   createBooking,
   getBooking,
   getBookings,
+  updateBooking,
   updateBookingStatus,
 } from '../api/bookingsApi.js'
 
@@ -51,6 +52,7 @@ function statusClass(status) {
 
 function createDefaultForm() {
   return {
+    buildingId: '',
     commonAreaId: '',
     unitId: '',
     residentId: '',
@@ -91,6 +93,7 @@ function BookingsPage() {
   const [optionsError, setOptionsError] = useState('')
 
   const [showCreate, setShowCreate] = useState(false)
+  const [showEdit, setShowEdit] = useState(false)
   const [form, setForm] = useState(createDefaultForm)
   const [saving, setSaving] = useState(false)
   const [formError, setFormError] = useState('')
@@ -162,18 +165,61 @@ function BookingsPage() {
   useEffect(() => { loadCommonAreas() }, [loadCommonAreas])
   useEffect(() => { loadOptions() }, [loadOptions])
 
+  const buildingOptions = useMemo(() => {
+    const seen = new Set()
+    return commonAreas
+      .filter((area) => area.buildingId && area.buildingCode)
+      .filter((area) => {
+        if (seen.has(area.buildingId)) return false
+        seen.add(area.buildingId)
+        return true
+      })
+      .sort((a, b) => String(a.buildingCode).localeCompare(String(b.buildingCode)))
+  }, [commonAreas])
+
+  const filteredCommonAreas = useMemo(
+    () => commonAreas.filter((area) => !form.buildingId || area.buildingId === form.buildingId),
+    [commonAreas, form.buildingId],
+  )
+
+  const filteredUnits = useMemo(
+    () => units.filter((unit) => !form.buildingId || unit.buildingId === form.buildingId),
+    [form.buildingId, units],
+  )
   const filteredResidents = useMemo(
     () => residents.filter((resident) => !form.unitId || resident.unitId === form.unitId),
     [form.unitId, residents],
   )
 
+  const resetBookingForm = () => {
+    setForm(createDefaultForm())
+    setFormError('')
+  }
+
+  const closeCreate = () => {
+    if (!saving) {
+      setShowCreate(false)
+      resetBookingForm()
+    }
+  }
   const openCreate = () => {
-    const ownUnit = role === 'RESIDENT' && units.length === 1 ? units[0] : null
-    const ownResident = role === 'RESIDENT' && filteredResidents.length === 1 ? filteredResidents[0] : null
+    let ownBuildingId = ''
+    let ownUnitId = ''
+    let ownResidentId = ''
+
+    if (role === 'RESIDENT') {
+      const ownUnits = units
+      const uniqueBuildingIds = [...new Set(ownUnits.map((unit) => unit.buildingId).filter(Boolean))]
+      ownBuildingId = uniqueBuildingIds.length === 1 ? uniqueBuildingIds[0] : ''
+      ownUnitId = ownUnits.length === 1 ? ownUnits[0].id : ''
+      const ownResidentOptions = residents.filter((resident) => !ownUnitId || resident.unitId === ownUnitId)
+      ownResidentId = ownResidentOptions.length === 1 ? ownResidentOptions[0].id : ''
+    }
     setForm({
       ...createDefaultForm(),
-      unitId: ownUnit?.id ?? '',
-      residentId: ownResident?.id ?? '',
+      buildingId: ownBuildingId,
+      unitId: ownUnitId,
+      residentId: ownResidentId,
     })
     setFormError('')
     setSuccessMessage('')
@@ -182,11 +228,40 @@ function BookingsPage() {
 
   const handleChange = (event) => {
     const { name, value } = event.target
-    setForm((current) => ({
-      ...current,
-      [name]: value,
-      ...(name === 'unitId' ? { residentId: '' } : {}),
-    }))
+
+    if (name === 'buildingId') {
+      setForm((current) => ({
+        ...current,
+        buildingId: value,
+        commonAreaId: '',
+        unitId: '',
+        residentId: '',
+      }))
+      return
+    }
+
+    if (name === 'commonAreaId') {
+      const selected = commonAreas.find((area) => area.id === value)
+      setForm((current) => ({
+        ...current,
+        commonAreaId: value,
+        buildingId: selected?.buildingId || current.buildingId,
+      }))
+      return
+    }
+
+    if (name === 'unitId') {
+      const selected = units.find((unit) => unit.id === value)
+      setForm((current) => ({
+        ...current,
+        unitId: value,
+        residentId: '',
+        buildingId: selected?.buildingId || current.buildingId,
+      }))
+      return
+    }
+
+    setForm((current) => ({ ...current, [name]: value }))
   }
 
   const handleCreate = async (event) => {
@@ -194,10 +269,11 @@ function BookingsPage() {
     setSaving(true)
     setFormError('')
     try {
-      if (!form.commonAreaId || !form.unitId || !form.residentId || !form.startAt || !form.endAt) {
+      if (!form.buildingId || !form.commonAreaId || !form.unitId || !form.residentId || !form.startAt || !form.endAt) {
         throw new Error(t('Please complete all required booking fields.'))
       }
       await createBooking({
+        buildingId: form.buildingId,
         commonAreaId: form.commonAreaId,
         unitId: form.unitId,
         residentId: form.residentId,
@@ -206,7 +282,7 @@ function BookingsPage() {
         purpose: form.purpose.trim() || null,
       })
       setShowCreate(false)
-      setForm(createDefaultForm())
+      resetBookingForm()
       setSuccessMessage(t('Booking created successfully.'))
       await loadBookings(0)
     } catch (requestError) {
@@ -231,6 +307,52 @@ function BookingsPage() {
     }
   }
 
+  const openEdit = () => {
+    if (!selectedBooking) return
+    setForm({
+      buildingId: selectedBooking.buildingId || '',
+      commonAreaId: selectedBooking.commonAreaId || '',
+      unitId: selectedBooking.unitId || '',
+      residentId: selectedBooking.residentId || '',
+      startAt: toLocalInputValue(selectedBooking.startAt),
+      endAt: toLocalInputValue(selectedBooking.endAt),
+      purpose: selectedBooking.purpose || '',
+    })
+    setFormError('')
+    setShowEdit(true)
+  }
+
+  const closeEdit = () => {
+    if (!saving) {
+      setShowEdit(false)
+      setFormError('')
+    }
+  }
+
+  const handleEdit = async (event) => {
+    event.preventDefault()
+    if (!selectedBooking) return
+    setSaving(true)
+    setFormError('')
+    try {
+      if (!form.startAt || !form.endAt) {
+        throw new Error(t('Please complete all required booking fields.'))
+      }
+      const response = await updateBooking(selectedBooking.id, {
+        startAt: toIso(form.startAt),
+        endAt: toIso(form.endAt),
+        purpose: form.purpose.trim() || null,
+      })
+      setSelectedBooking(response)
+      setShowEdit(false)
+      setSuccessMessage(t('Booking updated successfully.'))
+      await loadBookings(page)
+    } catch (requestError) {
+      setFormError(requestError.message || t('Unable to update booking.'))
+    } finally {
+      setSaving(false)
+    }
+  }
   const handleStatus = async (booking, status) => {
     setActionLoadingId(booking.id)
     setError('')
@@ -247,6 +369,7 @@ function BookingsPage() {
   }
 
   const ownCancellationAllowed = role === 'RESIDENT' && ['PENDING', 'APPROVED'].includes(selectedBooking?.status)
+  const ownEditAllowed = role === 'RESIDENT' && selectedBooking?.status === 'PENDING'
   const adminActions = selectedBooking ? allowedAdminTransitions(selectedBooking.status) : []
 
   if (!canView) {
@@ -341,18 +464,20 @@ function BookingsPage() {
                     <td>{formatDateTime(booking.endAt)}</td>
                     <td><span className={`status-pill ${statusClass(booking.status)}`}>{t(booking.status)}</span></td>
                     <td>
-                      <button className="button button-ghost button-small" type="button" onClick={() => openBooking(booking.id)}>{t('View')}</button>
-                      {canOperate && allowedAdminTransitions(booking.status).slice(0, 1).map((status) => (
-                        <button
-                          key={status}
-                          className="button button-primary button-small"
-                          type="button"
-                          disabled={actionLoadingId === booking.id}
-                          onClick={() => handleStatus(booking, status)}
-                        >
-                          {t(status)}
-                        </button>
-                      ))}
+                      <div className="table-actions">
+                        <button className="button button-ghost button-small" type="button" onClick={() => openBooking(booking.id)}>{t('View')}</button>
+                        {canOperate && allowedAdminTransitions(booking.status).slice(0, 1).map((status) => (
+                          <button
+                            key={status}
+                            className="button button-primary button-small"
+                            type="button"
+                            disabled={actionLoadingId === booking.id}
+                            onClick={() => handleStatus(booking, status)}
+                          >
+                            {t(status)}
+                          </button>
+                        ))}
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -370,51 +495,99 @@ function BookingsPage() {
         )}
       </section>
 
-      <Modal open={showCreate} title={t('New booking')} onClose={() => !saving && setShowCreate(false)}>
+      <Modal open={showCreate} title={t('New booking')} onClose={closeCreate} size="medium" closeOnBackdrop={!saving}>
         <form className="form-grid" onSubmit={handleCreate}>
-          {optionsError && <div className="feedback feedback-error">{optionsError}</div>}
-          <label>
+          {optionsError && <div className="feedback feedback-error form-grid-full">{optionsError}</div>}
+
+          <label className="form-field">
+            <span>{t('Building')}</span>
+            <select name="buildingId" value={form.buildingId} onChange={handleChange} disabled={optionsLoading || role === 'RESIDENT' && Boolean(form.buildingId)} required>
+              <option value="">{t('Select building')}</option>
+              {buildingOptions.map((building) => <option key={building.buildingId} value={building.buildingId}>{building.buildingCode}</option>)}
+            </select>
+          </label>
+
+          <label className="form-field">
             <span>{t('Common area')}</span>
-            <select name="commonAreaId" value={form.commonAreaId} onChange={handleChange} disabled={optionsLoading || commonAreaLoading} required>
+            <select name="commonAreaId" value={form.commonAreaId} onChange={handleChange} disabled={optionsLoading || commonAreaLoading || !form.buildingId} required>
               <option value="">{t('Select common area')}</option>
-              {commonAreas.map((area) => <option key={area.id} value={area.id}>{area.buildingCode} — {area.name}</option>)}
+              {filteredCommonAreas.map((area) => <option key={area.id} value={area.id}>{area.name}</option>)}
             </select>
           </label>
-          <label>
+
+          <label className="form-field">
             <span>{t('Unit')}</span>
-            <select name="unitId" value={form.unitId} onChange={handleChange} disabled={optionsLoading || role === 'RESIDENT'} required>
+            <select name="unitId" value={form.unitId} onChange={handleChange} disabled={optionsLoading || role === 'RESIDENT' && filteredUnits.length <= 1 || !form.buildingId} required>
               <option value="">{t('Select unit')}</option>
-              {units.map((unit) => <option key={unit.id} value={unit.id}>{unit.unitNumber}</option>)}
+              {filteredUnits.map((unit) => <option key={unit.id} value={unit.id}>{unit.unitNumber}</option>)}
             </select>
           </label>
-          <label>
+
+          <label className="form-field">
             <span>{t('Resident')}</span>
-            <select name="residentId" value={form.residentId} onChange={handleChange} disabled={optionsLoading || role === 'RESIDENT'} required>
+            <select name="residentId" value={form.residentId} onChange={handleChange} disabled={optionsLoading || role === 'RESIDENT' && filteredResidents.length <= 1 || !form.unitId} required>
               <option value="">{t('Select resident')}</option>
               {filteredResidents.map((resident) => <option key={resident.id} value={resident.id}>{resident.firstName} {resident.lastName}</option>)}
             </select>
           </label>
-          <label>
+
+          <label className="form-field">
             <span>{t('Start')}</span>
             <input type="datetime-local" name="startAt" value={form.startAt} onChange={handleChange} required />
           </label>
-          <label>
+
+          <label className="form-field">
             <span>{t('End')}</span>
             <input type="datetime-local" name="endAt" value={form.endAt} onChange={handleChange} required />
           </label>
-          <label className="form-grid-full">
+
+          <label className="form-field form-grid-full">
             <span>{t('Purpose')}</span>
             <input name="purpose" value={form.purpose} onChange={handleChange} maxLength={255} />
           </label>
-          {formError && <div className="feedback feedback-error" role="alert">{formError}</div>}
+
+          {formError && <div className="feedback feedback-error form-grid-full" role="alert">{formError}</div>}
+
           <div className="modal-actions form-grid-full">
-            <button className="button button-secondary" type="button" disabled={saving} onClick={() => setShowCreate(false)}>{t('Cancel')}</button>
+            <button className="button button-secondary" type="button" disabled={saving} onClick={closeCreate}>{t('Cancel')}</button>
             <button className="button button-primary" type="submit" disabled={saving || optionsLoading}>{saving ? t('Saving...') : t('Create booking')}</button>
           </div>
         </form>
       </Modal>
 
-      <Modal open={detailLoading || Boolean(selectedBooking)} title={t('Booking details')} onClose={() => !detailLoading && setSelectedBooking(null)}>
+      <Modal open={showEdit} title={t('Edit booking')} onClose={closeEdit} size="medium" closeOnBackdrop={!saving}>
+        <form className="form-grid" onSubmit={handleEdit}>
+          <div className="booking-edit-context form-grid-full">
+            <div><span>{t('Building')}</span><strong>{selectedBooking?.buildingCode || '—'}</strong></div>
+            <div><span>{t('Common area')}</span><strong>{selectedBooking?.commonAreaName || '—'}</strong></div>
+            <div><span>{t('Unit')}</span><strong>{selectedBooking?.unitNumber || '—'}</strong></div>
+          </div>
+
+          <label className="form-field">
+            <span>{t('Start')}</span>
+            <input type="datetime-local" name="startAt" value={form.startAt} onChange={handleChange} required />
+          </label>
+
+          <label className="form-field">
+            <span>{t('End')}</span>
+            <input type="datetime-local" name="endAt" value={form.endAt} onChange={handleChange} required />
+          </label>
+
+          <label className="form-field form-grid-full">
+            <span>{t('Purpose')}</span>
+            <input name="purpose" value={form.purpose} onChange={handleChange} maxLength={255} />
+          </label>
+
+          {formError && <div className="feedback feedback-error form-grid-full" role="alert">{formError}</div>}
+
+          <div className="modal-actions form-grid-full">
+            <button className="button button-secondary" type="button" disabled={saving} onClick={closeEdit}>{t('Cancel')}</button>
+            <button className="button button-primary" type="submit" disabled={saving}>{saving ? t('Saving...') : t('Save changes')}</button>
+          </div>
+        </form>
+      </Modal>
+
+      <Modal open={detailLoading || Boolean(selectedBooking)} title={t('Booking details')} onClose={() => !detailLoading && setSelectedBooking(null)} size="medium">
         {detailLoading ? (
           <div className="feedback feedback-info">{t('Loading booking details...')}</div>
         ) : selectedBooking ? (
@@ -427,14 +600,17 @@ function BookingsPage() {
             <div><span>{t('Start')}</span><strong>{formatDateTime(selectedBooking.startAt)}</strong></div>
             <div><span>{t('End')}</span><strong>{formatDateTime(selectedBooking.endAt)}</strong></div>
             <div><span>{t('Purpose')}</span><strong>{selectedBooking.purpose || '—'}</strong></div>
-            {selectedBooking.cancellationReason && <div className="form-grid-full"><span>{t('Cancellation reason')}</span><strong>{selectedBooking.cancellationReason}</strong></div>}
+            {selectedBooking.cancellationReason && <div className="field-span-2"><span>{t('Cancellation reason')}</span><strong>{selectedBooking.cancellationReason}</strong></div>}
           </div>
         ) : (
           <div className="feedback feedback-error">{detailError}</div>
         )}
 
-        {selectedBooking && (canOperate || ownCancellationAllowed) && (
+        {selectedBooking && (canOperate || ownEditAllowed || ownCancellationAllowed) && (
           <div className="modal-actions">
+            {ownEditAllowed && (
+              <button className="button button-secondary" type="button" disabled={actionLoadingId === selectedBooking.id} onClick={openEdit}>{t('Edit booking')}</button>
+            )}
             {canOperate && adminActions.map((status) => (
               <button key={status} className={`button ${status === 'CANCELLED' || status === 'REJECTED' ? 'button-danger' : 'button-primary'}`} type="button" disabled={actionLoadingId === selectedBooking.id} onClick={() => handleStatus(selectedBooking, status)}>{t(status)}</button>
             ))}
@@ -449,3 +625,4 @@ function BookingsPage() {
 }
 
 export default BookingsPage
+

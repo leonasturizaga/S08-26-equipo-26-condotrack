@@ -22,3 +22,10 @@ export function updateBookingStatus(bookingId, payload) {
     body: payload,
   })
 }
+
+export function updateBooking(bookingId, payload) {
+  return apiRequest(`/api/bookings/${bookingId}`, {
+    method: 'PUT',
+    body: payload,
+  })
+}
