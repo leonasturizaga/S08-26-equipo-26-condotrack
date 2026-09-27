@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.UUID;
 
+
 @RestController
 @RequestMapping("/api/reports")
 @RequiredArgsConstructor
@@ -30,4 +31,5 @@ public class ReportsController {
     ) {
         return reportsService.getSummary(buildingId);
     }
+
 }
