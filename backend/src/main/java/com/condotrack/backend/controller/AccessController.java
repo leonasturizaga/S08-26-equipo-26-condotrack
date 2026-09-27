@@ -233,4 +233,14 @@ public Page<AccessLogResponse> getActiveVisitors(
     ) {
         return accessService.checkIn(authorizationId, authentication);
     }
+
+@PostMapping("/visitor-authorizations/{authorizationId}/check-out")
+@PreAuthorize("@accessAccessService.canOperateStaff(authentication)")
+public AccessLogResponse checkOut(
+        @PathVariable UUID authorizationId,
+        Authentication authentication
+) {
+    return accessService.checkOut(authorizationId, authentication);
+}
+
 }

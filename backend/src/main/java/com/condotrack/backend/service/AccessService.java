@@ -772,6 +772,64 @@ public Page<AccessLogResponse> getActiveVisitors(
         return toAccessLogResponse(accessLog);
     }
 
+@Transactional
+public AccessLogResponse checkOut(
+        UUID authorizationId,
+        Authentication authentication
+) {
+    User authenticatedUser = getAuthenticatedUser(authentication);
+
+    VisitorAuthorization authorization = visitorAuthorizationRepository
+            .findForAccessOperation(authorizationId)
+            .orElseThrow(() -> new IllegalArgumentException(
+                    "Visitor authorization not found: " + authorizationId
+            ));
+
+    AccessLog activeEntry = accessLogRepository
+            .findActiveEntryByAuthorizationId(authorizationId)
+            .orElseThrow(() -> new IllegalStateException(
+                    "Visitor is not currently checked in"
+            ));
+
+    OffsetDateTime now = OffsetDateTime.now();
+
+    AccessLog accessLog = new AccessLog();
+    accessLog.setBuilding(authorization.getBuilding());
+    accessLog.setUnit(authorization.getUnit());
+    accessLog.setVisitor(authorization.getVisitor());
+    accessLog.setAuthorization(authorization);
+    accessLog.setHandledByStaff(null);
+    accessLog.setDirection(Enums.AccessDirection.OUT);
+    accessLog.setAccessMethod(Enums.AccessMethod.MANUAL);
+    accessLog.setOccurredAt(now);
+    accessLog.setUpdatedBy(authenticatedUser.getId());
+
+    accessLog = accessLogRepository.save(accessLog);
+
+    auditService.record(
+            authentication.getName(),
+            authorization.getBuilding(),
+            "ACCESS_LOG",
+            accessLog.getId(),
+            "CHECK_OUT",
+            "IN",
+            "OUT",
+            null,
+            java.util.Map.of(
+                    "authorizationId",
+                    authorization.getId().toString(),
+                    "entryAccessLogId",
+                    activeEntry.getId().toString()
+            )
+    );
+
+    return toAccessLogResponse(accessLog);
+}
+
+
+
+
+
     private Resident resolveResidentForAuthorization(
             UUID requestedResidentId,
             Unit unit,
@@ -904,4 +962,6 @@ public Page<AccessLogResponse> getActiveVisitors(
         String normalized = value.trim();
         return normalized.isEmpty() ? null : normalized;
     }
+
+
 }
