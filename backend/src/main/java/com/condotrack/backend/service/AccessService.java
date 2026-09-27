@@ -648,6 +648,33 @@ public class AccessService {
 
         return toAuthorizationResponse(authorization);
     }
+
+@Transactional(readOnly = true)
+public Page<AccessLogResponse> getActiveVisitors(
+        Authentication authentication,
+        int page,
+        int size
+) {
+    Pageable pageable = PageRequest.of(
+            Math.max(page, 0),
+            Math.min(Math.max(size, 1), 100)
+    );
+
+    boolean fullView = permissionService.hasPermission(
+            authentication,
+            "ACCESS_VIEW"
+    );
+
+    Page<AccessLog> activeVisitors = fullView
+            ? accessLogRepository.findActiveVisitors(pageable)
+            : accessLogRepository.findActiveVisitorsForUser(
+                    authentication.getName(),
+                    pageable
+            );
+
+    return activeVisitors.map(this::toAccessLogResponse);
+}
+
     @Transactional
     public VisitorAuthorizationResponse createAuthorization(
             VisitorAuthorizationCreateRequest request,
@@ -744,6 +771,64 @@ public class AccessService {
 
         return toAccessLogResponse(accessLog);
     }
+
+@Transactional
+public AccessLogResponse checkOut(
+        UUID authorizationId,
+        Authentication authentication
+) {
+    User authenticatedUser = getAuthenticatedUser(authentication);
+
+    VisitorAuthorization authorization = visitorAuthorizationRepository
+            .findForAccessOperation(authorizationId)
+            .orElseThrow(() -> new IllegalArgumentException(
+                    "Visitor authorization not found: " + authorizationId
+            ));
+
+    AccessLog activeEntry = accessLogRepository
+            .findActiveEntryByAuthorizationId(authorizationId)
+            .orElseThrow(() -> new IllegalStateException(
+                    "Visitor is not currently checked in"
+            ));
+
+    OffsetDateTime now = OffsetDateTime.now();
+
+    AccessLog accessLog = new AccessLog();
+    accessLog.setBuilding(authorization.getBuilding());
+    accessLog.setUnit(authorization.getUnit());
+    accessLog.setVisitor(authorization.getVisitor());
+    accessLog.setAuthorization(authorization);
+    accessLog.setHandledByStaff(null);
+    accessLog.setDirection(Enums.AccessDirection.OUT);
+    accessLog.setAccessMethod(Enums.AccessMethod.MANUAL);
+    accessLog.setOccurredAt(now);
+    accessLog.setUpdatedBy(authenticatedUser.getId());
+
+    accessLog = accessLogRepository.save(accessLog);
+
+    auditService.record(
+            authentication.getName(),
+            authorization.getBuilding(),
+            "ACCESS_LOG",
+            accessLog.getId(),
+            "CHECK_OUT",
+            "IN",
+            "OUT",
+            null,
+            java.util.Map.of(
+                    "authorizationId",
+                    authorization.getId().toString(),
+                    "entryAccessLogId",
+                    activeEntry.getId().toString()
+            )
+    );
+
+    return toAccessLogResponse(accessLog);
+}
+
+
+
+
 
     private Resident resolveResidentForAuthorization(
             UUID requestedResidentId,
@@ -877,4 +962,130 @@ public class AccessService {
         String normalized = value.trim();
         return normalized.isEmpty() ? null : normalized;
     }
+
+
+
+
+@Transactional
+public AccessLogResponse checkInByQrToken(
+        String qrToken,
+        Authentication authentication
+) {
+    User authenticatedUser = getAuthenticatedUser(authentication);
+    String normalizedToken = normalizeRequired(qrToken);
+
+    VisitorAuthorization authorization = visitorAuthorizationRepository
+            .findForAccessOperationByQrToken(normalizedToken)
+            .orElseThrow(() -> new IllegalArgumentException(
+                    "Visitor authorization not found"
+            ));
+
+    return checkInAuthorization(
+            authorization,
+            authenticatedUser,
+            Enums.AccessMethod.QR
+    );
+}
+
+@Transactional
+public AccessLogResponse checkOutByQrToken(
+        String qrToken,
+        Authentication authentication
+) {
+    User authenticatedUser = getAuthenticatedUser(authentication);
+    String normalizedToken = normalizeRequired(qrToken);
+
+    VisitorAuthorization authorization = visitorAuthorizationRepository
+            .findForAccessOperationByQrToken(normalizedToken)
+            .orElseThrow(() -> new IllegalArgumentException(
+                    "Visitor authorization not found"
+            ));
+
+    AccessLog activeEntry = accessLogRepository
+            .findActiveEntryByAuthorizationId(authorization.getId())
+            .orElseThrow(() -> new IllegalStateException(
+                    "Visitor is not currently checked in"
+            ));
+
+    OffsetDateTime now = OffsetDateTime.now();
+
+    AccessLog accessLog = new AccessLog();
+
+    accessLog.setBuilding(activeEntry.getBuilding());
+    accessLog.setUnit(activeEntry.getUnit());
+    accessLog.setVisitor(activeEntry.getVisitor());
+    accessLog.setAuthorization(authorization);
+
+    accessLog.setHandledByStaff(null);
+
+    accessLog.setDirection(Enums.AccessDirection.OUT);
+    accessLog.setAccessMethod(Enums.AccessMethod.QR);
+    accessLog.setOccurredAt(now);
+    accessLog.setUpdatedBy(authenticatedUser.getId());
+
+    accessLog = accessLogRepository.save(accessLog);
+
+    return toAccessLogResponse(accessLog);
+}
+
+
+private AccessLogResponse checkInAuthorization(
+        VisitorAuthorization authorization,
+        User authenticatedUser,
+        Enums.AccessMethod accessMethod
+) {
+    if (!Enums.VisitorAuthorizationStatus.APPROVED.equals(authorization.getStatus())) {
+        throw new IllegalStateException(
+                "Only an APPROVED visitor authorization can be checked in"
+        );
+    }
+
+    OffsetDateTime now = OffsetDateTime.now();
+
+    if (now.isBefore(authorization.getValidFrom())
+            || !now.isBefore(authorization.getValidUntil())) {
+        throw new IllegalStateException(
+                "Visitor authorization is not valid at the current time"
+        );
+    }
+
+    AccessLog existing = accessLogRepository
+            .findActiveEntryByAuthorizationId(authorization.getId())
+            .orElse(null);
+
+    if (existing != null) {
+        throw new IllegalStateException("Visitor is already checked in");
+    }
+
+    AccessLog accessLog = new AccessLog();
+
+    accessLog.setBuilding(authorization.getBuilding());
+    accessLog.setUnit(authorization.getUnit());
+    accessLog.setVisitor(authorization.getVisitor());
+    accessLog.setAuthorization(authorization);
+
+    accessLog.setHandledByStaff(null);
+
+    accessLog.setDirection(Enums.AccessDirection.IN);
+    accessLog.setAccessMethod(accessMethod);
+    accessLog.setOccurredAt(now);
+    accessLog.setUpdatedBy(authenticatedUser.getId());
+
+    authorization.setStatus(Enums.VisitorAuthorizationStatus.USED);
+    authorization.setUpdatedBy(authenticatedUser.getId());
+
+    accessLog = accessLogRepository.save(accessLog);
+    visitorAuthorizationRepository.save(authorization);
+
+    return toAccessLogResponse(accessLog);
+}
+
+private String normalizeRequired(String value) {
+    if (value == null || value.isBlank()) {
+        throw new IllegalArgumentException("qrToken is required");
+    }
+
+    return value.trim();
+}
+
 }

@@ -154,9 +154,10 @@
 
 
 //--------------------- milestone 23.1 locl fix ----------------------------
- package com.condotrack.backend.controller;
+package com.condotrack.backend.controller;
 
 import com.condotrack.backend.dto.AccessLogResponse;
+import com.condotrack.backend.dto.QrAccessRequest;
 import com.condotrack.backend.dto.VisitorAuthorizationCreateRequest;
 import com.condotrack.backend.dto.VisitorAuthorizationResponse;
 import com.condotrack.backend.service.AccessAccessService;
@@ -215,6 +216,16 @@ public class AccessController {
         return accessService.createAuthorization(request, authentication);
     }
 
+@GetMapping("/active-visitors")
+@PreAuthorize("@permissionService.hasPermission(authentication, 'ACCESS_VIEW') || @permissionService.hasPermission(authentication, 'ACCESS_VIEW_OWN')")
+public Page<AccessLogResponse> getActiveVisitors(
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "20") int size,
+        Authentication authentication
+) {
+    return accessService.getActiveVisitors(authentication, page, size);
+}
+
     @PostMapping("/visitor-authorizations/{authorizationId}/check-in")
     @PreAuthorize("@permissionService.hasPermission(authentication, 'ACCESS_CREATE')")
     public AccessLogResponse checkIn(
@@ -223,4 +234,32 @@ public class AccessController {
     ) {
         return accessService.checkIn(authorizationId, authentication);
     }
+
+@PostMapping("/visitor-authorizations/{authorizationId}/check-out")
+@PreAuthorize("@accessAccessService.canOperateStaff(authentication)")
+public AccessLogResponse checkOut(
+        @PathVariable UUID authorizationId,
+        Authentication authentication
+) {
+    return accessService.checkOut(authorizationId, authentication);
+}
+
+@PostMapping("/visitor-authorizations/check-in")
+@PreAuthorize("@permissionService.hasPermission(authentication, 'ACCESS_CREATE')")
+public AccessLogResponse checkInByQrToken(
+        @Valid @RequestBody QrAccessRequest request,
+        Authentication authentication
+) {
+    return accessService.checkInByQrToken(request.qrToken(), authentication);
+}
+
+@PostMapping("/visitor-authorizations/check-out")
+@PreAuthorize("@permissionService.hasPermission(authentication, 'ACCESS_CREATE')")
+public AccessLogResponse checkOutByQrToken(
+        @Valid @RequestBody QrAccessRequest request,
+        Authentication authentication
+) {
+    return accessService.checkOutByQrToken(request.qrToken(), authentication);
+}
+
 }
