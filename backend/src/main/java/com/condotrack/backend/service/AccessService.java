@@ -964,4 +964,87 @@ public AccessLogResponse checkOut(
     }
 
 
+
+
+@Transactional
+public AccessLogResponse checkInByQrToken(
+        String qrToken,
+        Authentication authentication
+) {
+    User authenticatedUser = getAuthenticatedUser(authentication);
+    String normalizedToken = normalizeRequired(qrToken);
+
+    VisitorAuthorization authorization = visitorAuthorizationRepository
+            .findForAccessOperationByQrToken(normalizedToken)
+            .orElseThrow(() -> new IllegalArgumentException(
+                    "Visitor authorization not found"
+            ));
+
+    return checkInAuthorization(
+            authorization,
+            authenticatedUser,
+            Enums.AccessMethod.QR
+    );
+}
+
+
+private AccessLogResponse checkInAuthorization(
+        VisitorAuthorization authorization,
+        User authenticatedUser,
+        Enums.AccessMethod accessMethod
+) {
+    if (!Enums.VisitorAuthorizationStatus.APPROVED.equals(authorization.getStatus())) {
+        throw new IllegalStateException(
+                "Only an APPROVED visitor authorization can be checked in"
+        );
+    }
+
+    OffsetDateTime now = OffsetDateTime.now();
+
+    if (now.isBefore(authorization.getValidFrom())
+            || !now.isBefore(authorization.getValidUntil())) {
+        throw new IllegalStateException(
+                "Visitor authorization is not valid at the current time"
+        );
+    }
+
+    AccessLog existing = accessLogRepository
+            .findActiveEntryByAuthorizationId(authorization.getId())
+            .orElse(null);
+
+    if (existing != null) {
+        throw new IllegalStateException("Visitor is already checked in");
+    }
+
+    AccessLog accessLog = new AccessLog();
+
+    accessLog.setBuilding(authorization.getBuilding());
+    accessLog.setUnit(authorization.getUnit());
+    accessLog.setVisitor(authorization.getVisitor());
+    accessLog.setAuthorization(authorization);
+
+    accessLog.setHandledByStaff(null);
+
+    accessLog.setDirection(Enums.AccessDirection.IN);
+    accessLog.setAccessMethod(accessMethod);
+    accessLog.setOccurredAt(now);
+    accessLog.setUpdatedBy(authenticatedUser.getId());
+
+    authorization.setStatus(Enums.VisitorAuthorizationStatus.USED);
+    authorization.setUpdatedBy(authenticatedUser.getId());
+
+    accessLog = accessLogRepository.save(accessLog);
+    visitorAuthorizationRepository.save(authorization);
+
+    return toAccessLogResponse(accessLog);
+}
+
+private String normalizeRequired(String value) {
+    if (value == null || value.isBlank()) {
+        throw new IllegalArgumentException("qrToken is required");
+    }
+
+    return value.trim();
+}
+
 }

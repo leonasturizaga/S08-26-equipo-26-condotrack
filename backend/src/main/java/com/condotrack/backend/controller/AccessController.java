@@ -157,6 +157,7 @@
 package com.condotrack.backend.controller;
 
 import com.condotrack.backend.dto.AccessLogResponse;
+import com.condotrack.backend.dto.QrAccessRequest;
 import com.condotrack.backend.dto.VisitorAuthorizationCreateRequest;
 import com.condotrack.backend.dto.VisitorAuthorizationResponse;
 import com.condotrack.backend.service.AccessAccessService;
@@ -242,5 +243,16 @@ public AccessLogResponse checkOut(
 ) {
     return accessService.checkOut(authorizationId, authentication);
 }
+
+@PostMapping("/visitor-authorizations/check-in")
+@PreAuthorize("@permissionService.hasPermission(authentication, 'ACCESS_CREATE')")
+public AccessLogResponse checkInByQrToken(
+        @Valid @RequestBody QrAccessRequest request,
+        Authentication authentication
+) {
+    return accessService.checkInByQrToken(request.qrToken(), authentication);
+}
+
+
 
 }

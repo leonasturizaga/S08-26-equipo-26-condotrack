@@ -194,6 +194,20 @@ public interface VisitorAuthorizationRepository extends JpaRepository<VisitorAut
             """)
     Optional<VisitorAuthorization> findForUserViewById(@Param("id") UUID id, @Param("email") String email);
 
+@Query("""
+        SELECT va
+        FROM VisitorAuthorization va
+        JOIN FETCH va.building
+        JOIN FETCH va.unit
+        JOIN FETCH va.visitor
+        LEFT JOIN FETCH va.resident
+        WHERE va.qrToken = :qrToken
+        """)
+Optional<VisitorAuthorization> findForAccessOperationByQrToken(
+        @Param("qrToken") String qrToken
+);
+
+
     boolean existsByQrToken(String qrToken);
 
     boolean existsByIdAndUnitIdIn(UUID id, Collection<UUID> unitIds);
