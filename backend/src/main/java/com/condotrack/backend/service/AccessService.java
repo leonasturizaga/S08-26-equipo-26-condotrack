@@ -648,6 +648,33 @@ public class AccessService {
 
         return toAuthorizationResponse(authorization);
     }
+
+@Transactional(readOnly = true)
+public Page<AccessLogResponse> getActiveVisitors(
+        Authentication authentication,
+        int page,
+        int size
+) {
+    Pageable pageable = PageRequest.of(
+            Math.max(page, 0),
+            Math.min(Math.max(size, 1), 100)
+    );
+
+    boolean fullView = permissionService.hasPermission(
+            authentication,
+            "ACCESS_VIEW"
+    );
+
+    Page<AccessLog> activeVisitors = fullView
+            ? accessLogRepository.findActiveVisitors(pageable)
+            : accessLogRepository.findActiveVisitorsForUser(
+                    authentication.getName(),
+                    pageable
+            );
+
+    return activeVisitors.map(this::toAccessLogResponse);
+}
+
     @Transactional
     public VisitorAuthorizationResponse createAuthorization(
             VisitorAuthorizationCreateRequest request,

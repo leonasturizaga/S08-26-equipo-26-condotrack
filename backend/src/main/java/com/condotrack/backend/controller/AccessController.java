@@ -154,7 +154,7 @@
 
 
 //--------------------- milestone 23.1 locl fix ----------------------------
- package com.condotrack.backend.controller;
+package com.condotrack.backend.controller;
 
 import com.condotrack.backend.dto.AccessLogResponse;
 import com.condotrack.backend.dto.VisitorAuthorizationCreateRequest;
@@ -214,6 +214,16 @@ public class AccessController {
     ) {
         return accessService.createAuthorization(request, authentication);
     }
+
+@GetMapping("/active-visitors")
+@PreAuthorize("@permissionService.hasPermission(authentication, 'ACCESS_VIEW') || @permissionService.hasPermission(authentication, 'ACCESS_VIEW_OWN')")
+public Page<AccessLogResponse> getActiveVisitors(
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "20") int size,
+        Authentication authentication
+) {
+    return accessService.getActiveVisitors(authentication, page, size);
+}
 
     @PostMapping("/visitor-authorizations/{authorizationId}/check-in")
     @PreAuthorize("@permissionService.hasPermission(authentication, 'ACCESS_CREATE')")
