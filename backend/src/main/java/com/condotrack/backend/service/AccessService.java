@@ -987,6 +987,47 @@ public AccessLogResponse checkInByQrToken(
     );
 }
 
+@Transactional
+public AccessLogResponse checkOutByQrToken(
+        String qrToken,
+        Authentication authentication
+) {
+    User authenticatedUser = getAuthenticatedUser(authentication);
+    String normalizedToken = normalizeRequired(qrToken);
+
+    VisitorAuthorization authorization = visitorAuthorizationRepository
+            .findForAccessOperationByQrToken(normalizedToken)
+            .orElseThrow(() -> new IllegalArgumentException(
+                    "Visitor authorization not found"
+            ));
+
+    AccessLog activeEntry = accessLogRepository
+            .findActiveEntryByAuthorizationId(authorization.getId())
+            .orElseThrow(() -> new IllegalStateException(
+                    "Visitor is not currently checked in"
+            ));
+
+    OffsetDateTime now = OffsetDateTime.now();
+
+    AccessLog accessLog = new AccessLog();
+
+    accessLog.setBuilding(activeEntry.getBuilding());
+    accessLog.setUnit(activeEntry.getUnit());
+    accessLog.setVisitor(activeEntry.getVisitor());
+    accessLog.setAuthorization(authorization);
+
+    accessLog.setHandledByStaff(null);
+
+    accessLog.setDirection(Enums.AccessDirection.OUT);
+    accessLog.setAccessMethod(Enums.AccessMethod.QR);
+    accessLog.setOccurredAt(now);
+    accessLog.setUpdatedBy(authenticatedUser.getId());
+
+    accessLog = accessLogRepository.save(accessLog);
+
+    return toAccessLogResponse(accessLog);
+}
+
 
 private AccessLogResponse checkInAuthorization(
         VisitorAuthorization authorization,

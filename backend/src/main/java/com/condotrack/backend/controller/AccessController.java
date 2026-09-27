@@ -253,6 +253,13 @@ public AccessLogResponse checkInByQrToken(
     return accessService.checkInByQrToken(request.qrToken(), authentication);
 }
 
-
+@PostMapping("/visitor-authorizations/check-out")
+@PreAuthorize("@permissionService.hasPermission(authentication, 'ACCESS_CREATE')")
+public AccessLogResponse checkOutByQrToken(
+        @Valid @RequestBody QrAccessRequest request,
+        Authentication authentication
+) {
+    return accessService.checkOutByQrToken(request.qrToken(), authentication);
+}
 
 }
