@@ -13,18 +13,12 @@ import {
 import { useTranslation } from '../i18n/i18n.js'
 
 const sidebarModules = [
-  {
-    key: 'buildings',
-    icon: 'building',
-    label: 'Buildings',
-    path: '/dashboard/buildings',
-  },
-  {
-    key: 'unitLookup',
-    icon: 'search',
-    label: 'Unified Unit Lookup',
-    path: '/dashboard/unit-lookup',
-  },
+   {
+   key: 'buildings',
+   icon: 'building',
+   label: 'Buildings',
+   path: '/dashboard/buildings',
+   },
   {
     key: 'units',
     icon: 'unit',
@@ -97,6 +91,13 @@ const sidebarModules = [
     label: 'Audit & Traceability',
     path: '/dashboard/audit',
   },
+   {
+   key: 'unitLookup',
+   icon: 'search',
+   label: 'Unified Unit Lookup',
+   path: '/dashboard/unit-lookup',
+  },
+
 ]
 
 const permissionLabels = {
@@ -257,7 +258,11 @@ function Dashboard() {
         }`}
       >
         <div className="brand">
-          <div className="brand-mark"><Icon name="building" size={22} /></div>
+          <div className="brand-mark">
+            <NavLink to="/" end>
+               <img src="logo.svg" alt="CondoTrack" width="40" height="40"></img>
+            </NavLink>
+         </div>
 
           <div>
             <strong>{t('CondoTrack')}</strong>

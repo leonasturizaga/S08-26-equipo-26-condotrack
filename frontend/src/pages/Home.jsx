@@ -16,9 +16,7 @@ function Home() {
             className="public-brand"
             to="/"
           >
-            <span className="public-brand-mark">
-              CT
-            </span>
+            <img src="logo.svg" alt="CondoTrack" width="40" height="40"></img>
 
             <span>
               <strong>{t('CondoTrack')}</strong>
