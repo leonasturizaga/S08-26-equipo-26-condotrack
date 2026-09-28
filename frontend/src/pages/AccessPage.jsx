@@ -1088,18 +1088,24 @@ function AccessPage() {
                         <td><span className={`status-pill status-${authorization.status?.toLowerCase()}`}>{statusLabel(authorization.status)}</span></td>
                         <td>{isInside ? t('Inside') : t('Not inside')}</td>
                         <td>
-                          <div className="table-actions">
-                            <button className="button button-ghost button-small" type="button" onClick={() => openAuthorization(authorization.id)}>{t('View')}</button>
-                            <button className="button button-ghost button-small" type="button" onClick={() => showQr(authorization)}>{t('QR')}</button>
+                          <TableActions moreLabel={t('More')}>
+                            <TableAction icon="eye" label={t('View')} variant="view" onClick={() => openAuthorization(authorization.id)} />
+                            <TableAction icon="qr" label={t('QR')} variant="neutral" onClick={() => showQr(authorization)} />
                             {canOperateStaff && authorization.status === 'APPROVED' && !isInside && (
-                              <button className="button button-primary button-small" type="button" onClick={() => handleAuthorizationCheckIn(authorization)}>{t('Check in')}</button>
+                              <TableAction icon="arrowRight" label={t('Check in')} variant="edit" onClick={() => handleAuthorizationCheckIn(authorization)} />
                             )}
                             {canOperateStaff && isInside && (
-                              <button className="button button-danger button-small" type="button" onClick={() => handleCheckOut(authorization.id)} disabled={checkingOutId === authorization.id}>
-                                {checkingOutId === authorization.id ? t('Checking out...') : t('Check out')}
-                              </button>
+                              <TableAction
+                                icon="logout"
+                                label={t('Check out')}
+                                variant="delete"
+                                onClick={() => handleCheckOut(authorization.id)}
+                                disabled={checkingOutId === authorization.id}
+                                loading={checkingOutId === authorization.id}
+                                loadingLabel={t('Checking out...')}
+                              />
                             )}
-                          </div>
+                          </TableActions>
                         </td>
                       </tr>
                     )
