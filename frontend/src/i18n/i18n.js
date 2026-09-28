@@ -27,8 +27,9 @@ import { initReactI18next, useTranslation as useI18nextTranslation } from 'react
 
 import en from './locales/en.json'
 import es from './locales/es.json'
+import pt from './locales/pt.json'
 
-const supportedLanguages = ['en', 'es']
+const supportedLanguages = ['en', 'es', 'pt']
 
 const savedLanguage = localStorage.getItem('condotrack-language')
 
@@ -45,6 +46,9 @@ translation: en
 },
 es: {
 translation: es
+},
+pt: {
+translation: pt
 }
 },
 
