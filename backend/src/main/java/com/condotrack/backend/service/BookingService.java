@@ -15,6 +15,7 @@ import com.condotrack.backend.model.Staff;
 import com.condotrack.backend.model.Unit;
 import com.condotrack.backend.model.User;
 import com.condotrack.backend.repository.BookingRepository;
+import com.condotrack.backend.repository.CommonAreaAvailabilityBlockRepository;
 import com.condotrack.backend.repository.CommonAreaRepository;
 import com.condotrack.backend.repository.ResidentRepository;
 import com.condotrack.backend.repository.StaffRepository;
@@ -28,7 +29,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.condotrack.backend.repository.CommonAreaAvailabilityBlockRepository;
 
+import java.util.List;
 import java.time.OffsetDateTime;
 import java.util.Map;
 import java.util.UUID;
@@ -47,6 +50,7 @@ public class BookingService {
     private final UserRepository userRepository;
     private final PermissionService permissionService;
     private final AuditService auditService;
+   private final CommonAreaAvailabilityBlockRepository commonAreaAvailabilityBlockRepository;
 
     @Transactional(readOnly = true)
     public BookingPageResponse getBookings(Authentication authentication, int page, int size) {
@@ -87,6 +91,12 @@ public class BookingService {
         if (!commonArea.getBuilding().getId().equals(building.getId())) {
             throw new IllegalArgumentException("Common area does not belong to the unit's building");
         }
+      ensureNoAvailabilityBlockOverlap(
+            commonArea.getId(),
+            request.startAt(),
+            request.endAt()
+      );
+
 
         Resident resident = getActiveResident(request.residentId());
         if (!resident.getUnit().getId().equals(unit.getId())) {
@@ -140,6 +150,12 @@ public class BookingService {
         }
 
         validateDates(request.startAt(), request.endAt());
+      ensureNoAvailabilityBlockOverlap(
+            booking.getCommonArea().getId(),
+            request.startAt(),
+            request.endAt()
+      );
+
 
         User currentUser = getAuthenticatedUser(authentication);
         OffsetDateTime previousStart = booking.getStartAt();
@@ -190,6 +206,12 @@ public class BookingService {
         booking.setUpdatedBy(currentUser.getId());
 
         if (targetStatus == Enums.BookingStatus.APPROVED) {
+            ensureNoAvailabilityBlockOverlap(
+                     booking.getCommonArea().getId(),
+                     booking.getStartAt(),
+                     booking.getEndAt()
+            );
+
             booking.setApprovedAt(OffsetDateTime.now());
             staffRepository.findActiveByUserEmailIgnoreCase(authentication.getName()).stream()
                     .filter(staff -> staff.getBuilding() != null
@@ -317,22 +339,47 @@ public class BookingService {
         );
     }
 
-    private Pageable createPageable(int page, int size) {
-        return PageRequest.of(Math.max(page, 0), Math.min(Math.max(size, 1), MAX_PAGE_SIZE));
-    }
+      private Pageable createPageable(int page, int size) {
+         return PageRequest.of(Math.max(page, 0), Math.min(Math.max(size, 1), MAX_PAGE_SIZE));
+      }
 
-    private boolean userHasPermission(Authentication authentication, String permissionCode) {
-        return authentication != null
-                && authentication.isAuthenticated()
-                && permissionService.hasPermission(authentication, permissionCode);
-    }
+      private boolean userHasPermission(Authentication authentication, String permissionCode) {
+         return authentication != null
+                  && authentication.isAuthenticated()
+                  && permissionService.hasPermission(authentication, permissionCode);
+      }
 
-    private String normalizeOptional(String value) {
-        if (value == null) {
-            return null;
-        }
+      private String normalizeOptional(String value) {
+         if (value == null) {
+               return null;
+         }
 
-        String normalized = value.trim();
-        return normalized.isEmpty() ? null : normalized;
-    }
+         String normalized = value.trim();
+         return normalized.isEmpty() ? null : normalized;
+      }
+
+   private void ensureNoAvailabilityBlockOverlap(
+         UUID commonAreaId,
+         OffsetDateTime startAt,
+         OffsetDateTime endAt
+   ) {
+      boolean overlap =
+               commonAreaAvailabilityBlockRepository
+                     .findByCommonAreaIdAndActiveTrueAndEndAtGreaterThanAndStartAtLessThanOrderByStartAtAsc(
+                              commonAreaId,
+                              startAt,
+                              endAt
+                     )
+                     .stream()
+                     .findAny()
+                     .isPresent();
+
+      if (overlap) {
+         throw new IllegalStateException(
+                  "The requested common-area time slot is unavailable because the common area is blocked during this period"
+         );
+      }
+   }
+
+
 }

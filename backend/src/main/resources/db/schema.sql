@@ -235,6 +235,32 @@ CREATE TABLE IF NOT EXISTS common_area_amenities (
     PRIMARY KEY (common_area_id, amenity_id)
 );
 
+CREATE TABLE IF NOT EXISTS common_area_availability_blocks (
+    id UUID PRIMARY KEY,
+    common_area_id UUID NOT NULL
+        REFERENCES common_areas(id)
+        ON DELETE CASCADE,
+
+    block_type VARCHAR(30) NOT NULL,
+
+    start_at TIMESTAMPTZ NOT NULL,
+    end_at TIMESTAMPTZ NOT NULL,
+
+    notes TEXT,
+
+    active BOOLEAN NOT NULL DEFAULT TRUE,
+
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_by UUID,
+
+    CONSTRAINT ck_ca_availability_block_dates
+        CHECK (end_at > start_at),
+
+    CONSTRAINT ck_ca_availability_block_type
+        CHECK (block_type IN ('UNAVAILABLE', 'REPAIR'))
+);
+
 CREATE TABLE IF NOT EXISTS bookings (
     id UUID PRIMARY KEY,
     building_id UUID NOT NULL REFERENCES buildings(id),
@@ -422,6 +448,8 @@ CREATE INDEX IF NOT EXISTS idx_role_permissions_permission_id ON role_permission
 CREATE INDEX IF NOT EXISTS idx_building_role_permissions_building ON building_role_permissions(building_id);
 CREATE INDEX IF NOT EXISTS idx_building_role_permissions_role_permission ON building_role_permissions(role_id, permission_id);
 CREATE INDEX IF NOT EXISTS idx_common_area_amenities_amenity_id ON common_area_amenities(amenity_id);
+CREATE INDEX IF NOT EXISTS idx_ca_availability_blocks_area_start ON common_area_availability_blocks(common_area_id, start_at);
+CREATE INDEX IF NOT EXISTS idx_ca_availability_blocks_active ON common_area_availability_blocks(common_area_id, active);
 
 INSERT INTO roles (id, code, name)
 VALUES
