@@ -380,7 +380,7 @@ function BookingsPage() {
 
   return (
     <div className="module-page">
-      <section className="module-header">
+      <section className="module-page-header">
         <div>
           <p className="eyebrow">{t('AMENITIES')}</p>
           <h2>{t('Common Area Bookings')}</h2>

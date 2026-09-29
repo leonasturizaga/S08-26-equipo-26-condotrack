@@ -280,7 +280,7 @@ const canCreate = isAdmin || role === 'RESIDENT'
 
   return (
     <section className="module-page">
-      <div className="page-header">
+      <div className="module-page-header">
         <div>
           <p className="eyebrow">{t('OPERATIONS')}</p>
           <h1>{t('Move Requests')}</h1>
@@ -292,9 +292,9 @@ const canCreate = isAdmin || role === 'RESIDENT'
           </button>
         )}
       </div>
-
       {success && <div className="feedback feedback-success" role="status">{success}</div>}
       {error && <div className="feedback feedback-error" role="alert">{error}</div>}
+    <section className="module-page-header">
 
       <article className="data-card">
         <div className="data-card-header">
@@ -351,6 +351,7 @@ const canCreate = isAdmin || role === 'RESIDENT'
           </div>
         )}
       </article>
+</section>      
 
       <Modal open={createOpen} title={t('Create move request')} onClose={() => !saving && setCreateOpen(false)}>
         <form className="entity-form" onSubmit={submitCreate}>

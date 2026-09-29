@@ -50,6 +50,12 @@ const sidebarModules = [
     path: '/dashboard/bookings',
   },
   {
+    key: 'commonAreas',
+    icon: 'parasol',
+    label: 'Common Areas',
+    path: '/dashboard/common-areas',
+  },  
+  {
     key: 'incidents',
     icon: 'alert',
     label: 'Incidents',

@@ -1,5 +1,4 @@
 //----------------- M23 ---------------
-
 export const moduleDefinitions = [
   {
     key: 'buildings',
@@ -15,7 +14,7 @@ export const moduleDefinitions = [
   },
   {
     key: 'units',
-    icon: 'home',
+    icon: 'unit',
     label: 'Units',
     path: '/dashboard/units',
   },
@@ -42,6 +41,12 @@ export const moduleDefinitions = [
     icon: 'calendar',
     label: 'Common Area Bookings',
     path: '/dashboard/bookings',
+  },
+  {
+    key: 'commonAreas',
+    icon: 'building',
+    label: 'Common Areas',
+    path: '/dashboard/common-areas',
   },
   {
     key: 'incidents',
@@ -116,6 +121,7 @@ export const rolePermissions = {
     access: 'view',
     deliveries: 'view',
     bookings: 'full',
+    commonAreas: 'full',
     incidents: 'manage',
     maintenance: 'manage',
     moves: 'approve',
@@ -136,6 +142,7 @@ export const rolePermissions = {
     access: 'create',
     deliveries: 'create',
     bookings: 'view',
+    commonAreas: 'none',
     incidents: 'create',
     maintenance: 'create',
     moves: 'view',
@@ -154,6 +161,7 @@ export const rolePermissions = {
     access: 'own',
     deliveries: 'own',
     bookings: 'own',
+    commonAreas: 'none',
     incidents: 'own',
     maintenance: 'own',
     moves: 'own',
@@ -172,6 +180,7 @@ export const rolePermissions = {
     access: 'none',
     deliveries: 'none',
     bookings: 'none',
+    commonAreas: 'none',
     incidents: 'view',
     maintenance: 'view',
     moves: 'approve',
@@ -190,6 +199,7 @@ export const rolePermissions = {
     access: 'none',
     deliveries: 'none',
     bookings: 'none',
+    commonAreas: 'none',
     incidents: 'assigned',
     maintenance: 'assigned',
     moves: 'none',
@@ -219,3 +229,6 @@ export function getModulePermission(role, moduleKey) {
 
   return permissions[moduleKey] || 'none'
 }
+
+
+//---------------------- M24.1 ------------------------
