@@ -36,6 +36,12 @@ export function getCommonArea(commonAreaId) {
   })
 }
 
+export function getAmenities() {
+  return apiRequest('/api/common-areas/amenities', {
+    method: 'GET',
+  })
+}
+
 export function createCommonArea(payload) {
   return apiRequest('/api/common-areas', {
     method: 'POST',
