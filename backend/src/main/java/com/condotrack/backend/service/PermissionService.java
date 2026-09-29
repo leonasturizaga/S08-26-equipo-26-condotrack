@@ -1,32 +1,3 @@
-//------------------------- milestone 4a ----------------------
-// package com.condotrack.backend.service;
-
-// import org.springframework.security.core.Authentication;
-// import org.springframework.stereotype.Service;
-
-// @Service("permissionService")
-// public class PermissionService {
-
-//     public boolean hasPermission(
-//             Authentication authentication,
-//             String permissionCode
-//     ) {
-//         if (authentication == null || !authentication.isAuthenticated()) {
-//             return false;
-//         }
-
-//         String requiredAuthority = "PERM_" + permissionCode;
-
-//         return authentication.getAuthorities()
-//                 .stream()
-//                 .anyMatch(authority ->
-//                         authority.getAuthority()
-//                                 .equals(requiredAuthority)
-//                 );
-//     }
-// }
-
-
 //------------------------- milestone 17.1 ----------------------
 package com.condotrack.backend.service;
 
