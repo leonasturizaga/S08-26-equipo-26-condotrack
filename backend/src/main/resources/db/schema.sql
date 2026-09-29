@@ -214,6 +214,27 @@ CREATE TABLE IF NOT EXISTS common_areas (
     CONSTRAINT ck_common_area_duration CHECK (booking_duration_minutes IS NULL OR booking_duration_minutes > 0)
 );
 
+ALTER TABLE common_areas
+    ADD COLUMN IF NOT EXISTS description TEXT;
+
+CREATE TABLE IF NOT EXISTS amenities (
+    id UUID PRIMARY KEY,
+    code VARCHAR(80) NOT NULL UNIQUE,
+    name VARCHAR(120) NOT NULL,
+    active BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_by UUID
+);
+
+CREATE TABLE IF NOT EXISTS common_area_amenities (
+    common_area_id UUID NOT NULL
+        REFERENCES common_areas(id) ON DELETE CASCADE,
+    amenity_id UUID NOT NULL
+        REFERENCES amenities(id) ON DELETE CASCADE,
+    PRIMARY KEY (common_area_id, amenity_id)
+);
+
 CREATE TABLE IF NOT EXISTS bookings (
     id UUID PRIMARY KEY,
     building_id UUID NOT NULL REFERENCES buildings(id),
@@ -400,6 +421,7 @@ CREATE INDEX IF NOT EXISTS idx_audit_logs_building ON audit_logs(building_id, oc
 CREATE INDEX IF NOT EXISTS idx_role_permissions_permission_id ON role_permissions(permission_id);
 CREATE INDEX IF NOT EXISTS idx_building_role_permissions_building ON building_role_permissions(building_id);
 CREATE INDEX IF NOT EXISTS idx_building_role_permissions_role_permission ON building_role_permissions(role_id, permission_id);
+CREATE INDEX IF NOT EXISTS idx_common_area_amenities_amenity_id ON common_area_amenities(amenity_id);
 
 INSERT INTO roles (id, code, name)
 VALUES
@@ -483,6 +505,23 @@ VALUES
     ('22222222-2222-2222-2222-222222220065', 'RBAC_MANAGEMENT_VIEW', 'View role and permission configuration', 'View current RBAC assignments and permission configuration.'),
     ('22222222-2222-2222-2222-222222220066', 'RBAC_MANAGEMENT_UPDATE', 'Update role and permission configuration', 'Activate, deactivate, or override role permissions.')
 ON CONFLICT (code) DO NOTHING;
+
+INSERT INTO amenities (id, code, name)
+VALUES
+    ('33333333-3333-3333-3333-333333330001', 'WIFI', 'Wi-Fi'),
+    ('33333333-3333-3333-3333-333333330002', 'TV', 'TV'),
+    ('33333333-3333-3333-3333-333333330003', 'BBQ', 'BBQ'),
+    ('33333333-3333-3333-3333-333333330004', 'KITCHEN', 'Kitchen'),
+    ('33333333-3333-3333-3333-333333330005', 'TABLES', 'Tables'),
+    ('33333333-3333-3333-3333-333333330006', 'CHAIRS', 'Chairs'),
+    ('33333333-3333-3333-3333-333333330007', 'AIR_CONDITIONING', 'Air conditioning'),
+    ('33333333-3333-3333-3333-333333330008', 'HEATING', 'Heating'),
+    ('33333333-3333-3333-3333-333333330009', 'ACCESSIBLE', 'Accessible'),
+    ('33333333-3333-3333-3333-333333330010', 'RESTROOMS', 'Restrooms'),
+    ('33333333-3333-3333-3333-333333330011', 'OUTDOOR', 'Outdoor'),
+    ('33333333-3333-3333-3333-333333330012', 'PARKING', 'Parking')
+ON CONFLICT (code) DO NOTHING;
+
 
 INSERT INTO role_permissions (role_id, permission_id)
 SELECT r.id, p.id
