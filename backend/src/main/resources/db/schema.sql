@@ -235,6 +235,54 @@ CREATE TABLE IF NOT EXISTS common_area_amenities (
     PRIMARY KEY (common_area_id, amenity_id)
 );
 
+CREATE TABLE IF NOT EXISTS media (
+    id UUID PRIMARY KEY,
+    building_id UUID REFERENCES buildings(id) ON DELETE SET NULL,
+    storage_provider VARCHAR(30) NOT NULL,
+    media_type VARCHAR(20) NOT NULL,
+    cloudinary_asset_id VARCHAR(100) NOT NULL UNIQUE,
+    cloudinary_public_id VARCHAR(500) NOT NULL UNIQUE,
+    cloudinary_resource_type VARCHAR(20) NOT NULL,
+    cloudinary_delivery_type VARCHAR(20) NOT NULL,
+    secure_url TEXT NOT NULL,
+    original_filename VARCHAR(255) NOT NULL,
+    content_type VARCHAR(120) NOT NULL,
+    file_format VARCHAR(30),
+    file_size BIGINT NOT NULL,
+    width INTEGER,
+    height INTEGER,
+    duration_seconds DOUBLE PRECISION,
+    active BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_by UUID,
+    CONSTRAINT ck_media_storage_provider CHECK (storage_provider IN ('CLOUDINARY')),
+    CONSTRAINT ck_media_type CHECK (media_type IN ('IMAGE', 'DOCUMENT', 'VIDEO')),
+    CONSTRAINT ck_media_file_size CHECK (file_size >= 0)
+);
+
+CREATE TABLE IF NOT EXISTS media_attachments (
+    id UUID PRIMARY KEY,
+    media_id UUID NOT NULL REFERENCES media(id) ON DELETE CASCADE,
+    entity_type VARCHAR(30) NOT NULL,
+    entity_id UUID NOT NULL,
+    purpose VARCHAR(30) NOT NULL,
+    sort_order INTEGER NOT NULL DEFAULT 0,
+    active BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_by UUID,
+    CONSTRAINT ck_media_attachment_entity_type CHECK (entity_type IN ('COMMON_AREA', 'MAINTENANCE')),
+    CONSTRAINT ck_media_attachment_purpose CHECK (purpose IN ('PRIMARY_IMAGE', 'GALLERY_IMAGE', 'PROBLEM_IMAGE', 'SOLUTION_IMAGE', 'DOCUMENT', 'VIDEO')),
+    CONSTRAINT ck_media_attachment_sort_order CHECK (sort_order >= 0)
+);
+
+CREATE INDEX IF NOT EXISTS idx_media_building_id ON media(building_id);
+CREATE INDEX IF NOT EXISTS idx_media_cloudinary_public_id ON media(cloudinary_public_id);
+CREATE INDEX IF NOT EXISTS idx_media_active ON media(active);
+CREATE INDEX IF NOT EXISTS idx_media_attachments_entity ON media_attachments(entity_type, entity_id, active, sort_order);
+CREATE INDEX IF NOT EXISTS idx_media_attachments_media ON media_attachments(media_id);
+
 CREATE TABLE IF NOT EXISTS common_area_availability_blocks (
     id UUID PRIMARY KEY,
     common_area_id UUID NOT NULL
