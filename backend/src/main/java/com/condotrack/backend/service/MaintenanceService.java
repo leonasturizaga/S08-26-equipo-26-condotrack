@@ -214,24 +214,60 @@ public class MaintenanceService {
                 .toList();
     }
 
-    private void validateCreateScope(Authentication authentication, Unit unit) {
-        UUID buildingId = unit.getBuilding().getId();
-        if (permissionService.hasPermission(authentication, "MAINTENANCE_CREATE_OWN", buildingId)) {
-            if (!residentRepository.existsActiveResidentForUserAndUnit(authentication.getName(), unit.getId())) {
-                throw new AccessDeniedException("User can only create maintenance for their own unit");
-            }
-            return;
-        }
-        if (permissionService.hasPermission(authentication, "MAINTENANCE_CREATE", buildingId)
-                || permissionService.hasPermission(authentication, "MAINTENANCE_ASSIGN", buildingId)) {
-            if (hasRole(authentication, "ADMINISTRATOR")) return;
-            if (!staffRepository.existsActiveByUserEmailAndBuildingId(authentication.getName(), buildingId)) {
-                throw new AccessDeniedException("Reception user is not assigned to the selected building");
-            }
-            return;
-        }
-        throw new AccessDeniedException("User is not allowed to create maintenance for the selected building");
+   //  private void validateCreateScope(Authentication authentication, Unit unit) {
+   //      UUID buildingId = unit.getBuilding().getId();
+   //      if (permissionService.hasPermission(authentication, "MAINTENANCE_CREATE_OWN", buildingId)) {
+   //          if (!residentRepository.existsActiveResidentForUserAndUnit(authentication.getName(), unit.getId())) {
+   //              throw new AccessDeniedException("User can only create maintenance for their own unit");
+   //          }
+   //          return;
+   //      }
+   //      if (permissionService.hasPermission(authentication, "MAINTENANCE_CREATE", buildingId)
+   //              || permissionService.hasPermission(authentication, "MAINTENANCE_ASSIGN", buildingId)) {
+   //          if (hasRole(authentication, "ADMINISTRATOR")) return;
+   //          if (!staffRepository.existsActiveByUserEmailAndBuildingId(authentication.getName(), buildingId)) {
+   //              throw new AccessDeniedException("Reception user is not assigned to the selected building");
+   //          }
+   //          return;
+   //      }
+   //      throw new AccessDeniedException("User is not allowed to create maintenance for the selected building");
+   //  }
+private void validateCreateScope(Authentication authentication, Unit unit) {
+    UUID buildingId = unit.getBuilding().getId();
+
+    // Administrators have global maintenance creation access.
+    if (hasRole(authentication, "ADMINISTRATOR")
+            && permissionService.hasPermission(authentication, "MAINTENANCE_CREATE")) {
+        return;
     }
+
+    // Staff with maintenance creation permission can create for their building.
+    if (permissionService.hasPermission(authentication, "MAINTENANCE_CREATE", buildingId)
+            || permissionService.hasPermission(authentication, "MAINTENANCE_ASSIGN", buildingId)) {
+
+        if (!staffRepository.existsActiveByUserEmailAndBuildingId(
+                authentication.getName(), buildingId)) {
+            throw new AccessDeniedException(
+                    "User is not assigned to the selected building");
+        }
+
+        return;
+    }
+
+    // Residents can create only for their own unit.
+    if (permissionService.hasPermission(authentication, "MAINTENANCE_CREATE_OWN", buildingId)) {
+        if (!residentRepository.existsActiveResidentForUserAndUnit(
+                authentication.getName(), unit.getId())) {
+            throw new AccessDeniedException(
+                    "User can only create maintenance for their own unit");
+        }
+        return;
+    }
+
+    throw new AccessDeniedException(
+            "User is not allowed to create maintenance for the selected building");
+}
+
 
     private boolean hasRole(Authentication authentication, String roleCode) {
         return authentication.getAuthorities().stream()
