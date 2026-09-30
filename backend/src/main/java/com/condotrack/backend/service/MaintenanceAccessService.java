@@ -1,4 +1,4 @@
-//----------------------- M17.1 ----------------
+//----------------------- M24.8.1 ----------------
 package com.condotrack.backend.service;
 
 import com.condotrack.backend.repository.MaintenanceRequestRepository;
@@ -56,7 +56,23 @@ public class MaintenanceAccessService {
 
     @Transactional(readOnly = true)
     public boolean canCreate(Authentication authentication, UUID unitId) {
+// System.out.println("=== MAINTENANCE canCreate ===");
+// System.out.println("username = " + authentication.getName());
+// System.out.println("authorities = " + authentication.getAuthorities());
+// System.out.println("unitId = " + unitId);
+// System.out.println("has MAINTENANCE_CREATE = "
+//         + permissionService.hasPermission(authentication, "MAINTENANCE_CREATE"));
+// System.out.println("has MAINTENANCE_CREATE_OWN = "
+//         + permissionService.hasPermission(authentication, "MAINTENANCE_CREATE_OWN"));
+// System.out.println("has ADMINISTRATOR role = "
+//         + hasRole(authentication, "ADMINISTRATOR"));
         if (authentication == null || !authentication.isAuthenticated() || unitId == null) return false;
+
+        // Administrators have global create permission; do not require a staff/building lookup.
+        if (hasRole(authentication, "ADMINISTRATOR")
+                && permissionService.hasPermission(authentication, "MAINTENANCE_CREATE")) {
+            return true;
+        }
         UUID buildingId = maintenanceRepository.findBuildingIdByUnitId(unitId).orElse(null);
         if (buildingId == null) return false;
 

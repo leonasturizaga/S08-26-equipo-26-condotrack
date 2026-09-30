@@ -1,4 +1,4 @@
-//----------------------- milestone 17.1  ----------------
+//----------------------- M24.8.1  ----------------
 package com.condotrack.backend.service;
 
 import com.condotrack.backend.repository.IncidentRepository;
@@ -60,6 +60,12 @@ public class IncidentAccessService {
     @Transactional(readOnly = true)
     public boolean canCreate(Authentication authentication, UUID unitId) {
         if (authentication == null || !authentication.isAuthenticated() || unitId == null) return false;
+
+        // Administrators have global create permission; do not require a staff/building lookup.
+        if (hasRole(authentication, "ADMINISTRATOR")
+                && permissionService.hasPermission(authentication, "INCIDENTS_CREATE")) {
+            return true;
+        }
         UUID buildingId = incidentRepository.findBuildingIdByUnitId(unitId).orElse(null);
         if (buildingId == null) return false;
 
