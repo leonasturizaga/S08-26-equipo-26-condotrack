@@ -760,5 +760,36 @@
 "Unknown carrier": "Unknown carrier",
 "Unable to search units.": "Unable to search units.",
 "Unable to load the unit workspace.": "Unable to load the unit workspace.",
-"UNIT": "UNIT"
+"UNIT": "UNIT",
+
+
+
+
+
+
+  "Media": "Media",
+  "Maintenance media": "Maintenance media",
+  "Maintenance media uploaded successfully.": "Maintenance media uploaded successfully.",
+  "Maintenance media deleted successfully.": "Maintenance media deleted successfully.",
+  "Unable to load maintenance media.": "Unable to load maintenance media.",
+  "Unable to upload maintenance media.": "Unable to upload maintenance media.",
+  "Unable to delete maintenance media.": "Unable to delete maintenance media.",
+  "Attach problem images, solution images and documents to this maintenance request.": "Attach problem images, solution images and documents to this maintenance request.",
+  "Problem images": "Problem images",
+  "Solution images": "Solution images",
+  "Documents": "Documents",
+  "Problem image": "Problem image",
+  "Solution image": "Solution image",
+  "Document": "Document",
+  "Media type": "Media type",
+  "Upload": "Upload",
+  "Open": "Open",
+  "Media file": "Media file",
+  "No media uploaded.": "No media uploaded.",
+  "Loading maintenance media...": "Loading maintenance media...",
+  "Please select a file.": "Please select a file.",
+  "Only PDF documents are allowed.": "Only PDF documents are allowed.",
+  "The document must be 20 MB or smaller.": "The document must be 20 MB or smaller.",
+  "Only JPG, PNG, and WebP images are allowed.": "Only JPG, PNG, and WebP images are allowed.",
+  "The image must be 10 MB or smaller.": "The image must be 10 MB or smaller."
 }
