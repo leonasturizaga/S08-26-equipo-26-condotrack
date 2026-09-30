@@ -4224,3 +4224,120 @@ body {
     max-height: 300px;
   }
 }
+
+/* M24.8 Maintenance media */
+.maintenance-media-panel {
+  margin-top: 1.25rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--border-color, #e5e7eb);
+}
+
+.maintenance-media-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.maintenance-media-heading h3,
+.maintenance-media-section h4 {
+  margin: 0;
+}
+
+.maintenance-media-heading p {
+  margin: .35rem 0 0;
+  color: var(--text-muted, #6b7280);
+  font-size: .9rem;
+}
+
+.maintenance-media-upload-control {
+  display: flex;
+  gap: .5rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.maintenance-media-upload-control select {
+  min-width: 150px;
+}
+
+.maintenance-media-section {
+  margin-top: 1rem;
+}
+
+.maintenance-media-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: .75rem;
+  margin-top: .65rem;
+}
+
+.maintenance-media-item {
+  min-width: 0;
+  border: 1px solid var(--border-color, #e5e7eb);
+  border-radius: 10px;
+  padding: .65rem;
+  background: var(--surface-subtle, #f9fafb);
+}
+
+.maintenance-media-image {
+  display: block;
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 7px;
+  background: #f3f4f6;
+}
+
+.maintenance-media-file-icon {
+  display: grid;
+  place-items: center;
+  height: 150px;
+  border-radius: 7px;
+  background: #f3f4f6;
+  font-weight: 700;
+  letter-spacing: .04em;
+}
+
+.maintenance-media-meta {
+  display: flex;
+  flex-direction: column;
+  gap: .15rem;
+  margin-top: .55rem;
+  min-width: 0;
+}
+
+.maintenance-media-meta strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.maintenance-media-meta span {
+  color: var(--text-muted, #6b7280);
+  font-size: .8rem;
+}
+
+.maintenance-media-actions {
+  display: flex;
+  gap: .4rem;
+  margin-top: .6rem;
+  flex-wrap: wrap;
+}
+
+.maintenance-media-empty {
+  margin-top: .5rem;
+  color: var(--text-muted, #6b7280);
+  font-size: .9rem;
+}
+
+@media (max-width: 760px) {
+  .maintenance-media-heading {
+    flex-direction: column;
+  }
+
+  .maintenance-media-grid {
+    grid-template-columns: 1fr;
+  }
+}

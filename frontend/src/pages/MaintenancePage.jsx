@@ -4,6 +4,7 @@ import { useAuth } from "../auth/AuthContext.jsx";
 import Modal from "../components/Modal.jsx";
 import TableAction from "../components/TableAction.jsx";
 import TableActions from "../components/TableActions.jsx";
+import MaintenanceMediaPanel from "../components/MaintenanceMediaPanel.jsx";
 import {
    createMaintenance,
    getAssignableMaintenanceStaff,
@@ -690,6 +691,12 @@ function MaintenancePage() {
                      </div>
                   )}
 
+                  {canManage && (
+                     <MaintenanceMediaPanel
+                        maintenance={selected}
+                        canManage={canManage}
+                     />
+                  )}
                   {(canManage || canProviderUpdate) &&
                      selected.status !== "CLOSED" &&
                      selected.status !== "CANCELLED" && (
