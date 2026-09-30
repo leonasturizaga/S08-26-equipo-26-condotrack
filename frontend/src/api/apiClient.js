@@ -64,7 +64,15 @@ export async function apiRequest(path, options = {}) {
 
   headers.set('Accept', 'application/json')
 
-  if (body !== undefined && body !== null) {
+  const isFormDataBody =
+    typeof FormData !== 'undefined' &&
+    body instanceof FormData
+
+  if (
+    body !== undefined &&
+    body !== null &&
+    !isFormDataBody
+  ) {
     headers.set('Content-Type', 'application/json')
   }
 
@@ -80,7 +88,9 @@ export async function apiRequest(path, options = {}) {
       headers,
       body:
         body !== undefined && body !== null
-          ? JSON.stringify(body)
+          ? isFormDataBody
+            ? body
+            : JSON.stringify(body)
           : undefined,
     })
   } catch (error) {
