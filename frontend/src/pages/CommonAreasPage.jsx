@@ -1755,6 +1755,7 @@ import {
 } from '../api/commonAreasApi.js'
 import TableAction from '../components/TableAction.jsx'
 import TableActions from '../components/TableActions.jsx'
+import CommonAreaMediaPanel from '../components/CommonAreaMediaPanel.jsx'
 
 const PAGE_SIZE = 100
 
@@ -1861,7 +1862,7 @@ function CommonAreasPage() {
   const [showCreate, setShowCreate] = useState(false)
   const [showEdit, setShowEdit] = useState(false)
   const [showAvailability, setShowAvailability] = useState(false)
-
+  const [showMedia, setShowMedia] = useState(false)
   const [selectedArea, setSelectedArea] = useState(null)
 
   const [form, setForm] = useState(createDefaultForm)
@@ -2308,6 +2309,17 @@ function CommonAreasPage() {
     setBlockForm(createDefaultBlockForm())
   }
 
+  const openMedia = (area) => {
+    setSelectedArea(area)
+    setError('')
+    setSuccessMessage('')
+    setShowMedia(true)
+  }
+
+  const closeMedia = () => {
+    setShowMedia(false)
+    setSelectedArea(null)
+  }
   const openCreateBlock = () => {
     setEditingBlock(null)
     setBlockForm(createDefaultBlockForm())
@@ -2695,6 +2707,15 @@ function CommonAreasPage() {
                         />
 
                         <TableAction
+                          icon="imagePlus"
+                          label={t('Media')}
+                          variant="edit"
+                          onClick={() =>
+                            openMedia(area)
+                          }
+                        />
+
+                        <TableAction
                           icon="trash"
                           label={t('Deactivate')}
                           variant="delete"
@@ -2874,6 +2895,23 @@ function CommonAreasPage() {
         </form>
       </Modal>
 
+      <Modal
+        open={showMedia}
+        title={
+          selectedArea
+            ? `${t('Common Area Media')} — ${selectedArea.name}`
+            : t('Common Area Media')
+        }
+        onClose={closeMedia}
+        size="large"
+      >
+        {selectedArea && (
+          <CommonAreaMediaPanel
+            commonArea={selectedArea}
+            canManage={canManage}
+          />
+        )}
+      </Modal>
       {/* =====================================================
           Availability / Repair Blocks
           ===================================================== */}

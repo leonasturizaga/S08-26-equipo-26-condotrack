@@ -160,3 +160,62 @@ export function deactivateCommonAreaAvailabilityBlock(blockId) {
     },
   )
 }
+
+/* =========================================================
+   Common Area Media
+   M24.7
+   ========================================================= */
+
+export function getCommonAreaMedia(commonAreaId) {
+  return apiRequest(
+    `/api/media/common-areas/${commonAreaId}`,
+    {
+      method: 'GET',
+    },
+  )
+}
+
+function createMediaFormData(file) {
+  const formData = new FormData()
+  formData.append('file', file)
+  return formData
+}
+
+export function uploadCommonAreaPrimary(commonAreaId, file) {
+  return apiRequest(
+    `/api/media/common-areas/${commonAreaId}/primary`,
+    {
+      method: 'POST',
+      body: createMediaFormData(file),
+    },
+  )
+}
+
+export function replaceCommonAreaPrimary(commonAreaId, file) {
+  return apiRequest(
+    `/api/media/common-areas/${commonAreaId}/primary`,
+    {
+      method: 'PUT',
+      body: createMediaFormData(file),
+    },
+  )
+}
+
+export function uploadCommonAreaGallery(commonAreaId, file) {
+  return apiRequest(
+    `/api/media/common-areas/${commonAreaId}/gallery`,
+    {
+      method: 'POST',
+      body: createMediaFormData(file),
+    },
+  )
+}
+
+export function deleteCommonAreaMedia(commonAreaId, mediaId) {
+  return apiRequest(
+    `/api/media/common-areas/${commonAreaId}/${mediaId}`,
+    {
+      method: 'DELETE',
+    },
+  )
+}
