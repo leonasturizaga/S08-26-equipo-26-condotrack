@@ -272,7 +272,7 @@ CREATE TABLE IF NOT EXISTS media_attachments (
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_by UUID,
-    CONSTRAINT ck_media_attachment_entity_type CHECK (entity_type IN ('COMMON_AREA', 'MAINTENANCE')),
+    CONSTRAINT ck_media_attachment_entity_type CHECK (entity_type IN ('COMMON_AREA', 'MAINTENANCE', 'INCIDENT')),
     CONSTRAINT ck_media_attachment_purpose CHECK (purpose IN ('PRIMARY_IMAGE', 'GALLERY_IMAGE', 'PROBLEM_IMAGE', 'SOLUTION_IMAGE', 'DOCUMENT', 'VIDEO')),
     CONSTRAINT ck_media_attachment_sort_order CHECK (sort_order >= 0)
 );
