@@ -691,10 +691,17 @@ function MaintenancePage() {
                      </div>
                   )}
 
-                  {canManage && (
+                  {/* {canManage && (
                      <MaintenanceMediaPanel
                         maintenance={selected}
                         canManage={canManage}
+                     />
+                  )} */}
+                  {(canManage || canProviderUpdate) && (
+                     <MaintenanceMediaPanel
+                        maintenance={selected}
+                        canManage={canManage}
+                        canUpload={canManage || canProviderUpdate}
                      />
                   )}
                   {(canManage || canProviderUpdate) &&
