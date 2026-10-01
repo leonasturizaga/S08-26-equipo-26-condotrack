@@ -43,7 +43,7 @@ public interface IncidentRepository extends JpaRepository<Incident, UUID> {
 
     boolean existsByIdAndReportedByUser_EmailIgnoreCase(UUID id, String email);
 
-    boolean existsByIdAndAssignedToStaff_User_EmailIgnoreCase(UUID id, String email);
+    boolean existsByIdAndAssignedToStaff_User_EmailIgnoreCase(UUID incidentId, String email);
 
     @Query("select i.building.id from Incident i where i.id = :id")
     java.util.Optional<UUID> findBuildingIdById(@Param("id") UUID id);
