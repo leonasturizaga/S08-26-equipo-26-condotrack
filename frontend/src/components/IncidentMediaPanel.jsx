@@ -1,5 +1,7 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+//------------------------- M24.8.5 --------------------------
+import { useCallback, useEffect, useRef, useState } from 'react'
 
+import { useTranslation } from '../i18n/i18n.js'
 import {
   deleteIncidentMedia,
   getIncidentMedia,
@@ -7,97 +9,170 @@ import {
 } from '../api/IncidentMediaApi.js'
 
 const PURPOSES = [
-  { value: 'PROBLEM_IMAGE', label: 'Problem image' },
-  { value: 'SOLUTION_IMAGE', label: 'Solution image' },
-  { value: 'DOCUMENT', label: 'Document / PDF' },
-  { value: 'VIDEO', label: 'Video' },
+  {
+    value: 'PROBLEM_IMAGE',
+    label: 'Problem image',
+  },
+  {
+    value: 'SOLUTION_IMAGE',
+    label: 'Solution image',
+  },
+  {
+    value: 'DOCUMENT',
+    label: 'Document / PDF',
+  },
+  {
+    value: 'VIDEO',
+    label: 'Video',
+  },
 ]
 
-const IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp']
-const VIDEO_TYPES = ['video/mp4', 'video/webm', 'video/quicktime']
+const IMAGE_TYPES = [
+  'image/jpeg',
+  'image/png',
+  'image/webp',
+]
+
+const VIDEO_TYPES = [
+  'video/mp4',
+  'video/webm',
+  'video/quicktime',
+]
 
 function formatBytes(bytes) {
-  if (!bytes) return ''
-  if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+  if (!Number.isFinite(Number(bytes)) || Number(bytes) <= 0) {
+    return ''
+  }
+
+  const value = Number(bytes)
+
+  if (value < 1024 * 1024) {
+    return `${Math.round(value / 1024)} KB`
+  }
+
+  return `${(value / (1024 * 1024)).toFixed(1)} MB`
 }
 
 function isImage(media) {
-  return media?.mediaType === 'IMAGE' || media?.contentType?.startsWith('image/')
+  return (
+    media?.mediaType === 'IMAGE'
+    || media?.contentType?.startsWith('image/')
+  )
 }
 
 function isPdf(media) {
-  return media?.mediaType === 'DOCUMENT' || media?.contentType === 'application/pdf'
+  return (
+    media?.mediaType === 'DOCUMENT'
+    || media?.contentType === 'application/pdf'
+  )
 }
 
-function validateFile(file, purpose) {
-  if (!file) return 'Please select a file.'
+function validateFile(file, purpose, t) {
+  if (!file) {
+    return t('Please select a file.')
+  }
 
   if (purpose === 'DOCUMENT') {
-    if (file.type !== 'application/pdf' || !file.name.toLowerCase().endsWith('.pdf')) {
-      return 'Only PDF documents are allowed.'
+    if (
+      file.type !== 'application/pdf'
+      || !file.name.toLowerCase().endsWith('.pdf')
+    ) {
+      return t('Only PDF documents are allowed.')
     }
+
     if (file.size > 20 * 1024 * 1024) {
-      return 'PDF files must be 20 MB or smaller.'
+      return t('PDF files must be 20 MB or smaller.')
     }
+
     return ''
   }
 
   if (purpose === 'VIDEO') {
     if (!VIDEO_TYPES.includes(file.type)) {
-      return 'Only MP4, WebM or MOV videos are allowed.'
+      return t('Only MP4, WebM or MOV videos are allowed.')
     }
+
     if (file.size > 50 * 1024 * 1024) {
-      return 'Video files must be 50 MB or smaller.'
+      return t('Video files must be 50 MB or smaller.')
     }
+
     return ''
   }
 
   if (!IMAGE_TYPES.includes(file.type)) {
-    return 'Only JPG, PNG or WebP images are allowed.'
+    return t('Only JPG, PNG or WebP images are allowed.')
   }
 
   if (file.size > 10 * 1024 * 1024) {
-    return 'Images must be 10 MB or smaller.'
+    return t('Images must be 10 MB or smaller.')
   }
 
   return ''
 }
 
-function mediaLabel(media) {
-  if (media?.purpose === 'PROBLEM_IMAGE') return 'Problem'
-  if (media?.purpose === 'SOLUTION_IMAGE') return 'Solution'
-  if (media?.purpose === 'DOCUMENT') return 'Document'
-  if (media?.purpose === 'VIDEO') return 'Video'
-  return media?.purpose || 'Media'
+function mediaLabel(media, t) {
+  if (media?.purpose === 'PROBLEM_IMAGE') {
+    return t('Problem')
+  }
+
+  if (media?.purpose === 'SOLUTION_IMAGE') {
+    return t('Solution')
+  }
+
+  if (media?.purpose === 'DOCUMENT') {
+    return t('Document')
+  }
+
+  if (media?.purpose === 'VIDEO') {
+    return t('Video')
+  }
+
+  return media?.purpose || t('Media')
 }
 
-export default function IncidentMediaPanel({
+function IncidentMediaPanel({
   incident,
   canManage = false,
   canUpload = false,
-  t = (value) => value,
 }) {
+  const { t } = useTranslation()
+
   const [media, setMedia] = useState([])
   const [loading, setLoading] = useState(false)
   const [uploading, setUploading] = useState(false)
   const [deletingId, setDeletingId] = useState('')
   const [purpose, setPurpose] = useState('PROBLEM_IMAGE')
-  const [file, setFile] = useState(null)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
 
+  const inputRef = useRef(null)
+
   const loadMedia = useCallback(async () => {
-    if (!incident?.id) return
+    if (!incident?.id) {
+      setMedia([])
+      return
+    }
 
     setLoading(true)
     setError('')
 
     try {
-      const response = await getIncidentMedia(incident.id)
-      setMedia(Array.isArray(response) ? response : [])
+      const response = await getIncidentMedia(
+        incident.id,
+      )
+
+      setMedia(
+        Array.isArray(response)
+          ? response.filter(
+              (item) => item?.active !== false,
+            )
+          : [],
+      )
     } catch (requestError) {
-      setError(requestError.message || t('Unable to load incident media.'))
+      setError(
+        requestError.message
+          || t('Unable to load incident media.'),
+      )
     } finally {
       setLoading(false)
     }
@@ -107,15 +182,35 @@ export default function IncidentMediaPanel({
     loadMedia()
   }, [loadMedia])
 
-  const grouped = useMemo(() => ({
-    problem: media.filter((item) => item.purpose === 'PROBLEM_IMAGE'),
-    solution: media.filter((item) => item.purpose === 'SOLUTION_IMAGE'),
-    documents: media.filter((item) => item.purpose === 'DOCUMENT'),
-    videos: media.filter((item) => item.purpose === 'VIDEO'),
-  }), [media])
+  const grouped = {
+    problem: media.filter(
+      (item) => item.purpose === 'PROBLEM_IMAGE',
+    ),
+    solution: media.filter(
+      (item) => item.purpose === 'SOLUTION_IMAGE',
+    ),
+    documents: media.filter(
+      (item) => item.purpose === 'DOCUMENT',
+    ),
+    videos: media.filter(
+      (item) => item.purpose === 'VIDEO',
+    ),
+  }
 
-  const handleUpload = async () => {
-    const validationError = validateFile(file, purpose)
+  const handleFileSelected = async (event) => {
+    const file = event.target.files?.[0]
+
+    event.target.value = ''
+
+    if (!file) {
+      return
+    }
+
+    const validationError = validateFile(
+      file,
+      purpose,
+      t,
+    )
 
     if (validationError) {
       setError(validationError)
@@ -127,21 +222,35 @@ export default function IncidentMediaPanel({
     setSuccess('')
 
     try {
-      await uploadIncidentMedia(incident.id, purpose, file)
-      setFile(null)
-      const input = document.getElementById('incident-media-file-input')
-      if (input) input.value = ''
+      await uploadIncidentMedia(
+        incident.id,
+        purpose,
+        file,
+      )
+
       await loadMedia()
-      setSuccess(t('Media uploaded successfully.'))
+
+      setSuccess(
+        t('Media uploaded successfully.'),
+      )
     } catch (requestError) {
-      setError(requestError.message || t('Unable to upload media.'))
+      setError(
+        requestError.message
+          || t('Unable to upload media.'),
+      )
     } finally {
       setUploading(false)
     }
   }
 
   const handleDelete = async (mediaId) => {
-    if (!window.confirm(t('Delete this media file?'))) return
+    if (
+      !window.confirm(
+        t('Delete this media file?'),
+      )
+    ) {
+      return
+    }
 
     setDeletingId(mediaId)
     setError('')
@@ -149,68 +258,132 @@ export default function IncidentMediaPanel({
 
     try {
       await deleteIncidentMedia(mediaId)
+
       await loadMedia()
-      setSuccess(t('Media deleted successfully.'))
+
+      setSuccess(
+        t('Media deleted successfully.'),
+      )
     } catch (requestError) {
-      setError(requestError.message || t('Unable to delete media.'))
+      setError(
+        requestError.message
+          || t('Unable to delete media.'),
+      )
     } finally {
       setDeletingId('')
     }
   }
 
-  const renderItem = (item) => (
-    <article key={item.id} className="media-item">
-      <div className="media-item-preview">
-        {isImage(item) ? (
-          <img
-            src={item.secureUrl}
-            alt={item.originalFilename || t('Incident media')}
-            className="media-thumbnail"
-          />
-        ) : isPdf(item) ? (
-          <div className="media-file-icon">PDF</div>
-        ) : (
-          <div className="media-file-icon">FILE</div>
-        )}
-      </div>
+  const openFilePicker = () => {
+    if (uploading) {
+      return
+    }
 
-      <div className="media-item-info">
-        <strong>{item.originalFilename || t('Untitled file')}</strong>
-        <span>{t(mediaLabel(item))}</span>
-        {item.fileSize ? <small>{formatBytes(item.fileSize)}</small> : null}
-      </div>
+    inputRef.current?.click()
+  }
 
-      <div className="media-item-actions">
-        <a
-          className="button button-secondary button-small"
-          href={item.secureUrl}
-          target="_blank"
-          rel="noreferrer"
-        >
-          {isPdf(item) ? t('Open PDF') : t('Open')}
-        </a>
+  const renderItem = (item) => {
+    const image = isImage(item) && item.secureUrl
+    const pdf = isPdf(item)
 
-        {canManage && (
-          <button
-            className="button button-danger button-small"
-            type="button"
-            onClick={() => handleDelete(item.id)}
-            disabled={deletingId === item.id}
-          >
-            {deletingId === item.id ? t('Deleting...') : t('Delete')}
-          </button>
-        )}
-      </div>
-    </article>
-  )
+    return (
+      <article
+        key={item.id}
+        className="compact-media-item"
+      >
+        <div className="compact-media-preview">
+          {image ? (
+            <a
+              href={item.secureUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="compact-media-preview-link"
+              title={t('Open image')}
+            >
+              <img
+                src={item.secureUrl}
+                alt={
+                  item.originalFilename
+                    || t('Incident media')
+                }
+                className="compact-media-thumbnail"
+                loading="lazy"
+              />
+            </a>
+          ) : (
+            <div
+              className={`compact-media-file-icon ${
+                pdf
+                  ? 'compact-media-file-pdf'
+                  : ''
+              }`}
+              aria-hidden="true"
+            >
+              {pdf ? 'PDF' : 'FILE'}
+            </div>
+          )}
+        </div>
+
+        <div className="compact-media-info">
+          <div className="compact-media-name">
+            {item.originalFilename
+              || t('Untitled file')}
+          </div>
+
+          <div className="compact-media-meta">
+            <span className="compact-media-badge">
+              {mediaLabel(item, t)}
+            </span>
+
+            {item.fileSize ? (
+              <span>
+                {formatBytes(item.fileSize)}
+              </span>
+            ) : null}
+          </div>
+        </div>
+
+        <div className="compact-media-actions">
+          {item.secureUrl && (
+            <a
+              className="button button-secondary button-small"
+              href={item.secureUrl}
+              target="_blank"
+              rel="noreferrer"
+            >
+              {pdf ? t('Open PDF') : t('Open')}
+            </a>
+          )}
+
+          {canManage && (
+            <button
+              className="button button-danger button-small"
+              type="button"
+              onClick={() => handleDelete(item.id)}
+              disabled={deletingId === item.id}
+            >
+              {deletingId === item.id
+                ? t('Deleting...')
+                : t('Delete')}
+            </button>
+          )}
+        </div>
+      </article>
+    )
+  }
 
   const renderGroup = (title, items) => (
-    <section className="panel-section" style={{ marginTop: '18px' }}>
-      <p className="form-section-label">{t(title)}</p>
+    <section className="compact-media-group">
+      <div className="compact-media-group-title">
+        {t(title)}
+      </div>
+
       {items.length === 0 ? (
-        <p className="muted">{t('No files uploaded.')}</p>
+        <div className="compact-media-empty">
+          {t('No files uploaded.')}
+        </div>
       ) : (
-        <div className="media-list">
+        <div className="compact-media-list">
           {items.map(renderItem)}
         </div>
       )}
@@ -218,88 +391,117 @@ export default function IncidentMediaPanel({
   )
 
   return (
-    <div className="panel-section" style={{ marginTop: '24px' }}>
-      <p className="form-section-label">{t('Media')}</p>
+    <section className="compact-media-panel">
+      <div className="compact-media-header">
+        <div>
+          <h3>{t('Media')}</h3>
+
+          <p>
+            {t(
+              'Attach images, documents and videos to this incident.',
+            )}
+          </p>
+        </div>
+
+        {canUpload && (
+          <div className="compact-media-upload">
+            <select
+              value={purpose}
+              onChange={(event) =>
+                setPurpose(event.target.value)
+              }
+              disabled={uploading}
+              aria-label={t('Media type')}
+            >
+              {PURPOSES.map((option) => (
+                <option
+                  key={option.value}
+                  value={option.value}
+                >
+                  {t(option.label)}
+                </option>
+              ))}
+            </select>
+
+            <button
+              className="button button-primary button-small"
+              type="button"
+              onClick={openFilePicker}
+              disabled={uploading}
+            >
+              {uploading
+                ? t('Uploading...')
+                : t('Upload')}
+            </button>
+
+            <input
+              ref={inputRef}
+              type="file"
+              hidden
+              accept={
+                purpose === 'DOCUMENT'
+                  ? 'application/pdf,.pdf'
+                  : purpose === 'VIDEO'
+                    ? 'video/mp4,video/webm,video/quicktime,.mp4,.webm,.mov'
+                    : 'image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp'
+              }
+              onChange={handleFileSelected}
+            />
+          </div>
+        )}
+      </div>
 
       {error && (
-        <div className="modal-feedback feedback feedback-error" role="alert">
+        <div
+          className="feedback feedback-error compact-media-feedback"
+          role="alert"
+        >
           {error}
         </div>
       )}
 
       {success && (
-        <div className="modal-feedback feedback feedback-success" role="status">
+        <div
+          className="feedback feedback-success compact-media-feedback"
+          role="status"
+        >
           {success}
         </div>
       )}
 
-      {canUpload && (
-        <div className="media-upload-panel">
-          <div className="form-grid-2">
-            <label className="form-field">
-              <span>{t('Media type')}</span>
-              <select
-                value={purpose}
-                onChange={(event) => setPurpose(event.target.value)}
-                disabled={uploading}
-              >
-                {PURPOSES.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {t(option.label)}
-                  </option>
-                ))}
-              </select>
-            </label>
+      {loading ? (
+        <div className="feedback feedback-info">
+          {t('Loading media...')}
+        </div>
+      ) : media.length === 0 ? (
+        <div className="compact-media-empty compact-media-empty-top">
+          {t('No media has been uploaded for this incident.')}
+        </div>
+      ) : (
+        <div className="compact-media-groups">
+          {renderGroup(
+            'Problem images',
+            grouped.problem,
+          )}
 
-            <label className="form-field">
-              <span>{t('File')}</span>
-              <input
-                id="incident-media-file-input"
-                type="file"
-                accept={
-                  purpose === 'DOCUMENT'
-                    ? 'application/pdf,.pdf'
-                    : purpose === 'VIDEO'
-                      ? 'video/mp4,video/webm,video/quicktime,.mp4,.webm,.mov'
-                      : 'image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp'
-                }
-                onChange={(event) => {
-                  setFile(event.target.files?.[0] || null)
-                  setError('')
-                  setSuccess('')
-                }}
-                disabled={uploading}
-              />
-            </label>
-          </div>
+          {renderGroup(
+            'Solution images',
+            grouped.solution,
+          )}
 
-          <div className="entity-form-actions">
-            <button
-              className="button button-primary"
-              type="button"
-              onClick={handleUpload}
-              disabled={uploading || !file}
-            >
-              {uploading ? t('Uploading...') : t('Upload media')}
-            </button>
-          </div>
+          {renderGroup(
+            'Documents',
+            grouped.documents,
+          )}
+
+          {renderGroup(
+            'Videos',
+            grouped.videos,
+          )}
         </div>
       )}
-
-      {loading ? (
-        <div className="modal-loading-state">{t('Loading media...')}</div>
-      ) : media.length === 0 ? (
-        <p className="muted" style={{ marginTop: '16px' }}>
-          {t('No media has been uploaded for this incident.')}
-        </p>
-      ) : (
-        <>
-          {renderGroup('Problem images', grouped.problem)}
-          {renderGroup('Solution images', grouped.solution)}
-          {renderGroup('Documents', grouped.documents)}
-          {renderGroup('Videos', grouped.videos)}
-        </>
-      )}
-    </div>
+    </section>
   )
 }
+
+export default IncidentMediaPanel
