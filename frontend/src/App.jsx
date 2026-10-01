@@ -26,6 +26,7 @@ import AuditPage from './pages/AuditPage.jsx'
 import BookingsPage from './pages/BookingsPage.jsx'
 import CommonAreasPage from './pages/CommonAreasPage.jsx'
 import ReportsPage from './pages/ReportsPage.jsx'
+import Register from './pages/Register.jsx'
 
 const protectedModules = [
   'buildings',
@@ -54,7 +55,8 @@ function App() {
         <Route path="/" element={<Home />} />
 
         <Route path="/login" element={<Login />} />
-
+          <Route path="/register" element={<Register />} />
+          
         <Route element={<ProtectedRoute />}>
           <Route path="/dashboard" element={<Dashboard />}>
             <Route
