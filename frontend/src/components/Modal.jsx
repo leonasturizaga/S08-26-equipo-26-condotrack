@@ -1,8 +1,8 @@
+//----------------- M24.8.5 ------------------------
 import { useEffect, useId } from 'react'
 import { createPortal } from 'react-dom'
 
 import { useTranslation } from '../i18n/i18n.js'
-import Icon from './Icon.jsx'
 
 function Modal({
   open,
@@ -30,6 +30,7 @@ function Modal({
     }
 
     const previousOverflow = document.body.style.overflow
+
     document.body.style.overflow = 'hidden'
     document.addEventListener('keydown', handleKeyDown)
 
@@ -48,7 +49,10 @@ function Modal({
       className="modal-backdrop"
       role="presentation"
       onMouseDown={(event) => {
-        if (closeOnBackdrop && event.target === event.currentTarget) {
+        if (
+          closeOnBackdrop
+          && event.target === event.currentTarget
+        ) {
           onClose()
         }
       }}
@@ -60,9 +64,16 @@ function Modal({
         aria-labelledby={titleId}
       >
         <header className="modal-header">
-          <div>
-            {eyebrow && <p className="eyebrow">{eyebrow}</p>}
-            <h3 id={titleId}>{title}</h3>
+          <div className="modal-header-content">
+            {eyebrow && (
+              <p className="eyebrow">
+                {eyebrow}
+              </p>
+            )}
+
+            <h3 id={titleId}>
+              {title}
+            </h3>
           </div>
 
           <button

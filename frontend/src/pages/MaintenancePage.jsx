@@ -554,9 +554,11 @@ function MaintenancePage() {
          </Modal>
 
          <Modal
-            open={detailLoading || !!selected}
-            title={t("Maintenance request")}
-            onClose={() => canClose && setSelected(null)}>
+         open={detailLoading || !!selected}
+         title={t("Maintenance request")}
+         onClose={() => canClose && setSelected(null)}
+         size="large"
+         >
             {detailLoading ? (
                <div className="feedback feedback-info">{t("Loading...")}</div>
             ) : detailError && !selected ? (
