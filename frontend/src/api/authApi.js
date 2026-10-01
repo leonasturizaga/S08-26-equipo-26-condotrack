@@ -15,3 +15,10 @@ export function getCurrentUser() {
     method: 'GET',
   })
 }
+
+export function registerUser(payload) {
+  return apiRequest('/api/auth/register', {
+    method: 'POST',
+    body: payload,
+  })
+}
