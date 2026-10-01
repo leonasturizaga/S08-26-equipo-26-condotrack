@@ -1,15 +1,21 @@
 //------------------- milestone 20 ---------------------
 package com.condotrack.backend.service;
 
+import com.condotrack.backend.dto.StaffAssignmentRequest;
+import com.condotrack.backend.dto.StaffAssignmentResponse;
 import com.condotrack.backend.dto.UserCreateRequest;
 import com.condotrack.backend.dto.UserPageResponse;
 import com.condotrack.backend.dto.UserResponse;
 import com.condotrack.backend.dto.UserRolesUpdateRequest;
 import com.condotrack.backend.dto.UserStatusUpdateRequest;
 import com.condotrack.backend.dto.UserUpdateRequest;
+import com.condotrack.backend.model.Building;
 import com.condotrack.backend.model.Role;
+import com.condotrack.backend.model.Staff;
 import com.condotrack.backend.model.User;
+import com.condotrack.backend.repository.BuildingRepository;
 import com.condotrack.backend.repository.RoleRepository;
+import com.condotrack.backend.repository.StaffRepository;
 import com.condotrack.backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -39,6 +45,9 @@ public class UserManagementService {
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuditService auditService;
+private final StaffRepository staffRepository;
+private final BuildingRepository buildingRepository;
+
 
     @Transactional(readOnly = true)
     public UserPageResponse getUsers(int page, int size) {
@@ -131,6 +140,88 @@ public class UserManagementService {
         auditService.record(findEmailById(actingUserId), null, "USER", saved.getId(), "ROLE_CHANGED", java.util.Map.of("roles", saved.getRoles().stream().map(Role::getCode).sorted().toList()));
         return toResponse(saved);
     }
+
+@Transactional
+public StaffAssignmentResponse saveStaffAssignment(
+        UUID userId,
+        StaffAssignmentRequest request,
+        UUID actingUserId
+) {
+    User user = findUser(userId);
+
+    Building building = buildingRepository.findById(request.buildingId())
+            .orElseThrow(() ->
+                    new IllegalArgumentException(
+                            "Building not found: " + request.buildingId()
+                    )
+            );
+
+    if (!building.isActive()) {
+        throw new IllegalArgumentException(
+                "Building is inactive: " + request.buildingId()
+        );
+    }
+
+    Staff staff = staffRepository
+            .findFirstByUser_IdOrderByActiveDescCreatedAtDesc(userId)
+            .orElseGet(Staff::new);
+
+    boolean creating = staff.getId() == null;
+
+    staff.setUser(user);
+    staff.setBuilding(building);
+    staff.setStaffType(request.staffType());
+    staff.setEmployeeCode(
+            request.employeeCode() == null
+                    ? null
+                    : request.employeeCode().trim().isEmpty()
+                        ? null
+                        : request.employeeCode().trim()
+    );
+    staff.setActive(
+            request.active() == null
+                    || request.active()
+    );
+
+    if (creating) {
+        staff.setUpdatedBy(actingUserId);
+    } else {
+        staff.setUpdatedBy(actingUserId);
+    }
+
+    Staff saved = staffRepository.save(staff);
+
+    auditService.record(
+            findEmailById(actingUserId),
+            building,
+            "STAFF",
+            saved.getId(),
+            creating ? "CREATED" : "UPDATED",
+            null,
+            saved.getStaffType().name(),
+            null,
+            java.util.Map.of(
+                    "userId", userId.toString(),
+                    "buildingId", building.getId().toString(),
+                    "staffType", saved.getStaffType().name(),
+                    "active", saved.isActive()
+            )
+    );
+
+    return new StaffAssignmentResponse(
+            saved.getId(),
+            saved.getUser().getId(),
+            saved.getBuilding().getId(),
+            saved.getBuilding().getCode(),
+            saved.getStaffType(),
+            saved.getEmployeeCode(),
+            saved.isActive()
+    );
+}
+
+
+
+
 
     @Transactional
     public UserResponse updateStatus(

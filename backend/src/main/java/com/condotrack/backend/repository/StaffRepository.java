@@ -57,4 +57,9 @@ public interface StaffRepository extends JpaRepository<Staff, UUID> {
             @Param("email") String email,
             @Param("staffId") UUID staffId
     );
+ 
+
+    Optional<Staff> findFirstByUser_IdOrderByActiveDescCreatedAtDesc(
+            UUID userId
+    );
 }
