@@ -1,11 +1,12 @@
 # S08-26-Equipo 26
 
-  <img src="./frontend/src/assets/TestimonialCMSicon.jpg" width="30" class="mx-auto rounded-2xl shadow-2xl" alt="" />
-![Image1]
 
-  <img src="image.png" width="400" class="mx-auto rounded-2xl shadow-2xl" alt="" /> 
-  <img src="image-1.png" width="200" class="mx-auto rounded-2xl shadow-2xl" alt="" />  
-  <img src="image-2.png" width="200" class="mx-auto rounded-2xl shadow-2xl" alt="" />
+
+  <img src="frontend/public/image.png" width="600" class="mx-auto rounded-2xl shadow-2xl" alt="" />
+
+  <img src="frontend/public/image-1.png" width="200" class="mx-auto rounded-2xl shadow-2xl" alt="" />  
+  <img src="frontend/public/image-2.png" width="200" class="mx-auto rounded-2xl shadow-2xl" alt="" />
+  <img src="frontend/public/image-3.png" width="200" class="mx-auto rounded-2xl shadow-2xl" alt="" />
 
 
 # CondoTrack
