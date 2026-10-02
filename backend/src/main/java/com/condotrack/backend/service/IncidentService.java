@@ -44,48 +44,78 @@ public class IncidentService {
     private final PermissionService permissionService;
     private final AuditService auditService;
 
-    @Transactional(readOnly = true)
-    public IncidentPageResponse getIncidents(Authentication authentication, int page, int size) {
-        Pageable pageable = createPageable(page, size);
-        Page<IncidentResponse> incidents;
+@Transactional(readOnly = true)
+public IncidentPageResponse getIncidents(Authentication authentication, int page, int size) {
+    Pageable pageable = createPageable(page, size);
+    Page<IncidentResponse> incidents;
 
-        if (permissionService.hasPermission(authentication, "INCIDENTS_VIEW")) {
-            List<UUID> staffBuildingIds = staffRepository.findActiveByUserEmailIgnoreCase(authentication.getName()).stream()
-                    .map(staff -> staff.getBuilding().getId())
-                    .distinct()
-                    .filter(buildingId -> permissionService.hasPermission(authentication, "INCIDENTS_VIEW", buildingId))
-                    .toList();
+    boolean administrator = authentication.getAuthorities().stream()
+            .anyMatch(authority -> "ROLE_ADMINISTRATOR".equals(authority.getAuthority()));
 
-            boolean administrator = authentication.getAuthorities().stream()
-                    .anyMatch(authority -> "ROLE_ADMINISTRATOR".equals(authority.getAuthority()));
 
-            if (administrator || staffBuildingIds.isEmpty()) {
-                incidents = incidentRepository.findAllByOrderByCreatedAtDesc(pageable).map(this::toResponse);
-            } else {
-                incidents = incidentRepository.findByBuilding_IdInOrderByCreatedAtDesc(staffBuildingIds, pageable).map(this::toResponse);
-            }
-        } else if (permissionService.hasPermission(authentication, "INCIDENTS_VIEW_ASSIGNED")) {
-            incidents = incidentRepository
-                    .findByAssignedToStaff_User_EmailIgnoreCaseOrderByCreatedAtDesc(
-                            authentication.getName(), pageable
-                    )
-                    .map(this::toResponse);
-        } else if (permissionService.hasPermission(authentication, "INCIDENTS_VIEW_OWN")) {
-            incidents = incidentRepository
-                    .findByReportedByUser_EmailIgnoreCaseOrderByCreatedAtDesc(
-                            authentication.getName(), pageable
-                    )
-                    .map(this::toResponse);
-        } else if (permissionService.hasPermission(authentication, "INCIDENTS_VIEW_UNIT")) {
-            incidents = incidentRepository
-                    .findForOwnedUnits(authentication.getName(), pageable)
-                    .map(this::toResponse);
+            
+    // Administrator: all incidents
+    if (administrator && permissionService.hasPermission(authentication, "INCIDENTS_VIEW")) {
+        incidents = incidentRepository
+                .findAllByOrderByCreatedAtDesc(pageable)
+                .map(this::toResponse);
+
+    // Provider / assigned staff: only incidents assigned to the authenticated user
+    } else if (permissionService.hasPermission(authentication, "INCIDENTS_VIEW_ASSIGNED")) {
+        incidents = incidentRepository
+                .findByAssignedToStaff_User_EmailIgnoreCaseOrderByCreatedAtDesc(
+                        authentication.getName(),
+                        pageable
+                )
+                .map(this::toResponse);
+
+    // Building-level users: incidents in their permitted buildings
+    } else if (permissionService.hasPermission(authentication, "INCIDENTS_VIEW")) {
+        List<UUID> staffBuildingIds = staffRepository
+                .findActiveByUserEmailIgnoreCase(authentication.getName()).stream()
+                .map(staff -> staff.getBuilding().getId())
+                .distinct()
+                .filter(buildingId ->
+                        permissionService.hasPermission(
+                                authentication,
+                                "INCIDENTS_VIEW",
+                                buildingId
+                        ))
+                .toList();
+
+        if (staffBuildingIds.isEmpty()) {
+            incidents = Page.empty(pageable);
         } else {
-            throw new IllegalStateException("User is not allowed to view incidents");
+            incidents = incidentRepository
+                    .findByBuilding_IdInOrderByCreatedAtDesc(
+                            staffBuildingIds,
+                            pageable
+                    )
+                    .map(this::toResponse);
         }
 
-        return IncidentPageResponse.from(incidents);
+    } else if (permissionService.hasPermission(authentication, "INCIDENTS_VIEW_OWN")) {
+        incidents = incidentRepository
+                .findByReportedByUser_EmailIgnoreCaseOrderByCreatedAtDesc(
+                        authentication.getName(),
+                        pageable
+                )
+                .map(this::toResponse);
+
+    } else if (permissionService.hasPermission(authentication, "INCIDENTS_VIEW_UNIT")) {
+        incidents = incidentRepository
+                .findForOwnedUnits(
+                        authentication.getName(),
+                        pageable
+                )
+                .map(this::toResponse);
+
+    } else {
+        throw new IllegalStateException("User is not allowed to view incidents");
     }
+
+    return IncidentPageResponse.from(incidents);
+}
 
     @Transactional(readOnly = true)
     public IncidentResponse getIncident(UUID incidentId) {
