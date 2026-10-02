@@ -21,4 +21,5 @@ COPY --from=build /app/target/*.jar app.jar
 EXPOSE 8080
 
 # Force Spring Boot to use $PORT and bind to all interfaces
-ENTRYPOINT ["sh", "-c", "java -jar app.jar --server.port=${PORT:-8080} --server.address=0.0.0.0"]
+# ENTRYPOINT ["sh", "-c", "java -jar app.jar --server.port=${PORT:-8080} --server.address=0.0.0.0"]
+ENTRYPOINT ["sh", "-c", "java -Xmx350m -Dserver.port=${SERVER_PORT:-8080} -Dserver.address=0.0.0.0 -jar app.jar"]
