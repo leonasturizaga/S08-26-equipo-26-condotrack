@@ -1,13 +1,11 @@
 # S08-26-Equipo 26
 
-
-
-  <img src="frontend/public/image.png" width="600" class="mx-auto rounded-2xl shadow-2xl" alt="" />
-
+<p>
+  <img src="frontend/public/image.png" width="600" class="mx-auto rounded-2xl shadow-2xl" alt="" /></br>
   <img src="frontend/public/image-1.png" width="200" class="mx-auto rounded-2xl shadow-2xl" alt="" />  
   <img src="frontend/public/image-2.png" width="200" class="mx-auto rounded-2xl shadow-2xl" alt="" />
   <img src="frontend/public/image-3.png" width="200" class="mx-auto rounded-2xl shadow-2xl" alt="" />
-
+</p>
 
 # CondoTrack
 <p>
